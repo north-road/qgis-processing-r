@@ -32,7 +32,6 @@ import os
 import json
 
 from qgis.core import (QgsApplication,
-                       QgsProcessingUtils,
                        QgsMessageLog)
 
 from processing.core.GeoAlgorithm import GeoAlgorithm
@@ -59,7 +58,7 @@ from processing.core.outputs import getOutputFromString
 from processing.tools import dataobjects
 from processing.tools.system import isWindows
 from processing.script.WrongScriptException import WrongScriptException
-from .RUtils import RUtils
+from r.RUtils import RUtils
 
 pluginPath = os.path.normpath(os.path.join(
     os.path.split(os.path.dirname(__file__))[0], os.pardir))

@@ -31,7 +31,6 @@ import os
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsApplication,
                        QgsProcessingProvider,
-                       QgsProcessingUtils,
                        QgsMessageLog)
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from processing.gui.EditScriptAction import EditScriptAction
@@ -43,8 +42,8 @@ from processing.gui.ProviderActions import (ProviderActions,
                                             ProviderContextMenuActions)
 from processing.tools.system import isWindows
 
-from .RUtils import RUtils
-from .RAlgorithm import RAlgorithm
+from r.RUtils import RUtils
+from r.RAlgorithm import RAlgorithm
 
 pluginPath = os.path.normpath(os.path.join(
     os.path.split(os.path.dirname(__file__))[0], os.pardir))
