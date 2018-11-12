@@ -2,7 +2,7 @@
 
 """
 ***************************************************************************
-    RAlgorithmProvider.py
+    provider.py
     ---------------------
     Date                 : August 2012
     Copyright            : (C) 2012 by Victor Olaya
@@ -42,8 +42,8 @@ from processing.gui.ProviderActions import (ProviderActions,
                                             ProviderContextMenuActions)
 from processing.tools.system import isWindows
 
-from r.RUtils import RUtils
-from r.RAlgorithm import RAlgorithm
+from r.processing.utils import RUtils
+from r.processing.algorithm import RAlgorithm
 
 pluginPath = os.path.normpath(os.path.join(
     os.path.split(os.path.dirname(__file__))[0], os.pardir))

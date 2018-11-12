@@ -2,7 +2,7 @@
 
 """
 ***************************************************************************
-    RAlgorithm.py
+    algorithm.py
     ---------------------
     Date                 : August 2012
     Copyright            : (C) 2012 by Victor Olaya
@@ -58,7 +58,7 @@ from processing.core.outputs import getOutputFromString
 from processing.tools import dataobjects
 from processing.tools.system import isWindows
 from processing.script.WrongScriptException import WrongScriptException
-from r.RUtils import RUtils
+from r.processing.utils import RUtils
 
 pluginPath = os.path.normpath(os.path.join(
     os.path.split(os.path.dirname(__file__))[0], os.pardir))
