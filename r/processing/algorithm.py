@@ -220,7 +220,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.pass_file_names = True
             return
 
-        value, type_= self.split_tokens(line)
+        value, type_ = self.split_tokens(line)
         if type_.lower().strip() == 'group':
             self._group = value
             return
@@ -243,7 +243,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Processes a single script line representing a parameter
         """
-        value, type_ = self.split_tokens(line)
+        value, _ = self.split_tokens(line)
         description = RUtils.create_descriptive_name(value)
 
         output = create_output_from_string(line)
@@ -285,10 +285,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     self.tr('R folder is not configured.\nPlease configure it '
                             'before running R scripts.'))
 
-        loglines = []
-        loglines.append(self.tr('R execution commands'))
-        loglines += self.build_r_script(parameters, context, feedback)
-        for line in loglines:
+        feedback.pushInfo(self.tr('R execution commands'))
+        script_lines = self.build_r_script(parameters, context, feedback)
+        for line in script_lines:
             feedback.pushCommandInfo(line)
 
         RUtils.execute_r_algorithm(self, parameters, context, feedback)
