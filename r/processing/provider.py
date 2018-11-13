@@ -66,14 +66,14 @@ class RAlgorithmProvider(QgsProcessingProvider):
         ProcessingConfig.addSetting(Setting(self.name(), RUtils.R_USE_USER_LIB,
                                             self.tr('Use user library folder instead of system libraries'), True))
         ProcessingConfig.addSetting(Setting(
-                    self.name(),
-                    RUtils.R_LIBS_USER, self.tr('User library folder'),
-                    RUtils.r_library_folder(), valuetype=Setting.FOLDER))
+            self.name(),
+            RUtils.R_LIBS_USER, self.tr('User library folder'),
+            RUtils.r_library_folder(), valuetype=Setting.FOLDER))
 
         ProcessingConfig.addSetting(Setting(
-                    self.name(),
-                    RUtils.R_REPO, self.tr('Package repository'),
-                    "http://cran.at.r-project.org/", valuetype=Setting.STRING))
+            self.name(),
+            RUtils.R_REPO, self.tr('Package repository'),
+            "http://cran.at.r-project.org/", valuetype=Setting.STRING))
 
         # if isWindows():
         #    ProcessingConfig.addSetting(Setting(#

@@ -40,8 +40,8 @@ from qgis.core import (QgsProcessing,
 from qgis.PyQt.QtCore import QCoreApplication
 # from processing.gui.Help2Html import getHtmlFromHelpFile
 from processing.core.parameters import getParameterFromString
-from r.processing.outputs import create_output_from_string
 from processing.tools.system import isWindows
+from r.processing.outputs import create_output_from_string
 from r.processing.utils import RUtils
 from r.gui.gui_utils import GuiUtils
 
@@ -82,9 +82,9 @@ class RAlgorithm(QgsProcessingAlgorithm):
     def createInstance(self):
         if self.description_file is not None:
             return RAlgorithm(self.description_file)
-        else:
-            return RAlgorithm(description_file=None, script=self.script)
 
+        return RAlgorithm(description_file=None, script=self.script)
+comm
     def initAlgorithm(self, config=None):
         pass
 
@@ -149,7 +149,9 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 self.commands.append(line[1:])
                 self.verbose_commands.append(line[1:])
                 if not self.show_console_output:
-                    self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output'), self.tr('HTML files (*.html)'), optional=True))
+                    self.addParameter(
+                        QgsProcessingParameterFileDestination(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output'),
+                                                              self.tr('HTML files (*.html)'), optional=True))
                 self.show_console_output = True
             else:
                 if line == '':
@@ -160,7 +162,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
             self.script += line + '\n'
             try:
                 line = next(lines).strip('\n').strip('\r')
-            except:
+            except StopIteration:
                 break
 
     def getVerboseCommands(self):
@@ -176,7 +178,8 @@ class RAlgorithm(QgsProcessingAlgorithm):
         # special commands
         if line.lower().strip().startswith('showplots'):
             self.show_plots = True
-            self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.RPLOTS, self.tr('R Plots'), self.tr('HTML files (*.html)'), optional=True))
+            self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.RPLOTS, self.tr('R Plots'),
+                                                                    self.tr('HTML files (*.html)'), optional=True))
             return
         if line.lower().strip().startswith('dontuserasterpackage'):
             self.use_raster_package = False
@@ -262,7 +265,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
 
         return commands
 
-    def build_export_commands(self, parameters, context, feedback):
+    def build_export_commands(self, parameters, context, _):
         """
         Builds up the set of R commands for exporting results
         """
@@ -296,7 +299,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
 
         return commands
 
-    def build_import_commands(self, parameters, context, feedback):
+    def build_import_commands(self, parameters, context, _):
         """
         Builds the set of input commands for the algorithm
         """
@@ -309,7 +312,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         if RUtils.use_user_libary():
             commands.append('.libPaths(\"' + str(RUtils.r_library_folder()).replace('\\', '/') + '\")')
 
-        packages = RUtils.getRequiredPackages(self.script)
+        packages = RUtils.get_required_packages(self.script)
         packages.extend(['rgdal', 'raster'])
         for p in packages:
             commands.append('tryCatch(find.package("' + p +
@@ -332,9 +335,10 @@ class RAlgorithm(QgsProcessingAlgorithm):
                     commands.append(param.name() + '= NULL')
                 else:
                     if rl.dataProvider().name() != 'gdal':
-                        raise QgsProcessingException(self.tr(
-                            "Layer {} is not a GDAL layer. Currently only GDAL based raster layers are supported.").format(
-                            param.name()))
+                        raise QgsProcessingException(
+                            self.tr(
+                                "Layer {} is not a GDAL layer. Currently only GDAL based raster layers are supported."
+                            ).format(param.name()))
 
                     path = QgsProviderRegistry.instance().decodeUri(rl.dataProvider().name(), rl.source())['path']
                     value = path.replace('\\', '/')

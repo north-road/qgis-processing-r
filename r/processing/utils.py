@@ -16,17 +16,6 @@
 *                                                                         *
 ***************************************************************************
 """
-from builtins import str
-from builtins import object
-
-__author__ = 'Victor Olaya'
-__date__ = 'August 2012'
-__copyright__ = '(C) 2012, Victor Olaya'
-
-# This will get replaced with a git SHA1 when you do a git archive
-
-__revision__ = '$Format:%H$'
-
 import re
 import os
 import stat
@@ -40,6 +29,9 @@ from processing.tools.system import userFolder, isWindows, mkdir
 
 
 class RUtils(object):
+    """
+    Utilities for the R Provider and Algorithm
+    """
 
     RSCRIPTS_FOLDER = 'R_SCRIPTS_FOLDER'
     R_FOLDER = 'R_FOLDER'
@@ -267,10 +259,7 @@ class RUtils(object):
                     line = line.strip().strip(' ')
                     if line.startswith('>'):
                         line = line[1:].strip(' ')
-                        if line in RUtils.verboseCommands:
-                            add = True
-                        else:
-                            add = False
+                        add = line in RUtils.verboseCommands
                     elif add:
                         RUtils.consoleResults.append('<p>' + line + '</p>\n')
                     RUtils.allConsoleResults.append(line)
@@ -330,8 +319,11 @@ class RUtils(object):
         return html
 
     @staticmethod
-    def getRequiredPackages(code):
-        regex = re.compile('[^#]library\("?(.*?)"?\)')
+    def get_required_packages(code):
+        """
+        Returns a list of the required packages
+        """
+        regex = re.compile(r'[^#]library\("?(.*?)"?\)')
         return regex.findall(code)
 
     @staticmethod
