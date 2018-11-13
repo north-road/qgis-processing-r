@@ -146,8 +146,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         Load the algorithm from a file
         """
         filename = os.path.basename(self.description_file)
-        self._name = filename[:filename.rfind('.')].replace('_', ' ')
         self._display_name = self._name
+        self._name = filename[:filename.rfind('.')]
+        self._display_name = self._name.replace('_', ' ')
         self._group = self.tr('User R scripts')
         with open(self.description_file, 'r') as f:
             lines = [line.strip() for line in f]
