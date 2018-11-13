@@ -59,15 +59,22 @@ class RAlgorithmProvider(QgsProcessingProvider):
             self.name(), RUtils.RSCRIPTS_FOLDER,
             self.tr('R scripts folder'), RUtils.default_scripts_folder(),
             valuetype=Setting.MULTIPLE_FOLDERS))
+
+        ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_R',
+                                            self.tr('Activate'), False))
+
+        ProcessingConfig.addSetting(Setting(self.name(), RUtils.R_USE_USER_LIB,
+                                            self.tr('Use user library folder instead of system libraries'), True))
+        ProcessingConfig.addSetting(Setting(
+                    self.name(),
+                    RUtils.R_LIBS_USER, self.tr('User library folder'),
+                    RUtils.r_library_folder(), valuetype=Setting.FOLDER))
+
         # if isWindows():
         #    ProcessingConfig.addSetting(Setting(#
         #        self.name(),
         #        RUtils.R_FOLDER, self.tr('R folder'), RUtils.RFolder(),
         #        valuetype=Setting.FOLDER))
-        #    ProcessingConfig.addSetting(Setting(
-        #        self.name(),
-        #        RUtils.R_LIBS_USER, self.tr('R user library folder'),
-        #        RUtils.RLibs(), valuetype=Setting.FOLDER))
         #    ProcessingConfig.addSetting(Setting(
         #        self.name(),
         #        RUtils.R_USE64, self.tr('Use 64 bit version'), False))
@@ -80,9 +87,10 @@ class RAlgorithmProvider(QgsProcessingProvider):
     def unload(self):
         ProcessingConfig.removeSetting('ACTIVATE_R')
         ProcessingConfig.removeSetting(RUtils.RSCRIPTS_FOLDER)
+        ProcessingConfig.removeSetting(RUtils.R_LIBS_USER)
         # if isWindows():
         #     ProcessingConfig.removeSetting(RUtils.R_FOLDER)
-        #     ProcessingConfig.removeSetting(RUtils.R_LIBS_USER)
+        #
         #     ProcessingConfig.removeSetting(RUtils.R_USE64)
         ProviderActions.deregisterProviderActions(self)
         ProviderContextMenuActions.deregisterProviderContextMenuActions(self.contextMenuActions)
@@ -100,10 +108,10 @@ class RAlgorithmProvider(QgsProcessingProvider):
         return GuiUtils.get_icon_svg("providerR.svg")
 
     def name(self):
-        return self.tr('R scripts')
+        return self.tr('R')
 
     def longName(self):
-        return self.tr('R scripts')
+        return self.tr('R')
 
     def id(self):
         return 'r'

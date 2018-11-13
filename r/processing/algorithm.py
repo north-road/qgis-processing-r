@@ -306,7 +306,8 @@ class RAlgorithm(QgsProcessingAlgorithm):
         commands.append('options("repos"="http://cran.at.r-project.org/")')
 
         # Try to install packages if needed
-        commands.append('.libPaths(\"' + str(RUtils.RLibs()).replace('\\', '/') + '\")')
+        if RUtils.use_user_libary():
+            commands.append('.libPaths(\"' + str(RUtils.r_library_folder()).replace('\\', '/') + '\")')
 
         packages = RUtils.getRequiredPackages(self.script)
         packages.extend(['rgdal', 'raster'])

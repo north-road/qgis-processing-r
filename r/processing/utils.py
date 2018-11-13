@@ -40,10 +40,12 @@ from processing.tools.system import userFolder, isWindows, mkdir
 
 
 class RUtils(object):
+
     RSCRIPTS_FOLDER = 'R_SCRIPTS_FOLDER'
     R_FOLDER = 'R_FOLDER'
     R_USE64 = 'R_USE64'
     R_LIBS_USER = 'R_LIBS_USER'
+    R_USE_USER_LIB = 'R_USE_USER_LIB'
 
     VALID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
@@ -86,7 +88,17 @@ class RUtils(object):
         return os.path.abspath(str(folder))
 
     @staticmethod
-    def RLibs():
+    def use_user_libary():
+        """
+        Returns True if user library folder should be used instead of system folder
+        """
+        return ProcessingConfig.getSetting(RUtils.R_USE_USER_LIB)
+
+    @staticmethod
+    def r_library_folder():
+        """
+        Returns the user R library folder
+        """
         folder = ProcessingConfig.getSetting(RUtils.R_LIBS_USER)
         if folder is None:
             folder = str(os.path.join(userFolder(), 'rlibs'))
@@ -156,6 +168,22 @@ class RUtils(object):
         return RUtils.getRScriptFilename() + '.Rout'
 
     @staticmethod
+    def is_error_line(line):
+        """
+        Returns True if the given line looks like an error message
+        """
+        return any([l in line for l in ['Error ', 'Execution halted']])
+
+    @staticmethod
+    def getWindowsCodePage():
+        """
+        Determines MS-Windows CMD.exe shell codepage.
+        Used into GRASS exec script under MS-Windows.
+        """
+        from ctypes import cdll
+        return str(cdll.kernel32.GetACP())
+
+    @staticmethod
     def execute_r_algorithm(alg, parameters, context, feedback):
         """
         Runs a prepared algorithm in R
@@ -188,22 +216,37 @@ class RUtils(object):
 
         feedback.pushInfo(RUtils.tr('R execution console output'))
 
+        # For MS-Windows, we need to hide the console window.
+        si = None
+        if isWindows():
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+
         with subprocess.Popen(
             command,
             shell=True,
             stdout=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
-            universal_newlines=True,
+            encoding="cp{}".format(RUtils.getWindowsCodePage()) if isWindows() else None,
+            startupinfo=si if isWindows() else None,
+            universal_newlines=True
         ) as proc:
-            for line in proc.stdout:
-                feedback.pushConsoleInfo(line)
+            for line in iter(proc.stdout.readline, ''):
+                if RUtils.is_error_line(line):
+                    feedback.reportError(line)
+                else:
+                    feedback.pushConsoleInfo(line)
 
         RUtils.createConsoleOutput()
 
         loglines = RUtils.allConsoleResults
         for line in loglines:
-            feedback.pushConsoleInfo(line)
+            if RUtils.is_error_line(line):
+                feedback.reportError(line)
+            else:
+                feedback.pushConsoleInfo(line)
 
     @staticmethod
     def createConsoleOutput():
