@@ -16,6 +16,7 @@ __revision__ = '$Format:%H$'
 
 import unittest
 import os
+from qgis.core import QgsProcessingParameterNumber
 from r.processing.algorithm import RAlgorithm
 from .utilities import get_qgis_app
 
@@ -29,7 +30,7 @@ test_data_path = os.path.join(
 class AlgorithmTest(unittest.TestCase):
     """Test algorithm construction."""
 
-    def testScriptParsing(self):
+    def testScriptParsing(self):  # pylint: disable=too-many-locals
         """
         Test script file parsing
         """
@@ -52,6 +53,38 @@ class AlgorithmTest(unittest.TestCase):
         self.assertFalse(alg.show_plots)
         self.assertTrue(alg.use_raster_package)
         self.assertFalse(alg.pass_file_names)
+
+        # test that inputs were created correctly
+        raster_param = alg.parameterDefinition('in_raster')
+        self.assertEqual(raster_param.type(), 'raster')
+        vector_param = alg.parameterDefinition('in_vector')
+        self.assertEqual(vector_param.type(), 'vector')
+        field_param = alg.parameterDefinition('in_field')
+        self.assertEqual(field_param.type(), 'field')
+        self.assertEqual(field_param.parentLayerParameterName(), 'in_vector')
+        extent_param = alg.parameterDefinition('in_extent')
+        self.assertEqual(extent_param.type(), 'extent')
+        string_param = alg.parameterDefinition('in_string')
+        self.assertEqual(string_param.type(), 'string')
+        file_param = alg.parameterDefinition('in_file')
+        self.assertEqual(file_param.type(), 'file')
+        number_param = alg.parameterDefinition('in_number')
+        self.assertEqual(number_param.type(), 'number')
+        self.assertEqual(number_param.dataType(), QgsProcessingParameterNumber.Double)
+        enum_param = alg.parameterDefinition('in_enum')
+        self.assertEqual(enum_param.type(), 'enum')
+        bool_param = alg.parameterDefinition('in_bool')
+        self.assertEqual(bool_param.type(), 'boolean')
+
+        # outputs
+        vector_output = alg.outputDefinition('out_vector')
+        self.assertEqual(vector_output.type(), 'outputVector')
+        raster_output = alg.outputDefinition('out_raster')
+        self.assertEqual(raster_output.type(), 'outputRaster')
+        number_output = alg.outputDefinition('out_number')
+        self.assertEqual(number_output.type(), 'outputNumber')
+        string_output = alg.outputDefinition('out_string')
+        self.assertEqual(string_output.type(), 'outputString')
 
     def testBadAlgorithm(self):
         """

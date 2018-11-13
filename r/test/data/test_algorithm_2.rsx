@@ -1,23 +1,22 @@
 ##my test=name
 ##my group=group
-##polyg=vector
-##polyg_category_id=field polyg
-##table_category_id=field sizes_table
-##sampling_size=field sizes_table
-##output=output vector
+
+##in_raster=raster
+##in_vector=vector
+##in_field=field in_vector
+##in_extent=extent
+##in_crs=crs
+##in_string=string
+##in_file=file
+##in_number=number
+##in_enum=enum
+##in_bool=boolean
+
+##out_vector=output vector
+##out_raster=output raster
+##out_number=output number
+##out_string=output string
+
 library(sp)
 i <- 1
-category <- unique(polyg[[polyg_category_id]])[i]
-categorymap <- polyg[polyg[[polyg_category_id]] == category,]
-n <- sizes_table[which(sizes_table[[table_category_id]] == category), sampling_size]
-spdf1 <- SpatialPointsDataFrame(spsample(categorymap, n, "random"), data = data.frame(category = rep(category, n)))
 
-for (i in 2:length(unique(polyg[[polyg_category_id]]))){
-  category <- unique(polyg[[polyg_category_id]])[i]
-  categorymap <- polyg[polyg[[polyg_category_id]] == category,]
-  n <- sizes_table[which(sizes_table[[table_category_id]] == category), sampling_size]
-  spdf1 <- rbind(spdf1, SpatialPointsDataFrame(spsample(categorymap, n, "random"),
-                                               data = data.frame(category = rep(category, n)))
-  )
-}
-output = spdf1
