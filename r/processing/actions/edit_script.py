@@ -31,7 +31,6 @@ from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QMessageBox
 from processing.gui.ContextAction import ContextAction
 from processing.script.ScriptEditorDialog import ScriptEditorDialog
-from processing.script import ScriptUtils
 
 
 class EditScriptAction(ContextAction):
@@ -53,7 +52,7 @@ class EditScriptAction(ContextAction):
         """
         Called whenever the action is triggered
         """
-        file_path = ScriptUtils.findAlgorithmSource(self.itemData.__class__.__name__)
+        file_path = self.itemData.description_file
         if file_path is not None:
             dlg = ScriptEditorDialog(file_path, iface.mainWindow())
             dlg.show()

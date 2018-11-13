@@ -90,18 +90,24 @@ class RUtils(object):
         return os.path.abspath(str(folder))
 
     @staticmethod
-    def defaultRScriptsFolder():
-        folder = str(os.path.join(userFolder(), 'rscripts'))
+    def default_scripts_folder():
+        """
+        Returns the default path to look for scripts within
+        """
+        folder = os.path.join(userFolder(), 'rscripts')
         mkdir(folder)
         return os.path.abspath(folder)
 
     @staticmethod
-    def RScriptsFolders():
+    def script_folders():
+        """
+        Returns a list of folders to search for scripts within
+        """
         folder = ProcessingConfig.getSetting(RUtils.RSCRIPTS_FOLDER)
         if folder is not None:
             return folder.split(';')
         else:
-            return [RUtils.defaultRScriptsFolder()]
+            return [RUtils.default_scripts_folder()]
 
     @staticmethod
     def createRScriptFromRCommands(commands):

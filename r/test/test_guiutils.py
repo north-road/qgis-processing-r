@@ -39,7 +39,7 @@ class GuiUtilsTest(unittest.TestCase):
         self.assertTrue(
             GuiUtils.get_icon_svg('providerR.svg'))
         self.assertIn('providerR.svg',
-            GuiUtils.get_icon_svg('providerR.svg'))
+                      GuiUtils.get_icon_svg('providerR.svg'))
         self.assertFalse(GuiUtils.get_icon_svg('not_an_icon.svg'))
 
 

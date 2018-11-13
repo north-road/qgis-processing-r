@@ -32,63 +32,72 @@ import os
 import json
 
 from qgis.core import (QgsApplication,
-                       QgsMessageLog)
-
-from processing.core.GeoAlgorithm import GeoAlgorithm
-from processing.core.GeoAlgorithmExecutionException import GeoAlgorithmExecutionException
-from processing.gui.Help2Html import getHtmlFromHelpFile
-from processing.core.parameters import ParameterRaster
-from processing.core.parameters import ParameterTable
-from processing.core.parameters import ParameterVector
-from processing.core.parameters import ParameterMultipleInput
-from processing.core.parameters import ParameterString
-from processing.core.parameters import ParameterNumber
-from processing.core.parameters import ParameterBoolean
-from processing.core.parameters import ParameterSelection
-from processing.core.parameters import ParameterTableField
-from processing.core.parameters import ParameterExtent
-from processing.core.parameters import ParameterCrs
-from processing.core.parameters import ParameterFile
-from processing.core.outputs import OutputTable
-from processing.core.outputs import OutputVector
-from processing.core.outputs import OutputRaster
-from processing.core.outputs import OutputHTML
-from processing.core.parameters import getParameterFromString
-from processing.core.outputs import getOutputFromString
-from processing.tools import dataobjects
-from processing.tools.system import isWindows
-from processing.script.WrongScriptException import WrongScriptException
+                       QgsMessageLog,
+                       QgsProcessingAlgorithm)
+from qgis.PyQt.QtCore import QCoreApplication
+#
+# from processing.gui.Help2Html import getHtmlFromHelpFile
+# from processing.core.parameters import ParameterRaster
+# from processing.core.parameters import ParameterTable
+# from processing.core.parameters import ParameterVector
+# from processing.core.parameters import ParameterMultipleInput
+# from processing.core.parameters import ParameterString
+# from processing.core.parameters import ParameterNumber
+# from processing.core.parameters import ParameterBoolean
+# from processing.core.parameters import ParameterSelection
+# from processing.core.parameters import ParameterTableField
+# from processing.core.parameters import ParameterExtent
+# from processing.core.parameters import ParameterCrs
+# from processing.core.parameters import ParameterFile
+# from processing.core.outputs import OutputTable
+# from processing.core.outputs import OutputVector
+# from processing.core.outputs import OutputRaster
+# from processing.core.outputs import OutputHTML
+# from processing.core.parameters import getParameterFromString
+# from processing.core.outputs import getOutputFromString
+# from processing.tools import dataobjects
+# from processing.tools.system import isWindows
+# from processing.script.WrongScriptException import WrongScriptException
+from r.processing.exceptions import InvalidScriptException
 from r.processing.utils import RUtils
-
-pluginPath = os.path.normpath(os.path.join(
-    os.path.split(os.path.dirname(__file__))[0], os.pardir))
+from r.gui.gui_utils import GuiUtils
 
 
-class RAlgorithm(GeoAlgorithm):
+class RAlgorithm(QgsProcessingAlgorithm):
 
     R_CONSOLE_OUTPUT = 'R_CONSOLE_OUTPUT'
     RPLOTS = 'RPLOTS'
 
-    def getCopy(self):
-        return self
+    def __init__(self, description_file, script=None):
+        super().__init__()
 
-    def __init__(self, descriptionFile, script=None):
-        GeoAlgorithm.__init__(self)
         self.script = script
         self._name = ''
         self._display_name = ''
         self._group = ''
-        self.descriptionFile = descriptionFile
+        self.description_file = description_file
+        self.error = None
+        self.commands = []
+
         if script is not None:
-            self.defineCharacteristicsFromScript()
-        if descriptionFile is not None:
-            self.defineCharacteristicsFromFile()
+            self.load_from_string()
+        if description_file is not None:
+            self.load_from_file()
+
+    def createInstance(self):
+        if self.description_file is not None:
+            return RAlgorithm(self.description_file)
+        else:
+            return RAlgorithm(description_file=None, script=self.script)
+
+    def initAlgorithm(self, config=None):
+        pass
 
     def icon(self):
-        return QgsApplication.getThemeIcon("/providerR.svg")
+        return GuiUtils.get_icon("providerR.svg")
 
     def svgIconPath(self):
-        return QgsApplication.iconPath("providerR.svg")
+        return GuiUtils.get_icon_svg("providerR.svg")
 
     def name(self):
         return self._name
@@ -99,29 +108,35 @@ class RAlgorithm(GeoAlgorithm):
     def group(self):
         return self._group
 
-    def defineCharacteristicsFromScript(self):
+    def load_from_string(self):
+        """
+        Load the algorithm from a string
+        """
         lines = self.script.split('\n')
         self._name = 'unnamedalgorithm'
-        self._display_name = self.trAlgorithm('[Unnamed algorithm]')
+        self._display_name = self.tr('[Unnamed algorithm]')
         self._group = self.tr('User R scripts')
-        self.parseDescription(iter(lines))
+        self.parse_script(iter(lines))
 
-    def defineCharacteristicsFromFile(self):
-        filename = os.path.basename(self.descriptionFile)
-        self.name = filename[:filename.rfind('.')].replace('_', ' ')
+    def load_from_file(self):
+        """
+        Load the algorithm from a file
+        """
+        filename = os.path.basename(self.description_file)
+        self._name = filename[:filename.rfind('.')].replace('_', ' ')
         self._group = self.tr('User R scripts')
-        with open(self.descriptionFile, 'r') as f:
+        with open(self.description_file, 'r') as f:
             lines = [line.strip() for line in f]
-        self.parseDescription(iter(lines))
+        self.parse_script(iter(lines))
 
-    def parseDescription(self, lines):
+    def parse_script(self, lines):
         self.script = ''
         self.commands = []
-        self.showPlots = False
-        self.showConsoleOutput = False
-        self.useRasterPackage = True
-        self.passFileNames = False
-        self.verboseCommands = []
+        self.error = None
+        #self.showPlots = False
+        #self.showConsoleOutput = False
+        #self.useRasterPackage = True
+        #self.passFileNames = False
         ender = 0
         line = next(lines).strip('\n').strip('\r')
         while ender < 10:
@@ -129,15 +144,14 @@ class RAlgorithm(GeoAlgorithm):
                 try:
                     self.processParameterLine(line)
                 except Exception:
-                    raise WrongScriptException(
-                        self.tr('Could not load R script: {0}.\n Problem with line {1}').format(self.descriptionFile, line))
+                    self.error = self.tr('This script has a syntax error.\n'
+                                         'Problem with line: {0}').format(line)
             elif line.startswith('>'):
                 self.commands.append(line[1:])
-                self.verboseCommands.append(line[1:])
-                if not self.showConsoleOutput:
-                    self.addOutput(OutputHTML(RAlgorithm.R_CONSOLE_OUTPUT,
-                                              self.tr('R Console Output')))
-                self.showConsoleOutput = True
+                #if not self.showConsoleOutput:
+                #    self.addOutput(OutputHTML(RAlgorithm.R_CONSOLE_OUTPUT,
+                #                              self.tr('R Console Output')))
+                #self.showConsoleOutput = True
             else:
                 if line == '':
                     ender += 1
@@ -150,78 +164,81 @@ class RAlgorithm(GeoAlgorithm):
             except:
                 break
 
-    def getVerboseCommands(self):
-        return self.verboseCommands
-
     def createDescriptiveName(self, s):
         return s.replace('_', ' ')
 
     def processParameterLine(self, line):
-        param = None
-        line = line.replace('#', '')
-        if line.lower().strip().startswith('showplots'):
-            self.showPlots = True
-            self.addOutput(OutputHTML(RAlgorithm.RPLOTS, 'R Plots'))
-            return
-        if line.lower().strip().startswith('dontuserasterpackage'):
-            self.useRasterPackage = False
-            return
-        if line.lower().strip().startswith('passfilenames'):
-            self.passFileNames = True
-            return
-        tokens = line.split('=')
-        desc = self.createDescriptiveName(tokens[0])
-        if tokens[1].lower().strip() == 'group':
-            self._group = tokens[0]
-            return
-        if tokens[1].lower().strip() == 'name':
-            self._name = self._display_name = tokens[0]
-            self._name = self._name.lower()
-            validChars = \
-                'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:'
-            self._name = ''.join(c for c in self._name if c in validChars)
-            return
+        return
+        #
+        #param = None
+        #line = line.replace('#', '')
+        #if line.lower().strip().startswith('showplots'):
+        #    self.showPlots = True
+        #    self.addOutput(OutputHTML(RAlgorithm.RPLOTS, 'R Plots'))
+        #    return
+        #if line.lower().strip().startswith('dontuserasterpackage'):
+        #    self.useRasterPackage = False
+        #    return
+        #if line.lower().strip().startswith('passfilenames'):
+        #    self.passFileNames = True
+        #    return
+        #tokens = line.split('=')
+        #desc = self.createDescriptiveName(tokens[0])
+        #if tokens[1].lower().strip() == 'group':
+        #    self._group = tokens[0]
+        #    return
+        #if tokens[1].lower().strip() == 'name':
+        #    self._name = self._display_name = tokens[0]
+        #    self._name = self._name.lower()
+        #    validChars = \
+        #        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:'
+        #    self._name = ''.join(c for c in self._name if c in validChars)
+        #    return
+#
+        #out = getOutputFromString(line)
+        #if out is None:
+        #    param = getParameterFromString(line)
+#
+        #if param is not None:
+        #    self.addParameter(param)
+        #elif out is not None:
+        #    out.name = tokens[0]
+        #    out.description = desc
+        #    self.addOutput(out)
+        #else:
+        #    raise WrongScriptException(
+        #        self.tr('Could not load script: {0}.\n'
+        #                'Problem with line "{1}"', 'ScriptAlgorithm').format(self.descriptionFile or '', line))
+#
+        #    raise WrongScriptException(
+        #        self.tr('Could not load R script: {0}.\n Problem with line {1}').format(self.descriptionFile, line))
 
-        out = getOutputFromString(line)
-        if out is None:
-            param = getParameterFromString(line)
+    def canExecute(self):
+        return not self.error, self.error
 
-        if param is not None:
-            self.addParameter(param)
-        elif out is not None:
-            out.name = tokens[0]
-            out.description = desc
-            self.addOutput(out)
-        else:
-            raise WrongScriptException(
-                self.tr('Could not load script: {0}.\n'
-                        'Problem with line "{1}"', 'ScriptAlgorithm').format(self.descriptionFile or '', line))
-
-            raise WrongScriptException(
-                self.tr('Could not load R script: {0}.\n Problem with line {1}').format(self.descriptionFile, line))
-
-    def processAlgorithm(self, context, feedback):
-        if isWindows():
-            path = RUtils.RFolder()
-            if path == '':
-                raise GeoAlgorithmExecutionException(
-                    self.tr('R folder is not configured.\nPlease configure it '
-                            'before running R scripts.'))
-        loglines = []
-        loglines.append(self.tr('R execution commands'))
-        loglines += self.getFullSetOfRCommands()
-        for line in loglines:
-            feedback.pushCommandInfo(line)
-        QgsMessageLog.logMessage(loglines, self.tr('Processing'), QgsMessageLog.INFO)
-        RUtils.executeRAlgorithm(self, feedback)
-        if self.showPlots:
-            htmlfilename = self.getOutputValue(RAlgorithm.RPLOTS)
-            with open(htmlfilename, 'w') as f:
-                f.write('<html><img src="' + self.plotsFilename + '"/></html>')
-        if self.showConsoleOutput:
-            htmlfilename = self.getOutputValue(RAlgorithm.R_CONSOLE_OUTPUT)
-            with open(htmlfilename, 'w') as f:
-                f.write(RUtils.getConsoleOutput())
+    def processAlgorithm(self, parameters, context, feedback):
+        return {}#
+        #if isWindows():
+        #    path = RUtils.RFolder()
+        #    if path == '':
+        #        raise GeoAlgorithmExecutionException(
+        #            self.tr('R folder is not configured.\nPlease configure it '
+        #                    'before running R scripts.'))
+        #loglines = []
+        #loglines.append(self.tr('R execution commands'))
+        #loglines += self.getFullSetOfRCommands()
+        #for line in loglines:
+        #    feedback.pushCommandInfo(line)
+        #QgsMessageLog.logMessage(loglines, self.tr('Processing'), QgsMessageLog.INFO)
+        #RUtils.executeRAlgorithm(self, feedback)
+        #if self.showPlots:
+        #    htmlfilename = self.getOutputValue(RAlgorithm.RPLOTS)
+        #    with open(htmlfilename, 'w') as f:
+        #        f.write('<html><img src="' + self.plotsFilename + '"/></html>')
+        #if self.showConsoleOutput:
+        #    htmlfilename = self.getOutputValue(RAlgorithm.R_CONSOLE_OUTPUT)
+        #    with open(htmlfilename, 'w') as f:
+        #        f.write(RUtils.getConsoleOutput())
 
     def getFullSetOfRCommands(self):
         commands = []
@@ -408,28 +425,28 @@ class RAlgorithm(GeoAlgorithm):
     def getRCommands(self):
         return self.commands
 
-    def help(self):
-        helpfile = str(self.descriptionFile) + '.help'
-        if os.path.exists(helpfile):
-            return True, getHtmlFromHelpFile(self, helpfile)
-        else:
-            return False, None
-
-    def shortHelp(self):
-        if self.descriptionFile is None:
-            return None
-        helpFile = str(self.descriptionFile) + '.help'
-        if os.path.exists(helpFile):
-            with open(helpFile) as f:
-                try:
-                    descriptions = json.load(f)
-                    if 'ALG_DESC' in descriptions:
-                        return self._formatHelp(str(descriptions['ALG_DESC']))
-                except:
-                    return None
-        return None
-
-    def getParameterDescriptions(self):
+   # def help(self):
+   #     helpfile = str(self.descriptionFile) + '.help'
+   #     if os.path.exists(helpfile):
+   #         return True, getHtmlFromHelpFile(self, helpfile)
+   #     else:
+   #         return False, None
+#
+   # def shortHelp(self):
+   #     if self.descriptionFile is None:
+   #         return None
+   #     helpFile = str(self.descriptionFile) + '.help'
+   #     if os.path.exists(helpFile):
+   #         with open(helpFile) as f:
+   #             try:
+   #                 descriptions = json.load(f)
+   #                 if 'ALG_DESC' in descriptions:
+   #                     return self._formatHelp(str(descriptions['ALG_DESC']))
+   #             except:
+   #                 return None
+   #     return None
+#
+    def getParameterDescriptions(self):#
         descs = {}
         if self.descriptionFile is None:
             return descs
@@ -455,3 +472,9 @@ class RAlgorithm(GeoAlgorithm):
                 '<p><a href="http://docs.qgis.org/testing/en/docs/user_manual/processing/3rdParty.html">Click here</a> '
                 'to know more about how to install and configure R to be used with QGIS</p>')
             return html
+
+    def tr(self, string, context=''):
+        if context == '':
+            context = 'RAlgorithmProvider'
+        return QCoreApplication.translate(context, string)
+

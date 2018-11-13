@@ -30,7 +30,6 @@ from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsApplication, QgsProcessingAlgorithm
 from processing.gui.ContextAction import ContextAction
-from processing.script import ScriptUtils
 
 
 class DeleteScriptAction(ContextAction):
@@ -58,10 +57,10 @@ class DeleteScriptAction(ContextAction):
                                      QMessageBox.Yes | QMessageBox.No,
                                      QMessageBox.No)
         if reply == QMessageBox.Yes:
-            file_path = ScriptUtils.findAlgorithmSource(self.itemData.__class__.__name__)
+            file_path = self.itemData.description_file
             if file_path is not None:
                 os.remove(file_path)
-                QgsApplication.processingRegistry().providerById("script").refreshAlgorithms()
+                QgsApplication.processingRegistry().providerById("r").refreshAlgorithms()
             else:
                 QMessageBox.warning(None,
                                     self.tr("Delete Script"),

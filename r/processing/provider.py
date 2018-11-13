@@ -16,30 +16,23 @@
 *                                                                         *
 ***************************************************************************
 """
-from builtins import str
 
-__author__ = 'Victor Olaya'
-__date__ = 'August 2012'
-__copyright__ = '(C) 2012, Victor Olaya'
-
-# This will get replaced with a git SHA1 when you do a git archive
-
-__revision__ = '$Format:%H$'
-
+import os
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsProcessingProvider
-from processing.core.ProcessingConfig import ProcessingConfig, Setting
-from r.processing.actions.create_new_script import CreateNewScriptAction
-from r.processing.actions.edit_script import EditScriptAction
-from r.processing.actions.delete_script import DeleteScriptAction
+from qgis.core import (QgsProcessingProvider,
+                       QgsMessageLog)
 
-#from processing.script.WrongScriptException import WrongScriptException
+from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from processing.gui.ProviderActions import (ProviderActions,
                                             ProviderContextMenuActions)
 from processing.tools.system import isWindows
 
+from r.processing.actions.create_new_script import CreateNewScriptAction
+from r.processing.actions.edit_script import EditScriptAction
+from r.processing.actions.delete_script import DeleteScriptAction
+from r.processing.exceptions import InvalidScriptException
 from r.processing.utils import RUtils
-#from r.processing.algorithm import RAlgorithm
+from r.processing.algorithm import RAlgorithm
 from r.gui.gui_utils import GuiUtils
 
 
@@ -54,9 +47,8 @@ class RAlgorithmProvider(QgsProcessingProvider):
         self.actions = []
         create_script_action = CreateNewScriptAction()
         self.actions.append(create_script_action)
-        self.contextMenuActions = []
-        #    [EditScriptAction(EditScriptAction.SCRIPT_R),
-        #     DeleteScriptAction(DeleteScriptAction.SCRIPT_R)]
+        self.contextMenuActions = [EditScriptAction(),
+                                   DeleteScriptAction()]
 
     def load(self):
         ProcessingConfig.settingIcons[self.name()] = self.icon()
@@ -64,9 +56,9 @@ class RAlgorithmProvider(QgsProcessingProvider):
                                             self.tr('Activate'), False))
         ProcessingConfig.addSetting(Setting(
             self.name(), RUtils.RSCRIPTS_FOLDER,
-            self.tr('R scripts folder'), RUtils.defaultRScriptsFolder(),
+            self.tr('R scripts folder'), RUtils.default_scripts_folder(),
             valuetype=Setting.MULTIPLE_FOLDERS))
-        ##if isWindows():
+        # if isWindows():
         #    ProcessingConfig.addSetting(Setting(#
         #        self.name(),
         #        RUtils.R_FOLDER, self.tr('R folder'), RUtils.RFolder(),
@@ -87,10 +79,10 @@ class RAlgorithmProvider(QgsProcessingProvider):
     def unload(self):
         ProcessingConfig.removeSetting('ACTIVATE_R')
         ProcessingConfig.removeSetting(RUtils.RSCRIPTS_FOLDER)
-       #if isWindows():
-       #     ProcessingConfig.removeSetting(RUtils.R_FOLDER)
-       #     ProcessingConfig.removeSetting(RUtils.R_LIBS_USER)
-       #     ProcessingConfig.removeSetting(RUtils.R_USE64)
+        # if isWindows():
+        #     ProcessingConfig.removeSetting(RUtils.R_FOLDER)
+        #     ProcessingConfig.removeSetting(RUtils.R_LIBS_USER)
+        #     ProcessingConfig.removeSetting(RUtils.R_USE64)
         ProviderActions.deregisterProviderActions(self)
         ProviderContextMenuActions.deregisterProviderContextMenuActions(self.contextMenuActions)
 
@@ -116,38 +108,44 @@ class RAlgorithmProvider(QgsProcessingProvider):
         return 'r'
 
     def loadAlgorithms(self):
-        pass
-        #folders = RUtils.RScriptsFolders()
-        #self.algs = []
-        #for f in folders:
-        #    self.loadFromFolder(f)
+        algs = []
+        for f in RUtils.script_folders():
+            algs.extend(self.load_scripts_from_folder(f))
         #
-        #folder = os.path.join(os.path.dirname(__file__), 'scripts')
-        #self.loadFromFolder(folder)
-        #for a in self.algs:
-        #    self.addAlgorithm(a)
-        #
+        # folder = os.path.join(os.path.dirname(__file__), 'scripts')
+        # self.loadFromFolder(folder)
 
-   # def loadFromFolder(self, folder):
-   #     if not os.path.exists(folder):
-   #         return
-   #     for path, subdirs, files in os.walk(folder):
-   #         for descriptionFile in files:
-   #             if descriptionFile.endswith('rsx'):
-   #                 try:
-   #                     fullpath = os.path.join(path, descriptionFile)
-   #         #            alg = RAlgorithm(fullpath)
-   #                     if alg.name().strip() != '':
-   #                         self.algs.append(alg)
-   #                 except WrongScriptException as e:
-   #                     QgsMessageLog.logMessage(e.msg, self.tr('Processing'), QgsMessageLog.CRITICAL)
-   #                 except Exception as e:
-   #                     QgsMessageLog.logMessage(
-   #                         self.tr('Could not load R script: {0}\n{1}').format(descriptionFile, str(e)),
-   #                         self.tr('Processing'), QgsMessageLog.CRITICAL)
-   #     return
+        for a in algs:
+            self.addAlgorithm(a)
+
+    def load_scripts_from_folder(self, folder):
+        """
+        Loads all scripts found under the specified subfolder
+        """
+        if not os.path.exists(folder):
+            return []
+
+        algs = []
+        for path, _, files in os.walk(folder):
+            for description_file in files:
+                if description_file.lower().endswith('rsx'):
+                    try:
+                        fullpath = os.path.join(path, description_file)
+                        alg = RAlgorithm(fullpath)
+                        if alg.name().strip():
+                            algs.append(alg)
+                    except InvalidScriptException as e:
+                        QgsMessageLog.logMessage(e.msg, self.tr('Processing'), QgsMessageLog.CRITICAL)
+                    except Exception as e:  # pylint: disable=broad-except
+                        QgsMessageLog.logMessage(
+                            self.tr('Could not load R script: {0}\n{1}').format(description_file, str(e)),
+                            self.tr('Processing'), QgsMessageLog.CRITICAL)
+        return algs
 
     def tr(self, string, context=''):
+        """
+        Translates a string
+        """
         if context == '':
             context = 'RAlgorithmProvider'
         return QCoreApplication.translate(context, string)
