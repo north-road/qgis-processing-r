@@ -19,7 +19,8 @@
 
 import os
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessingProvider,
+from qgis.core import (Qgis,
+                       QgsProcessingProvider,
                        QgsMessageLog)
 
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
@@ -111,9 +112,6 @@ class RAlgorithmProvider(QgsProcessingProvider):
         algs = []
         for f in RUtils.script_folders():
             algs.extend(self.load_scripts_from_folder(f))
-        #
-        # folder = os.path.join(os.path.dirname(__file__), 'scripts')
-        # self.loadFromFolder(folder)
 
         for a in algs:
             self.addAlgorithm(a)
@@ -135,11 +133,11 @@ class RAlgorithmProvider(QgsProcessingProvider):
                         if alg.name().strip():
                             algs.append(alg)
                     except InvalidScriptException as e:
-                        QgsMessageLog.logMessage(e.msg, self.tr('Processing'), QgsMessageLog.CRITICAL)
+                        QgsMessageLog.logMessage(e.msg, self.tr('Processing'), Qgis.Critical)
                     except Exception as e:  # pylint: disable=broad-except
                         QgsMessageLog.logMessage(
                             self.tr('Could not load R script: {0}\n{1}').format(description_file, str(e)),
-                            self.tr('Processing'), QgsMessageLog.CRITICAL)
+                            self.tr('Processing'), Qgis.Critical)
         return algs
 
     def tr(self, string, context=''):

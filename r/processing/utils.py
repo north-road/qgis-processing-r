@@ -37,11 +37,10 @@ from qgis.core import (QgsSettings,
                        QgsProcessingUtils,
                        QgsMessageLog)
 from processing.core.ProcessingConfig import ProcessingConfig
-from processing.tools.system import userFolder, isWindows, mkdir #, getTempFilenameInTempFolder
+from processing.tools.system import userFolder, isWindows, mkdir  # , getTempFilenameInTempFolder
 
 
 class RUtils(object):
-
     RSCRIPTS_FOLDER = 'R_SCRIPTS_FOLDER'
     R_FOLDER = 'R_FOLDER'
     R_USE64 = 'R_USE64'
@@ -54,11 +53,14 @@ class RUtils(object):
         folder = ProcessingConfig.getSetting(RUtils.R_FOLDER)
         if folder is None:
             if isWindows():
-                if 'ProgramW6432' in list(os.environ.keys()) and os.path.isdir(os.path.join(os.environ['ProgramW6432'], 'R')):
+                if 'ProgramW6432' in list(os.environ.keys()) and os.path.isdir(
+                        os.path.join(os.environ['ProgramW6432'], 'R')):
                     testfolder = os.path.join(os.environ['ProgramW6432'], 'R')
-                elif 'PROGRAMFILES(x86)' in list(os.environ.keys()) and os.path.isdir(os.path.join(os.environ['PROGRAMFILES(x86)'], 'R')):
+                elif 'PROGRAMFILES(x86)' in list(os.environ.keys()) and os.path.isdir(
+                        os.path.join(os.environ['PROGRAMFILES(x86)'], 'R')):
                     testfolder = os.path.join(os.environ['PROGRAMFILES(x86)'], 'R')
-                elif 'PROGRAMFILES' in list(os.environ.keys()) and os.path.isdir(os.path.join(os.environ['PROGRAMFILES'], 'R')):
+                elif 'PROGRAMFILES' in list(os.environ.keys()) and os.path.isdir(
+                        os.path.join(os.environ['PROGRAMFILES'], 'R')):
                     testfolder = os.path.join(os.environ['PROGRAMFILES'], 'R')
                 else:
                     testfolder = 'C:\\R'
@@ -90,9 +92,16 @@ class RUtils(object):
         return os.path.abspath(str(folder))
 
     @staticmethod
+    def builtin_scripts_folder():
+        """
+        Returns the built-in scripts path
+        """
+        return os.path.join(os.path.dirname(__file__), '..', 'builtin_scripts')
+
+    @staticmethod
     def default_scripts_folder():
         """
-        Returns the default path to look for scripts within
+        Returns the default path to look for user scripts within
         """
         folder = os.path.join(userFolder(), 'rscripts')
         mkdir(folder)
@@ -105,9 +114,12 @@ class RUtils(object):
         """
         folder = ProcessingConfig.getSetting(RUtils.RSCRIPTS_FOLDER)
         if folder is not None:
-            return folder.split(';')
+            folders = folder.split(';')
         else:
-            return [RUtils.default_scripts_folder()]
+            folders = [RUtils.default_scripts_folder()]
+
+        folders.append(RUtils.builtin_scripts_folder())
+        return folders
 
     @staticmethod
     def createRScriptFromRCommands(commands):
@@ -148,7 +160,7 @@ class RUtils(object):
             os.chmod(RUtils.getRScriptFilename(), stat.S_IEXEC | stat.S_IREAD |
                      stat.S_IWRITE)
             command = 'R CMD BATCH --vanilla ' + RUtils.getRScriptFilename() \
-                + ' ' + RUtils.getConsoleOutputFilename()
+                      + ' ' + RUtils.getConsoleOutputFilename()
 
         proc = subprocess.Popen(
             command,
