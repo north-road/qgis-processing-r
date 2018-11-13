@@ -64,8 +64,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self._group = ''
         self.description_file = os.path.realpath(description_file) if description_file else ''
         self.error = None
-        self.commands = []
-        self.verbose_commands = []
+        self.commands = list()
+        self.script_body_commands = list()
         self.is_user_script = False
         if description_file:
             self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
@@ -158,7 +158,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         Parse the lines from an R script, initializing parameters and outputs as encountered
         """
         self.script = ''
-        self.commands = []
+        self.commands = list()
         self.error = None
         self.show_plots = False
         self.show_console_output = False
@@ -175,7 +175,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                                          'Problem with line: {0}').format(line)
             elif line.startswith('>'):
                 self.commands.append(line[1:])
-                self.verbose_commands.append(line[1:])
+                self.script_body_commands.append(line[1:])
                 if not self.show_console_output:
                     self.addParameter(
                         QgsProcessingParameterFileDestination(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output'),
@@ -193,8 +193,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             except StopIteration:
                 break
 
-    def getVerboseCommands(self):
-        return self.verbose_commands
+    def get_script_body_commands(self):
+        """
+        Returns the list of commands which make up the main body of the script,
+        excluding commands relating to creating parameters and outputs
+        """
+        return self.script_body_commands
 
     def process_parameter_line(self, line):
         """
@@ -240,6 +244,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                                      'Problem with line: {0}').format(line)
 
     def canExecute(self):
+        """
+        Returns True if the algorithm can be executed
+        """
         if self.error:
             return False, self.error
 
@@ -250,6 +257,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         return True, ''
 
     def processAlgorithm(self, parameters, context, feedback):
+        """
+        Executes the algorithm
+        """
         self.results = {}
 
         if RUtils.is_windows():
@@ -374,7 +384,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Builds the set of input commands for the algorithm
         """
-        commands = []
+        commands = list()
 
         # Just use main mirror
         commands.append('options("repos"="{}")'.format(RUtils.package_repo()))
@@ -549,6 +559,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
     #     return None
 
     def tr(self, string, context=''):
+        """
+        Translates a string
+        """
         if context == '':
             context = 'RAlgorithmProvider'
         return QCoreApplication.translate(context, string)

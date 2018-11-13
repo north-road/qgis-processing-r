@@ -204,7 +204,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         # generate new R script file name in a temp folder
         RUtils.rscriptfilename = QgsProcessingUtils.generateTempFilename('processing_script.r')
         # run commands
-        RUtils.verboseCommands = alg.getVerboseCommands()
+        RUtils.verboseCommands = alg.get_script_body_commands()
         RUtils.createRScriptFromRCommands(alg.build_r_script(parameters, context, feedback))
         if RUtils.is_windows():
             command = [
