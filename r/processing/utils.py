@@ -186,19 +186,22 @@ class RUtils(object):
             command = 'R CMD BATCH --vanilla ' + RUtils.getRScriptFilename() \
                       + ' ' + RUtils.getConsoleOutputFilename()
 
-        proc = subprocess.Popen(
+        feedback.pushInfo(RUtils.tr('R execution console output'))
+
+        with subprocess.Popen(
             command,
             shell=True,
             stdout=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
-        )
-        proc.wait()
+        ) as proc:
+            for line in proc.stdout:
+                feedback.pushConsoleInfo(line)
+
         RUtils.createConsoleOutput()
-        loglines = []
-        loglines.append(RUtils.tr('R execution console output'))
-        loglines += RUtils.allConsoleResults
+
+        loglines = RUtils.allConsoleResults
         for line in loglines:
             feedback.pushConsoleInfo(line)
 

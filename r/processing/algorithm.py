@@ -22,7 +22,6 @@ import os
 from qgis.core import (QgsProcessing,
                        QgsProviderRegistry,
                        QgsProcessingAlgorithm,
-                       QgsProcessingOutputHtml,
                        QgsProcessingException,
                        QgsProcessingParameterRasterLayer,
                        QgsProcessingParameterVectorLayer,
@@ -36,7 +35,8 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterBoolean,
                        QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterRasterDestination,
-                       QgsProcessingParameterVectorDestination)
+                       QgsProcessingParameterVectorDestination,
+                       QgsProcessingParameterFileDestination)
 from qgis.PyQt.QtCore import QCoreApplication
 # from processing.gui.Help2Html import getHtmlFromHelpFile
 from processing.core.parameters import getParameterFromString
@@ -71,6 +71,8 @@ class RAlgorithm(QgsProcessingAlgorithm):
         self.use_raster_package = False
         self.pass_file_names = False
         self.show_console_output = False
+        self.plots_filename = ''
+        self.results = {}
 
         if script is not None:
             self.load_from_string()
@@ -147,7 +149,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 self.commands.append(line[1:])
                 self.verbose_commands.append(line[1:])
                 if not self.show_console_output:
-                    self.addOutput(QgsProcessingOutputHtml(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output')))
+                    self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output'), self.tr('HTML files (*.html)'), optional=True))
                 self.show_console_output = True
             else:
                 if line == '':
@@ -174,7 +176,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         # special commands
         if line.lower().strip().startswith('showplots'):
             self.show_plots = True
-            # self.addOutput(OutputHTML(RAlgorithm.RPLOTS, 'R Plots'))
+            self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.RPLOTS, self.tr('R Plots'), self.tr('HTML files (*.html)'), optional=True))
             return
         if line.lower().strip().startswith('dontuserasterpackage'):
             self.use_raster_package = False
@@ -217,6 +219,8 @@ class RAlgorithm(QgsProcessingAlgorithm):
         return True, ''
 
     def processAlgorithm(self, parameters, context, feedback):
+        self.results = {}
+
         if isWindows():
             path = RUtils.RFolder()
             if path == '':
@@ -231,17 +235,21 @@ class RAlgorithm(QgsProcessingAlgorithm):
             feedback.pushCommandInfo(line)
 
         RUtils.execute_r_algorithm(self, parameters, context, feedback)
-        # if self.showPlots:
-        #    htmlfilename = self.getOutputValue(RAlgorithm.RPLOTS)
-        #    with open(htmlfilename, 'w') as f:
-        #        f.write('<html><img src="' + self.plotsFilename + '"/></html>')
-        # if self.show_console_output:
-        #    htmlfilename = self.getOutputValue(RAlgorithm.R_CONSOLE_OUTPUT)
-        #    with open(htmlfilename, 'w') as f:
-        #        f.write(RUtils.getConsoleOutput())
 
+        if self.show_plots:
+            html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
+            if html_filename:
+                with open(html_filename, 'w') as f:
+                    f.write('<html><img src="' + self.plots_filename + '"/></html>')
+                self.results[RAlgorithm.RPLOTS] = html_filename
+        if self.show_console_output:
+            html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.R_CONSOLE_OUTPUT, context)
+            if html_filename:
+                with open(html_filename, 'w') as f:
+                    f.write(RUtils.getConsoleOutput())
+                self.results[RAlgorithm.R_CONSOLE_OUTPUT] = html_filename
 
-        return {}
+        return self.results
 
     def build_r_script(self, parameters, context, feedback):
         """
@@ -278,7 +286,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 filename = filename[:-4]
                 commands.append('writeOGR(' + out.name() + ',"' + dest + '","' +
                                 filename + '", driver="ESRI Shapefile")')
-            #elif isinstance(out, OutputTable):
+            # elif isinstance(out, OutputTable):
             #    value = out.value
             #    value = value.replace('\\', '/')
             #    commands.append('write.csv(' + out.name + ',"' + value + '")')
@@ -298,8 +306,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         commands.append('options("repos"="http://cran.at.r-project.org/")')
 
         # Try to install packages if needed
-        if isWindows():
-            commands.append('.libPaths(\"' + str(RUtils.RLibs()).replace('\\', '/') + '\")')
+        commands.append('.libPaths(\"' + str(RUtils.RLibs()).replace('\\', '/') + '\")')
 
         packages = RUtils.getRequiredPackages(self.script)
         packages.extend(['rgdal', 'raster'])
@@ -395,12 +402,12 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 value = self.parameterAsBool(parameters, param.name(), context)
                 commands.append('{}="{}"'.format(param.name(), 'TRUE' if value else 'FALSE'))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
-                layer_idx  = 0
+                layer_idx = 0
                 layers = []
                 if param.layerType() == QgsProcessing.TypeRaster:
                     pass
-                    #layers = param.value.split(';')
-                    #for layer in layers:
+                    # layers = param.value.split(';')
+                    # for layer in layers:
                     #    layer = layer.replace('\\', '/')
                     #    if self.pass_file_names:
                     #        commands.append('tempvar' + str(layer_idx) + ' <- "' +
@@ -414,9 +421,9 @@ class RAlgorithm(QgsProcessingAlgorithm):
                     #    #layer_idx += 1
                 else:
                     pass
-                    #exported = param.getSafeExportedLayers()#
-                    #layers = exported.split(';')
-                    #for layer in layers:
+                    # exported = param.getSafeExportedLayers()#
+                    # layers = exported.split(';')
+                    # for layer in layers:
                     #    if not layer.lower().endswith('shp') \
                     #            and not self.pass_file_names:
                     #        raise GeoAlgorithmExecutionException(
@@ -444,12 +451,13 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 s += ')\n'
                 commands.append(s)
 
-        #if self.show_plots:
-        #    htmlfilename = self.getOutputValue(RAlgorithm.RPLOTS)
-        #    self.plotsFilename = htmlfilename + '.png'
-        #    self.plotsFilename = self.plotsFilename.replace('\\', '/')
-        #    commands.append('png("' + self.plotsFilename + '")')
-#
+        if self.show_plots:
+            html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
+            path, _ = os.path.splitext(html_filename)
+            self.plots_filename = path + '.png'
+            self.plots_filename = self.plots_filename.replace('\\', '/')
+            commands.append('png("' + self.plots_filename + '")')
+
         return commands
 
     def build_r_commands(self, _, __, ___):
