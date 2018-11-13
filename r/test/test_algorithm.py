@@ -35,19 +35,32 @@ class AlgorithmTest(unittest.TestCase):
         """
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_1.rsx'))
         alg.initAlgorithm()
+        self.assertFalse(alg.error)
         self.assertEqual(alg.name(), 'test_algorithm_1')
         self.assertEqual(alg.displayName(), 'test algorithm 1')
+        self.assertEqual(alg.shortDescription(), os.path.join(test_data_path, 'test_algorithm_1.rsx'))
         self.assertTrue(alg.show_plots)
         self.assertFalse(alg.use_raster_package)
         self.assertTrue(alg.pass_file_names)
 
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
         alg.initAlgorithm()
+        self.assertFalse(alg.error)
         self.assertEqual(alg.name(), 'test_algorithm_2')
         self.assertEqual(alg.displayName(), 'test algorithm 2')
         self.assertFalse(alg.show_plots)
         self.assertTrue(alg.use_raster_package)
         self.assertFalse(alg.pass_file_names)
+
+    def testBadAlgorithm(self):
+        """
+        Test a bad script
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'bad_algorithm.rsx'))
+        alg.initAlgorithm()
+        self.assertEqual(alg.name(), 'bad_algorithm')
+        self.assertEqual(alg.displayName(), 'bad algorithm')
+        self.assertEqual(alg.error, 'This script has a syntax error.\nProblem with line: polyg=xvector')
 
 
 if __name__ == "__main__":

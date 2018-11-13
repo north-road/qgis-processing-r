@@ -205,7 +205,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Processes a single script line representing a parameter
         """
-        param = None
         line = line.replace('#', '')
 
         # special commands
