@@ -303,7 +303,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         commands = []
 
         # Just use main mirror
-        commands.append('options("repos"="http://cran.at.r-project.org/")')
+        commands.append('options("repos"="{}")'.format(RUtils.package_repo()))
 
         # Try to install packages if needed
         if RUtils.use_user_libary():

@@ -46,6 +46,7 @@ class RUtils(object):
     R_USE64 = 'R_USE64'
     R_LIBS_USER = 'R_LIBS_USER'
     R_USE_USER_LIB = 'R_USE_USER_LIB'
+    R_REPO = 'R_REPO'
 
     VALID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
@@ -86,6 +87,13 @@ class RUtils(object):
                 folder = ''
 
         return os.path.abspath(str(folder))
+
+    @staticmethod
+    def package_repo():
+        """
+        Returns the package repo URL
+        """
+        return ProcessingConfig.getSetting(RUtils.R_REPO)
 
     @staticmethod
     def use_user_libary():
