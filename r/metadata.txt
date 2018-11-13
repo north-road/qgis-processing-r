@@ -1,15 +1,15 @@
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
 # is no longer supported since version 2.0.
 
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=Processing R Provider Plugin
+name=Processing R Provider
 qgisMinimumVersion=3.2
-description=Processing provider for R scripts
+description=A Processing provider for connecting to the R statistics framework
 version=0.1
 author=North Road
 email=nyall@north-road.com

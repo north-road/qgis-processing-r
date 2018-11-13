@@ -26,38 +26,35 @@ __copyright__ = '(C) 2012, Victor Olaya'
 
 __revision__ = '$Format:%H$'
 
-import os
-
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsProcessingProvider
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
-#from processing.gui.EditScriptAction import EditScriptAction
-#from processing.gui.DeleteScriptAction import DeleteScriptAction
-#from processing.gui.CreateNewScriptAction import CreateNewScriptAction
+from r.processing.actions.create_new_script import CreateNewScriptAction
+from r.processing.actions.edit_script import EditScriptAction
+from r.processing.actions.delete_script import DeleteScriptAction
+
 #from processing.script.WrongScriptException import WrongScriptException
-#from processing.gui.GetScriptsAndModels import GetRScriptsAction
-#from processing.gui.ProviderActions import (ProviderActions,
-#                                            ProviderContextMenuActions)
+from processing.gui.ProviderActions import (ProviderActions,
+                                            ProviderContextMenuActions)
 from processing.tools.system import isWindows
 
-#from r.processing.utils import RUtils
+from r.processing.utils import RUtils
 #from r.processing.algorithm import RAlgorithm
 from r.gui.gui_utils import GuiUtils
 
-pluginPath = os.path.normpath(os.path.join(
-    os.path.split(os.path.dirname(__file__))[0], os.pardir))
-
 
 class RAlgorithmProvider(QgsProcessingProvider):
+    """
+    Processing provider for executing R scripts
+    """
 
     def __init__(self):
         super().__init__()
         self.algs = []
         self.actions = []
-        #self.actions.append(CreateNewScriptAction(
-        #    'Create new R script', CreateNewScriptAction.SCRIPT_R))
-        #self.actions.append(GetRScriptsAction())
-        #self.contextMenuActions = \
+        create_script_action = CreateNewScriptAction()
+        self.actions.append(create_script_action)
+        self.contextMenuActions = []
         #    [EditScriptAction(EditScriptAction.SCRIPT_R),
         #     DeleteScriptAction(DeleteScriptAction.SCRIPT_R)]
 
@@ -65,10 +62,10 @@ class RAlgorithmProvider(QgsProcessingProvider):
         ProcessingConfig.settingIcons[self.name()] = self.icon()
         ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_R',
                                             self.tr('Activate'), False))
-        #ProcessingConfig.addSetting(Setting(
-        #    self.name(), RUtils.RSCRIPTS_FOLDER,
-        #    self.tr('R Scripts folder'), RUtils.defaultRScriptsFolder(),
-        #    valuetype=Setting.MULTIP#LE_FOLDERS))
+        ProcessingConfig.addSetting(Setting(
+            self.name(), RUtils.RSCRIPTS_FOLDER,
+            self.tr('R scripts folder'), RUtils.defaultRScriptsFolder(),
+            valuetype=Setting.MULTIPLE_FOLDERS))
         ##if isWindows():
         #    ProcessingConfig.addSetting(Setting(#
         #        self.name(),
@@ -81,21 +78,21 @@ class RAlgorithmProvider(QgsProcessingProvider):
         #    ProcessingConfig.addSetting(Setting(
         #        self.name(),
         #        RUtils.R_USE64, self.tr('Use 64 bit version'), False))
-        #ProviderActions.registerProviderActions(self, self.actions)
-        #ProviderContextMenuActions.registerProviderContextMenuActions(self.contextMenuActions)
+        ProviderActions.registerProviderActions(self, self.actions)
+        ProviderContextMenuActions.registerProviderContextMenuActions(self.contextMenuActions)
         ProcessingConfig.readSettings()
         self.refreshAlgorithms()
         return True
 
     def unload(self):
         ProcessingConfig.removeSetting('ACTIVATE_R')
-       # ProcessingConfig.removeSetting(RUtils.RSCRIPTS_FOLDER)
-       # if isWindows():
+        ProcessingConfig.removeSetting(RUtils.RSCRIPTS_FOLDER)
+       #if isWindows():
        #     ProcessingConfig.removeSetting(RUtils.R_FOLDER)
        #     ProcessingConfig.removeSetting(RUtils.R_LIBS_USER)
        #     ProcessingConfig.removeSetting(RUtils.R_USE64)
-       # ProviderActions.deregisterProviderActions(self)
-       # ProviderContextMenuActions.deregisterProviderContextMenuActions(self.contextMenuActions)
+        ProviderActions.deregisterProviderActions(self)
+        ProviderContextMenuActions.deregisterProviderContextMenuActions(self.contextMenuActions)
 
     def isActive(self):
         return ProcessingConfig.getSetting('ACTIVATE_R')
@@ -124,12 +121,13 @@ class RAlgorithmProvider(QgsProcessingProvider):
         #self.algs = []
         #for f in folders:
         #    self.loadFromFolder(f)
-#
+        #
         #folder = os.path.join(os.path.dirname(__file__), 'scripts')
         #self.loadFromFolder(folder)
         #for a in self.algs:
         #    self.addAlgorithm(a)
-#
+        #
+
    # def loadFromFolder(self, folder):
    #     if not os.path.exists(folder):
    #         return

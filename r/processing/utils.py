@@ -37,7 +37,7 @@ from qgis.core import (QgsSettings,
                        QgsProcessingUtils,
                        QgsMessageLog)
 from processing.core.ProcessingConfig import ProcessingConfig
-from processing.tools.system import userFolder, isWindows, mkdir, getTempFilenameInTempFolder
+from processing.tools.system import userFolder, isWindows, mkdir #, getTempFilenameInTempFolder
 
 
 class RUtils(object):
