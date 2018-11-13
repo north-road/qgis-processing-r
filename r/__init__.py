@@ -19,5 +19,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .r import RProviderPlugin
+    from .r_plugin import RProviderPlugin
     return RProviderPlugin(iface)
