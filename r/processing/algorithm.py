@@ -84,7 +84,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
             return RAlgorithm(self.description_file)
 
         return RAlgorithm(description_file=None, script=self.script)
-comm
+
     def initAlgorithm(self, config=None):
         pass
 

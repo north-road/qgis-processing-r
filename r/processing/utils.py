@@ -224,14 +224,14 @@ class RUtils(object):
             si.wShowWindow = subprocess.SW_HIDE
 
         with subprocess.Popen(
-            command,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
-            encoding="cp{}".format(RUtils.getWindowsCodePage()) if isWindows() else None,
-            startupinfo=si if isWindows() else None,
-            universal_newlines=True
+                command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+                encoding="cp{}".format(RUtils.getWindowsCodePage()) if isWindows() else None,
+                startupinfo=si if isWindows() else None,
+                universal_newlines=True
         ) as proc:
             for line in iter(proc.stdout.readline, ''):
                 if RUtils.is_error_line(line):
@@ -297,12 +297,12 @@ class RUtils(object):
             command = ['R --version']
 
         with subprocess.Popen(
-            command,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
+                command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
         ) as proc:
             for line in proc.stdout:
                 if 'R version' in line:
