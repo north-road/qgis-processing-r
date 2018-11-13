@@ -46,6 +46,10 @@ class RUtils(object):
     R_USE64 = 'R_USE64'
     R_LIBS_USER = 'R_LIBS_USER'
 
+    VALID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+    R_INSTALLED_SETTINGS_PATH = 'r/r_installed'
+
     rscriptfilename = os.path.join(userFolder(), 'processing_script.r')
 
     @staticmethod
@@ -120,6 +124,20 @@ class RUtils(object):
 
         folders.append(RUtils.builtin_scripts_folder())
         return folders
+
+    @staticmethod
+    def create_descriptive_name(name):
+        """
+        Returns a safe version of a parameter name
+        """
+        return name.replace('_', ' ')
+
+    @staticmethod
+    def strip_special_characters(name):
+        """
+        Strips non-alphanumeric characters from a name
+        """
+        return ''.join(c for c in name if c in RUtils.VALID_CHARS)
 
     @staticmethod
     def createRScriptFromRCommands(commands):
@@ -209,18 +227,18 @@ class RUtils(object):
         return s
 
     @staticmethod
-    def checkRIsInstalled(ignoreRegistrySettings=False):
+    def check_r_is_installed(ignore_registry_settings=False):
         if isWindows():
             path = RUtils.RFolder()
             if path == '':
                 return RUtils.tr('R folder is not configured.\nPlease configure '
                                  'it before running R scripts.')
 
-        R_INSTALLED = 'R_INSTALLED'
         settings = QgsSettings()
-        if not ignoreRegistrySettings:
-            if settings.contains(R_INSTALLED):
+        if not ignore_registry_settings:
+            if settings.value(RUtils.R_INSTALLED_SETTINGS_PATH, False, bool, QgsSettings.Plugins):
                 return
+
         if isWindows():
             if ProcessingConfig.getSetting(RUtils.R_USE64):
                 execDir = 'x64'
@@ -229,19 +247,20 @@ class RUtils(object):
             command = [os.path.join(RUtils.RFolder(), 'bin', execDir, 'R.exe'), '--version']
         else:
             command = ['R --version']
-        proc = subprocess.Popen(
+
+        with subprocess.Popen(
             command,
             shell=True,
             stdout=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
-        ).stdout
+        ) as proc:
+            for line in proc.stdout:
+                if 'R version' in line:
+                    settings.setValue(RUtils.R_INSTALLED_SETTINGS_PATH, True, QgsSettings.Plugins)
+                    return
 
-        for line in iter(proc.readline, ''):
-            if 'R version' in line:
-                settings.setValue(R_INSTALLED, True)
-                return
         html = RUtils.tr(
             '<p>This algorithm requires R to be run. Unfortunately, it '
             'seems that R is not installed in your system, or it is not '

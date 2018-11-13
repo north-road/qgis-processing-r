@@ -49,6 +49,18 @@ class RUtilsTest(unittest.TestCase):
         self.assertIn(RUtils.default_scripts_folder(), RUtils.script_folders())
         self.assertIn(RUtils.builtin_scripts_folder(), RUtils.script_folders())
 
+    def testDescriptiveName(self):
+        """
+        Tests creating descriptive name
+        """
+        self.assertEqual(RUtils.create_descriptive_name('a B_4324_asd'), 'a B 4324 asd')
+
+    def testStripSpecialCharacters(self):
+        """
+        Tests stripping special characters from a name
+        """
+        self.assertEqual(RUtils.strip_special_characters('aB 43 24a:sd'), 'aB4324asd')
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(RUtilsTest)
