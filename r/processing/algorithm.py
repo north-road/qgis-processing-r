@@ -36,7 +36,9 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterMultipleLayers,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingParameterVectorDestination,
-                       QgsProcessingParameterFileDestination)
+                       QgsProcessingParameterFileDestination,
+                       QgsVectorFileWriter,
+                       QgsVectorLayer)
 from qgis.PyQt.QtCore import QCoreApplication
 # from processing.gui.Help2Html import getHtmlFromHelpFile
 from processing.core.parameters import getParameterFromString
@@ -299,7 +301,50 @@ class RAlgorithm(QgsProcessingAlgorithm):
 
         return commands
 
-    def build_import_commands(self, parameters, context, _):
+    def load_vector_layer_from_parameter(self, name, parameters, context, feedback):
+        """
+        Creates a dedicated command to load a vector into the workspace.
+        :param name: name of the parameter
+        :param parameters: Parameters of the algorithm.
+        :param context: Processing context
+        """
+        layer = self.parameterAsVectorLayer(parameters, name, context)
+
+        is_ogr_disk_based_layer = layer is not None and layer.dataProvider().name() == 'ogr'
+        if is_ogr_disk_based_layer:
+            # we only support direct reading of disk based ogr layers -- not ogr postgres layers, etc
+            source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
+            if not source_parts.get('path'):
+                is_ogr_disk_based_layer = False
+            elif source_parts.get('layerId'):
+                # no support for directly reading layers by id in grass
+                is_ogr_disk_based_layer = False
+
+        if not is_ogr_disk_based_layer:
+            # parameter is not a vector layer or not an OGR layer - try to convert to a source compatible with
+            # grass OGR inputs and extract selection if required
+            path = self.parameterAsCompatibleSourceLayerPath(parameters, name, context,
+                                                             QgsVectorFileWriter.supportedFormatExtensions(),
+                                                             feedback=feedback)
+            ogr_layer = QgsVectorLayer(path, '', 'ogr')
+            return self.load_vector_layer_command(name, ogr_layer, feedback)
+        else:
+            # already an ogr disk based layer source
+            return self.load_vector_layer_command(name, layer, feedback)
+
+    def load_vector_layer_command(self, name, layer, feedback):
+        """
+        Creates a command to load a vector layer into the workspace
+        """
+        source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
+        file_path = source_parts.get('path')
+        layer_name = source_parts.get('layerName')
+        if self.pass_file_names:
+            return '{}="{}"'.format(name, file_path)
+        else:
+            return '{}=readOgr("{}",layer="{}")'.format(name, file_path, layer_name)
+
+    def build_import_commands(self, parameters, context, feedback):
         """
         Builds the set of input commands for the algorithm
         """
@@ -326,13 +371,13 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 continue
 
             if param.name() not in parameters or parameters[param.name()] is None:
-                commands.append(param.name() + '= NULL')
+                commands.append('{}=NULL'.format(param.name()))
                 continue
 
             if isinstance(param, QgsProcessingParameterRasterLayer):
                 rl = self.parameterAsRasterLayer(parameters, param.name(), context)
                 if rl is None:
-                    commands.append(param.name() + '= NULL')
+                    commands.append('{}=NULL'.format(param.name()))
                 else:
                     if rl.dataProvider().name() != 'gdal':
                         raise QgsProcessingException(
@@ -349,22 +394,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
                     else:
                         commands.append(param.name() + ' = ' + 'readGDAL("' + value + '")')
             elif isinstance(param, QgsProcessingParameterVectorLayer):
-
-                if param.value is None:
-                    commands.append(param.name + '= NULL')
-                else:
-                    value = param.getSafeExportedLayer()
-                    value = value.replace('\\', '/')
-                    filename = os.path.basename(value)
-                    filename = filename[:-4]
-                    folder = os.path.dirname(value)
-                    if self.pass_file_names:
-                        commands.append(param.name + ' = "' + value + '"')
-                    else:
-                        commands.append(param.name + ' = readOGR("' + folder +
-                                        '",layer="' + filename + '")')
-                        #
-
+                commands.append(self.load_vector_layer_from_parameter(param.name(), parameters, context, feedback))
             # elif isinstance(param, ParameterTable):
             #     if param.value is None:
             #         commands.append(param.name + '= NULL')
@@ -392,7 +422,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 if crs.isValid():
                     commands.append('{}="{}"'.format(param.name(), crs.authid()))
                 else:
-                    commands.append(param.name() + '= NULL')
+                    commands.append('{}=NULL'.format(param.name()))
             elif isinstance(param,
                             (QgsProcessingParameterField, QgsProcessingParameterString, QgsProcessingParameterFile)):
                 value = self.parameterAsString(parameters, param.name(), context)
