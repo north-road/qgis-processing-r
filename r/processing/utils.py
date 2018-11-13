@@ -34,10 +34,9 @@ import subprocess
 
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsSettings,
-                       QgsProcessingUtils,
-                       QgsMessageLog)
+                       QgsProcessingUtils)
 from processing.core.ProcessingConfig import ProcessingConfig
-from processing.tools.system import userFolder, isWindows, mkdir  # , getTempFilenameInTempFolder
+from processing.tools.system import userFolder, isWindows, mkdir
 
 
 class RUtils(object):
@@ -51,6 +50,9 @@ class RUtils(object):
     R_INSTALLED_SETTINGS_PATH = 'r/r_installed'
 
     rscriptfilename = os.path.join(userFolder(), 'processing_script.r')
+
+    consoleResults = []
+    allConsoleResults = []
 
     @staticmethod
     def RFolder():
@@ -154,12 +156,16 @@ class RUtils(object):
         return RUtils.getRScriptFilename() + '.Rout'
 
     @staticmethod
-    def executeRAlgorithm(alg, feedback):
+    def execute_r_algorithm(alg, parameters, context, feedback):
+        """
+        Runs a prepared algorithm in R
+        """
+
         # generate new R script file name in a temp folder
-        RUtils.rscriptfilename = getTempFilenameInTempFolder('processing_script.r')
+        RUtils.rscriptfilename = QgsProcessingUtils.generateTempFilename('processing_script.r')
         # run commands
         RUtils.verboseCommands = alg.getVerboseCommands()
-        RUtils.createRScriptFromRCommands(alg.getFullSetOfRCommands())
+        RUtils.createRScriptFromRCommands(alg.build_r_script(parameters, context, feedback))
         if isWindows():
             if ProcessingConfig.getSetting(RUtils.R_USE64):
                 execDir = 'x64'
@@ -195,7 +201,6 @@ class RUtils(object):
         loglines += RUtils.allConsoleResults
         for line in loglines:
             feedback.pushConsoleInfo(line)
-        QgsMessageLog.logMessage(loglines, RUtils.tr('Processing'), QgsMessageLog.INFO)
 
     @staticmethod
     def createConsoleOutput():

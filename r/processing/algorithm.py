@@ -18,33 +18,30 @@
 """
 
 import os
-import json
 
-from qgis.core import (QgsApplication,
-                       QgsMessageLog,
-                       QgsProcessingAlgorithm)
+from qgis.core import (QgsProcessing,
+                       QgsProviderRegistry,
+                       QgsProcessingAlgorithm,
+                       QgsProcessingOutputHtml,
+                       QgsProcessingException,
+                       QgsProcessingParameterRasterLayer,
+                       QgsProcessingParameterVectorLayer,
+                       QgsProcessingParameterExtent,
+                       QgsProcessingParameterCrs,
+                       QgsProcessingParameterField,
+                       QgsProcessingParameterString,
+                       QgsProcessingParameterFile,
+                       QgsProcessingParameterNumber,
+                       QgsProcessingParameterEnum,
+                       QgsProcessingParameterBoolean,
+                       QgsProcessingParameterMultipleLayers,
+                       QgsProcessingParameterRasterDestination,
+                       QgsProcessingParameterVectorDestination)
 from qgis.PyQt.QtCore import QCoreApplication
-#
 # from processing.gui.Help2Html import getHtmlFromHelpFile
-# from processing.core.parameters import ParameterRaster
-# from processing.core.parameters import ParameterTable
-# from processing.core.parameters import ParameterVector
-# from processing.core.parameters import ParameterMultipleInput
-# from processing.core.parameters import ParameterString
-# from processing.core.parameters import ParameterNumber
-# from processing.core.parameters import ParameterBoolean
-# from processing.core.parameters import ParameterSelection
-# from processing.core.parameters import ParameterTableField
-# from processing.core.parameters import ParameterExtent
-# from processing.core.parameters import ParameterCrs
-# from processing.core.parameters import ParameterFile
-# from processing.core.outputs import OutputTable
-# from processing.core.outputs import OutputVector
-# from processing.core.outputs import OutputRaster
-# from processing.core.outputs import OutputHTML
 from processing.core.parameters import getParameterFromString
 from r.processing.outputs import create_output_from_string
-# from processing.tools.system import isWindows
+from processing.tools.system import isWindows
 from r.processing.utils import RUtils
 from r.gui.gui_utils import GuiUtils
 
@@ -67,6 +64,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         self.description_file = os.path.realpath(description_file) if description_file else ''
         self.error = None
         self.commands = []
+        self.verbose_commands = []
         self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
 
         self.show_plots = False
@@ -147,10 +145,10 @@ class RAlgorithm(QgsProcessingAlgorithm):
                                          'Problem with line: {0}').format(line)
             elif line.startswith('>'):
                 self.commands.append(line[1:])
-                # if not self.show_console_output:
-                #    self.addOutput(OutputHTML(RAlgorithm.R_CONSOLE_OUTPUT,
-                #                              self.tr('R Console Output')))
-                # self.show_console_output = True
+                self.verbose_commands.append(line[1:])
+                if not self.show_console_output:
+                    self.addOutput(QgsProcessingOutputHtml(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output')))
+                self.show_console_output = True
             else:
                 if line == '':
                     ender += 1
@@ -162,6 +160,9 @@ class RAlgorithm(QgsProcessingAlgorithm):
                 line = next(lines).strip('\n').strip('\r')
             except:
                 break
+
+    def getVerboseCommands(self):
+        return self.verbose_commands
 
     def process_parameter_line(self, line):
         """
@@ -216,20 +217,20 @@ class RAlgorithm(QgsProcessingAlgorithm):
         return True, ''
 
     def processAlgorithm(self, parameters, context, feedback):
-        return {}  #
-        # if isWindows():
-        #    path = RUtils.RFolder()
-        #    if path == '':
-        #        raise GeoAlgorithmExecutionException(
-        #            self.tr('R folder is not configured.\nPlease configure it '
-        #                    'before running R scripts.'))
-        # loglines = []
-        # loglines.append(self.tr('R execution commands'))
-        # loglines += self.getFullSetOfRCommands()
-        # for line in loglines:
-        #    feedback.pushCommandInfo(line)
-        # QgsMessageLog.logMessage(loglines, self.tr('Processing'), QgsMessageLog.INFO)
-        # RUtils.executeRAlgorithm(self, feedback)
+        if isWindows():
+            path = RUtils.RFolder()
+            if path == '':
+                raise QgsProcessingException(
+                    self.tr('R folder is not configured.\nPlease configure it '
+                            'before running R scripts.'))
+
+        loglines = []
+        loglines.append(self.tr('R execution commands'))
+        loglines += self.build_r_script(parameters, context, feedback)
+        for line in loglines:
+            feedback.pushCommandInfo(line)
+
+        RUtils.execute_r_algorithm(self, parameters, context, feedback)
         # if self.showPlots:
         #    htmlfilename = self.getOutputValue(RAlgorithm.RPLOTS)
         #    with open(htmlfilename, 'w') as f:
@@ -239,48 +240,58 @@ class RAlgorithm(QgsProcessingAlgorithm):
         #    with open(htmlfilename, 'w') as f:
         #        f.write(RUtils.getConsoleOutput())
 
-    def getFullSetOfRCommands(self):
+
+        return {}
+
+    def build_r_script(self, parameters, context, feedback):
+        """
+        Builds up the set of R commands to run for the script
+        """
         commands = []
-        commands += self.getImportCommands()
-        commands += self.getRCommands()
-        commands += self.getExportCommands()
+        commands += self.build_import_commands(parameters, context, feedback)
+        commands += self.build_r_commands(parameters, context, feedback)
+        commands += self.build_export_commands(parameters, context, feedback)
 
         return commands
 
-    def getExportCommands(self):
+    def build_export_commands(self, parameters, context, feedback):
+        """
+        Builds up the set of R commands for exporting results
+        """
         commands = []
-        for out in self.outputs:
-            if isinstance(out, OutputRaster):
-                value = out.value
-                value = value.replace('\\', '/')
+        for out in self.destinationParameterDefinitions():
+            if isinstance(out, QgsProcessingParameterRasterDestination):
+                dest = self.parameterAsOutputLayer(parameters, out.name(), context)
+                dest = dest.replace('\\', '/')
                 if self.use_raster_package or self.pass_file_names:
-                    commands.append('writeRaster(' + out.name + ',"' + value +
-                                    '", overwrite=TRUE)')
+                    commands.append('writeRaster({},"{}", overwrite=TRUE)'.format(out.name(), dest))
                 else:
-                    if not value.endswith('tif'):
-                        value = value + '.tif'
-                    commands.append('writeGDAL(' + out.name + ',"' + value +
-                                    '")')
-            elif isinstance(out, OutputVector):
-                value = out.value
-                if not value.endswith('shp'):
-                    value = value + '.shp'
-                value = value.replace('\\', '/')
-                filename = os.path.basename(value)
+                    if not dest.lower().endswith('tif'):
+                        dest = dest + '.tif'
+                    commands.append('writeGDAL({},"{}")'.format(out.name(), dest))
+            elif isinstance(out, QgsProcessingParameterVectorDestination):
+                dest = self.parameterAsOutputLayer(parameters, out.name(), context)
+                dest = dest.replace('\\', '/')
+                if not dest.lower().endswith('shp'):
+                    dest = dest + '.shp'
+                filename = os.path.basename(dest)
                 filename = filename[:-4]
-                commands.append('writeOGR(' + out.name + ',"' + value + '","' +
+                commands.append('writeOGR(' + out.name() + ',"' + dest + '","' +
                                 filename + '", driver="ESRI Shapefile")')
-            elif isinstance(out, OutputTable):
-                value = out.value
-                value = value.replace('\\', '/')
-                commands.append('write.csv(' + out.name + ',"' + value + '")')
+            #elif isinstance(out, OutputTable):
+            #    value = out.value
+            #    value = value.replace('\\', '/')
+            #    commands.append('write.csv(' + out.name + ',"' + value + '")')
 
         if self.show_plots:
             commands.append('dev.off()')
 
         return commands
 
-    def getImportCommands(self):
+    def build_import_commands(self, parameters, context, feedback):
+        """
+        Builds the set of input commands for the algorithm
+        """
         commands = []
 
         # Just use main mirror
@@ -289,6 +300,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         # Try to install packages if needed
         if isWindows():
             commands.append('.libPaths(\"' + str(RUtils.RLibs()).replace('\\', '/') + '\")')
+
         packages = RUtils.getRequiredPackages(self.script)
         packages.extend(['rgdal', 'raster'])
         for p in packages:
@@ -298,20 +310,34 @@ class RAlgorithm(QgsProcessingAlgorithm):
         commands.append('library("raster")')
         commands.append('library("rgdal")')
 
-        for param in self.parameters:
-            if isinstance(param, ParameterRaster):
-                if param.value is None:
-                    commands.append(param.name + '= NULL')
+        for param in self.parameterDefinitions():
+            if param.isDestination():
+                continue
+
+            if param.name() not in parameters or parameters[param.name()] is None:
+                commands.append(param.name() + '= NULL')
+                continue
+
+            if isinstance(param, QgsProcessingParameterRasterLayer):
+                rl = self.parameterAsRasterLayer(parameters, param.name(), context)
+                if rl is None:
+                    commands.append(param.name() + '= NULL')
                 else:
-                    value = param.value
-                    value = value.replace('\\', '/')
+                    if rl.dataProvider().name() != 'gdal':
+                        raise QgsProcessingException(self.tr(
+                            "Layer {} is not a GDAL layer. Currently only GDAL based raster layers are supported.").format(
+                            param.name()))
+
+                    path = QgsProviderRegistry.instance().decodeUri(rl.dataProvider().name(), rl.source())['path']
+                    value = path.replace('\\', '/')
                     if self.pass_file_names:
-                        commands.append(param.name + ' = "' + value + '"')
+                        commands.append(param.name() + ' = "' + value + '"')
                     elif self.use_raster_package:
-                        commands.append(param.name + ' = ' + 'brick("' + value + '")')
+                        commands.append(param.name() + ' = ' + 'brick("' + value + '")')
                     else:
-                        commands.append(param.name + ' = ' + 'readGDAL("' + value + '")')
-            elif isinstance(param, ParameterVector):
+                        commands.append(param.name() + ' = ' + 'readGDAL("' + value + '")')
+            elif isinstance(param, QgsProcessingParameterVectorLayer):
+
                 if param.value is None:
                     commands.append(param.name + '= NULL')
                 else:
@@ -325,105 +351,111 @@ class RAlgorithm(QgsProcessingAlgorithm):
                     else:
                         commands.append(param.name + ' = readOGR("' + folder +
                                         '",layer="' + filename + '")')
-            elif isinstance(param, ParameterTable):
-                if param.value is None:
-                    commands.append(param.name + '= NULL')
+                        #
+
+            # elif isinstance(param, ParameterTable):
+            #     if param.value is None:
+            #         commands.append(param.name + '= NULL')
+            #     else:
+            #         value = param.value
+            #         if not value.lower().endswith('csv'):
+            #             raise GeoAlgorithmExecutionException(
+            #                 'Unsupported input file format.\n' + value)
+            #         if self.pass_file_names:
+            #             commands.append(param.name + ' = "' + value + '"')
+            #         else:
+            #             commands.append(param.name + ' <- read.csv("' + value +
+            #                             '", head=TRUE, sep=",")')
+            elif isinstance(param, QgsProcessingParameterExtent):
+                extent = self.parameterAsExtent(parameters, param.name(), context)
+                # Extent from raster package is "xmin, xmax, ymin, ymax" like in Processing
+                # http://www.inside-r.org/packages/cran/raster/docs/Extent
+                commands.append('{}=extent({},{},{},{})'.format(param.name(),
+                                                                extent.xMinimum(),
+                                                                extent.xMaximum(),
+                                                                extent.yMinimum(),
+                                                                extent.yMaximum()))
+            elif isinstance(param, QgsProcessingParameterCrs):
+                crs = self.parameterAsCrs(parameters, param.name(), context)
+                if crs.isValid():
+                    commands.append('{}="{}"'.format(param.name(), crs.authid()))
                 else:
-                    value = param.value
-                    if not value.lower().endswith('csv'):
-                        raise GeoAlgorithmExecutionException(
-                            'Unsupported input file format.\n' + value)
-                    if self.pass_file_names:
-                        commands.append(param.name + ' = "' + value + '"')
-                    else:
-                        commands.append(param.name + ' <- read.csv("' + value +
-                                        '", head=TRUE, sep=",")')
-            elif isinstance(param, ParameterExtent):
-                if param.value:
-                    tokens = str(param.value).split(',')
-                    # Extent from raster package is "xmin, xmax, ymin, ymax" like in Processing
-                    # http://www.inside-r.org/packages/cran/raster/docs/Extent
-                    commands.append(
-                        param.name + ' = extent(' + tokens[0] + ',' + tokens[1] + ',' + tokens[2] + ',' + tokens[
-                            3] + ')')
+                    commands.append(param.name() + '= NULL')
+            elif isinstance(param,
+                            (QgsProcessingParameterField, QgsProcessingParameterString, QgsProcessingParameterFile)):
+                value = self.parameterAsString(parameters, param.name(), context)
+                commands.append('{}="{}"'.format(param.name(), value))
+            elif isinstance(param, QgsProcessingParameterNumber):
+                value = self.parameterAsDouble(parameters, param.name(), context)
+                commands.append('{}="{}"'.format(param.name(), value))
+            elif isinstance(param, QgsProcessingParameterEnum):
+                value = self.parameterAsEnum(parameters, param.name(), context)
+                commands.append('{}="{}"'.format(param.name(), value))
+            elif isinstance(param, QgsProcessingParameterBoolean):
+                value = self.parameterAsBool(parameters, param.name(), context)
+                commands.append('{}="{}"'.format(param.name(), 'TRUE' if value else 'FALSE'))
+            elif isinstance(param, QgsProcessingParameterMultipleLayers):
+                layer_idx  = 0
+                layers = []
+                if param.layerType() == QgsProcessing.TypeRaster:
+                    pass
+                    #layers = param.value.split(';')
+                    #for layer in layers:
+                    #    layer = layer.replace('\\', '/')
+                    #    if self.pass_file_names:
+                    #        commands.append('tempvar' + str(layer_idx) + ' <- "' +
+                    #                        layer + '"')
+                    #    elif self.use_raster_package:
+                    #        commands.append('tempvar' + str(layer_idx) + ' <- ' +
+                    #                        'brick("' + layer + '")')
+                    #    else:
+                    #        commands.append('tempvar' + str(layer_idx) + ' <- ' +
+                    #                        'readGDAL("' + layer + '")')
+                    #    #layer_idx += 1
                 else:
-                    commands.append(param.name + ' = NULL')
-            elif isinstance(param, ParameterCrs):
-                if param.value is None:
-                    commands.append(param.name + '= NULL')
-                else:
-                    commands.append(param.name + ' = "' + param.value + '"')
-            elif isinstance(param, (ParameterTableField, ParameterString, ParameterFile)):
-                if param.value is None:
-                    commands.append(param.name + '= NULL')
-                else:
-                    commands.append(param.name + '="' + param.value + '"')
-            elif isinstance(param, (ParameterNumber, ParameterSelection)):
-                if param.value is None:
-                    commands.append(param.name + '= NULL')
-                else:
-                    commands.append(param.name + '=' + str(param.value))
-            elif isinstance(param, ParameterBoolean):
-                if param.value:
-                    commands.append(param.name + '=TRUE')
-                else:
-                    commands.append(param.name + '=FALSE')
-            elif isinstance(param, ParameterMultipleInput):
-                iLayer = 0
-                if param.datatype == dataobjects.TYPE_RASTER:
-                    layers = param.value.split(';')
-                    for layer in layers:
-                        layer = layer.replace('\\', '/')
-                        if self.pass_file_names:
-                            commands.append('tempvar' + str(iLayer) + ' <- "' +
-                                            layer + '"')
-                        elif self.use_raster_package:
-                            commands.append('tempvar' + str(iLayer) + ' <- ' +
-                                            'brick("' + layer + '")')
-                        else:
-                            commands.append('tempvar' + str(iLayer) + ' <- ' +
-                                            'readGDAL("' + layer + '")')
-                        iLayer += 1
-                else:
-                    exported = param.getSafeExportedLayers()
-                    layers = exported.split(';')
-                    for layer in layers:
-                        if not layer.lower().endswith('shp') \
-                                and not self.pass_file_names:
-                            raise GeoAlgorithmExecutionException(
-                                'Unsupported input file format.\n' + layer)
-                        layer = layer.replace('\\', '/')
-                        filename = os.path.basename(layer)
-                        filename = filename[:-4]
-                        if self.pass_file_names:
-                            commands.append('tempvar' + str(iLayer) + ' <- "' +
-                                            layer + '"')
-                        else:
-                            commands.append('tempvar' + str(iLayer) + ' <- ' +
-                                            'readOGR("' + layer + '",layer="' +
-                                            filename + '")')
-                        iLayer += 1
+                    pass
+                    #exported = param.getSafeExportedLayers()#
+                    #layers = exported.split(';')
+                    #for layer in layers:
+                    #    if not layer.lower().endswith('shp') \
+                    #            and not self.pass_file_names:
+                    #        raise GeoAlgorithmExecutionException(
+                    #            'Unsupported input file format.\n' + layer)
+                    #    layer = layer.replace('\\', '/')
+                    #    filename = os.path.basename(layer)
+                    #    filename = filename[:-4]
+                    #    if self.pass_file_names:
+                    #        commands.append('tempvar' + str(layer_idx) + ' <- "' +
+                    #                        layer + '"')
+                    #    else:
+                    #        commands.append('tempvar' + str(layer_idx) + ' <- ' +
+                    #                        'readOGR("' + layer + '",layer="' +
+                    #                        filename + '")')
+                    #    layer_idx += 1
                 s = ''
                 s += param.name
                 s += ' = c('
-                iLayer = 0
-                for layer in layers:
-                    if iLayer != 0:
+                layer_idx = 0
+                for _ in layers:
+                    if layer_idx != 0:
                         s += ','
-                    s += 'tempvar' + str(iLayer)
-                    iLayer += 1
+                    s += 'tempvar{}'.format(layer_idx)
+                    layer_idx += 1
                 s += ')\n'
                 commands.append(s)
 
-        if self.show_plots:
-            htmlfilename = self.getOutputValue(RAlgorithm.RPLOTS)
-            self.plotsFilename = htmlfilename + '.png'
-            self.plotsFilename = self.plotsFilename.replace('\\', '/')
-            commands.append('png("' + self.plotsFilename + '")')
-
+        #if self.show_plots:
+        #    htmlfilename = self.getOutputValue(RAlgorithm.RPLOTS)
+        #    self.plotsFilename = htmlfilename + '.png'
+        #    self.plotsFilename = self.plotsFilename.replace('\\', '/')
+        #    commands.append('png("' + self.plotsFilename + '")')
+#
         return commands
 
-    def getRCommands(self):
+    def build_r_commands(self, _, __, ___):
+        """
+        Returns the body of the R script
+        """
         return self.commands
 
     # def help(self):
