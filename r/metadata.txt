@@ -7,14 +7,14 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=10 Rivers FMU Fire Risk
+name=Processing R Provider Plugin
 qgisMinimumVersion=3.2
-description=10 Rivers FMU Fire Risk
+description=Processing provider for R scripts
 version=0.1
 author=North Road
 email=nyall@north-road.com
 
-about=10 Rivers FMU Fire Risk
+about=Processing provider for R scripts
 
 tracker=http://bugs
 repository=http://repo
@@ -32,7 +32,7 @@ homepage=http://homepage
 category=Plugins
 icon=icon.png
 # experimental flag
-experimental=False
+experimental=True
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False

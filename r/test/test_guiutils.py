@@ -32,6 +32,16 @@ class GuiUtilsTest(unittest.TestCase):
             GuiUtils.get_icon('providerR.svg').isNull())
         self.assertTrue(GuiUtils.get_icon('not_an_icon.svg').isNull())
 
+    def testGetIconSvg(self):
+        """
+        Tests get_icon svg path
+        """
+        self.assertTrue(
+            GuiUtils.get_icon_svg('providerR.svg'))
+        self.assertIn('providerR.svg',
+            GuiUtils.get_icon_svg('providerR.svg'))
+        self.assertFalse(GuiUtils.get_icon_svg('not_an_icon.svg'))
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(GuiUtilsTest)
