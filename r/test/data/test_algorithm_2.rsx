@@ -1,6 +1,6 @@
-##showplots
-##dontuserasterpackage
-##passfilenames
+# showplots
+# dontuserasterpackage
+# passfilenames
 
 ##polyg=vector
 ##polyg_category_id=field polyg

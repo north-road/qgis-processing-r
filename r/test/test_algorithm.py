@@ -37,6 +37,17 @@ class AlgorithmTest(unittest.TestCase):
         alg.initAlgorithm()
         self.assertEqual(alg.name(), 'test_algorithm_1')
         self.assertEqual(alg.displayName(), 'test algorithm 1')
+        self.assertTrue(alg.show_plots)
+        self.assertFalse(alg.use_raster_package)
+        self.assertTrue(alg.pass_file_names)
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
+        alg.initAlgorithm()
+        self.assertEqual(alg.name(), 'test_algorithm_2')
+        self.assertEqual(alg.displayName(), 'test algorithm 2')
+        self.assertFalse(alg.show_plots)
+        self.assertTrue(alg.use_raster_package)
+        self.assertFalse(alg.pass_file_names)
 
 
 if __name__ == "__main__":
