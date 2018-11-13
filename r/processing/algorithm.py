@@ -42,7 +42,6 @@ from qgis.core import (QgsProcessing,
 from qgis.PyQt.QtCore import QCoreApplication
 # from processing.gui.Help2Html import getHtmlFromHelpFile
 from processing.core.parameters import getParameterFromString
-from processing.tools.system import isWindows
 from r.processing.outputs import create_output_from_string
 from r.processing.utils import RUtils
 from r.gui.gui_utils import GuiUtils
@@ -226,8 +225,8 @@ class RAlgorithm(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, feedback):
         self.results = {}
 
-        if isWindows():
-            path = RUtils.RFolder()
+        if RUtils.is_windows():
+            path = RUtils.r_binary_folder()
             if path == '':
                 raise QgsProcessingException(
                     self.tr('R folder is not configured.\nPlease configure it '
@@ -354,7 +353,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         commands.append('options("repos"="{}")'.format(RUtils.package_repo()))
 
         # Try to install packages if needed
-        if RUtils.use_user_libary():
+        if RUtils.use_user_library():
             commands.append('.libPaths(\"' + str(RUtils.r_library_folder()).replace('\\', '/') + '\")')
 
         packages = RUtils.get_required_packages(self.script)

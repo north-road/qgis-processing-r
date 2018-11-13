@@ -26,7 +26,6 @@ from qgis.core import (Qgis,
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from processing.gui.ProviderActions import (ProviderActions,
                                             ProviderContextMenuActions)
-from processing.tools.system import isWindows
 
 from r.processing.actions.create_new_script import CreateNewScriptAction
 from r.processing.actions.edit_script import EditScriptAction
@@ -52,6 +51,9 @@ class RAlgorithmProvider(QgsProcessingProvider):
                                    DeleteScriptAction()]
 
     def load(self):
+        """
+        Called when first loading provider
+        """
         ProcessingConfig.settingIcons[self.name()] = self.icon()
         ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_R',
                                             self.tr('Activate'), False))
@@ -75,14 +77,16 @@ class RAlgorithmProvider(QgsProcessingProvider):
             RUtils.R_REPO, self.tr('Package repository'),
             "http://cran.at.r-project.org/", valuetype=Setting.STRING))
 
-        # if isWindows():
-        #    ProcessingConfig.addSetting(Setting(#
-        #        self.name(),
-        #        RUtils.R_FOLDER, self.tr('R folder'), RUtils.RFolder(),
-        #        valuetype=Setting.FOLDER))
-        #    ProcessingConfig.addSetting(Setting(
-        #        self.name(),
-        #        RUtils.R_USE64, self.tr('Use 64 bit version'), False))
+        ProcessingConfig.addSetting(Setting(
+            self.name(),
+            RUtils.R_FOLDER, self.tr('R folder'), RUtils.r_binary_folder(),
+            valuetype=Setting.FOLDER))
+
+        if RUtils.is_windows():
+            ProcessingConfig.addSetting(Setting(
+                self.name(),
+                RUtils.R_USE64, self.tr('Use 64 bit version'), False))
+
         ProviderActions.registerProviderActions(self, self.actions)
         ProviderContextMenuActions.registerProviderContextMenuActions(self.contextMenuActions)
         ProcessingConfig.readSettings()
@@ -90,38 +94,58 @@ class RAlgorithmProvider(QgsProcessingProvider):
         return True
 
     def unload(self):
+        """
+        Called when unloading provider
+        """
         ProcessingConfig.removeSetting('ACTIVATE_R')
         ProcessingConfig.removeSetting(RUtils.RSCRIPTS_FOLDER)
         ProcessingConfig.removeSetting(RUtils.R_LIBS_USER)
-        # if isWindows():
-        #     ProcessingConfig.removeSetting(RUtils.R_FOLDER)
-        #
-        #     ProcessingConfig.removeSetting(RUtils.R_USE64)
+        ProcessingConfig.removeSetting(RUtils.R_FOLDER)
+        if RUtils.is_windows():
+            ProcessingConfig.removeSetting(RUtils.R_USE64)
         ProviderActions.deregisterProviderActions(self)
         ProviderContextMenuActions.deregisterProviderContextMenuActions(self.contextMenuActions)
 
     def isActive(self):
+        """
+        Returns True if provider is active
+        """
         return ProcessingConfig.getSetting('ACTIVATE_R')
 
     def setActive(self, active):
+        """
+        Sets whether the provider should be activated
+        """
         ProcessingConfig.setSettingValue('ACTIVATE_R', active)
 
     def icon(self):
+        """
+        Returns the provider's icon
+        """
         return GuiUtils.get_icon("providerR.svg")
 
     def svgIconPath(self):
+        """
+        Returns a path to the provider's icon as a SVG file
+        """
         return GuiUtils.get_icon_svg("providerR.svg")
 
     def name(self):
-        return self.tr('R')
-
-    def longName(self):
+        """
+        Display name for provider
+        """
         return self.tr('R')
 
     def id(self):
+        """
+        Unique ID for provider
+        """
         return 'r'
 
     def loadAlgorithms(self):
+        """
+        Called when provider must populate its available algorithms
+        """
         algs = []
         for f in RUtils.script_folders():
             algs.extend(self.load_scripts_from_folder(f))
@@ -131,7 +155,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
 
     def load_scripts_from_folder(self, folder):
         """
-        Loads all scripts found under the specified subfolder
+        Loads all scripts found under the specified sub-folder
         """
         if not os.path.exists(folder):
             return []

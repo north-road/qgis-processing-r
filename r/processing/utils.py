@@ -20,15 +20,15 @@ import re
 import os
 import stat
 import subprocess
+from typing import Optional
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsSettings,
-                       QgsProcessingUtils)
+from qgis.core import QgsProcessingUtils
 from processing.core.ProcessingConfig import ProcessingConfig
-from processing.tools.system import userFolder, isWindows, mkdir
+from processing.tools.system import userFolder, mkdir
 
 
-class RUtils(object):
+class RUtils:  # pylint: disable=too-many-public-methods
     """
     Utilities for the R Provider and Algorithm
     """
@@ -42,43 +42,55 @@ class RUtils(object):
 
     VALID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
-    R_INSTALLED_SETTINGS_PATH = 'r/r_installed'
-
     rscriptfilename = os.path.join(userFolder(), 'processing_script.r')
 
     consoleResults = []
     allConsoleResults = []
 
     @staticmethod
-    def RFolder():
+    def is_windows() -> bool:
+        """
+        Returns True if the plugin is running on Windows
+        """
+        return os.name == 'nt'
+
+    @staticmethod
+    def r_binary_folder() -> str:
+        """
+        Returns the folder (hopefully) containing R binaries
+        """
         folder = ProcessingConfig.getSetting(RUtils.R_FOLDER)
-        if folder is None:
-            if isWindows():
-                if 'ProgramW6432' in list(os.environ.keys()) and os.path.isdir(
-                        os.path.join(os.environ['ProgramW6432'], 'R')):
-                    testfolder = os.path.join(os.environ['ProgramW6432'], 'R')
-                elif 'PROGRAMFILES(x86)' in list(os.environ.keys()) and os.path.isdir(
-                        os.path.join(os.environ['PROGRAMFILES(x86)'], 'R')):
-                    testfolder = os.path.join(os.environ['PROGRAMFILES(x86)'], 'R')
-                elif 'PROGRAMFILES' in list(os.environ.keys()) and os.path.isdir(
-                        os.path.join(os.environ['PROGRAMFILES'], 'R')):
-                    testfolder = os.path.join(os.environ['PROGRAMFILES'], 'R')
-                else:
-                    testfolder = 'C:\\R'
+        if not folder:
+            folder = RUtils.guess_r_binary_folder()
 
-                if os.path.isdir(testfolder):
-                    subfolders = os.listdir(testfolder)
-                    subfolders.sort(reverse=True)
-                    for subfolder in subfolders:
-                        if subfolder.startswith('R-'):
-                            folder = os.path.join(testfolder, subfolder)
-                            break
-                else:
-                    folder = ''
-            else:
-                folder = ''
+        return os.path.abspath(folder) if folder else ''
 
-        return os.path.abspath(str(folder))
+    @staticmethod
+    def guess_r_binary_folder() -> str:
+        """
+        Tries to pick a reasonable path for the R binaries to be executed from
+        """
+        if not RUtils.is_windows():
+            # expect R to be in OS path
+            return ''
+
+        search_paths = ['ProgramW6432', 'PROGRAMFILES(x86)', 'PROGRAMFILES', 'C:\\']
+        r_folder = ''
+        for path in search_paths:
+            if path in os.environ and os.path.isdir(
+                    os.path.join(os.environ[path], 'R')):
+                r_folder = os.path.join(os.environ[path], 'R')
+                break
+
+        if r_folder:
+            sub_folders = os.listdir(r_folder)
+            sub_folders.sort(reverse=True)
+            for sub_folder in sub_folders:
+                if sub_folder.upper().startswith('R-'):
+                    return os.path.join(r_folder, sub_folder)
+
+        # not found!
+        return ''
 
     @staticmethod
     def package_repo():
@@ -88,7 +100,7 @@ class RUtils(object):
         return ProcessingConfig.getSetting(RUtils.R_REPO)
 
     @staticmethod
-    def use_user_libary():
+    def use_user_library():
         """
         Returns True if user library folder should be used instead of system folder
         """
@@ -104,7 +116,7 @@ class RUtils(object):
             folder = str(os.path.join(userFolder(), 'rlibs'))
         try:
             mkdir(folder)
-        except:
+        except FileNotFoundError:
             folder = str(os.path.join(userFolder(), 'rlibs'))
             mkdir(folder)
         return os.path.abspath(str(folder))
@@ -175,7 +187,7 @@ class RUtils(object):
         return any([l in line for l in ['Error ', 'Execution halted']])
 
     @staticmethod
-    def getWindowsCodePage():
+    def get_windows_code_page():
         """
         Determines MS-Windows CMD.exe shell codepage.
         Used into GRASS exec script under MS-Windows.
@@ -194,31 +206,27 @@ class RUtils(object):
         # run commands
         RUtils.verboseCommands = alg.getVerboseCommands()
         RUtils.createRScriptFromRCommands(alg.build_r_script(parameters, context, feedback))
-        if isWindows():
-            if ProcessingConfig.getSetting(RUtils.R_USE64):
-                execDir = 'x64'
-            else:
-                execDir = 'i386'
+        if RUtils.is_windows():
             command = [
-                os.path.join(RUtils.RFolder(), 'bin', execDir, 'R.exe'),
+                RUtils.path_to_r_executable(),
                 'CMD',
                 'BATCH',
                 '--vanilla',
                 RUtils.getRScriptFilename(),
                 RUtils.getConsoleOutputFilename()
             ]
-
         else:
             os.chmod(RUtils.getRScriptFilename(), stat.S_IEXEC | stat.S_IREAD |
                      stat.S_IWRITE)
-            command = 'R CMD BATCH --vanilla ' + RUtils.getRScriptFilename() \
+            command = '{} CMD BATCH --vanilla '.format(RUtils.path_to_r_executable()) \
+                      + RUtils.getRScriptFilename() \
                       + ' ' + RUtils.getConsoleOutputFilename()
 
         feedback.pushInfo(RUtils.tr('R execution console output'))
 
         # For MS-Windows, we need to hide the console window.
         si = None
-        if isWindows():
+        if RUtils.is_windows():
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
@@ -229,8 +237,8 @@ class RUtils(object):
                 stdout=subprocess.PIPE,
                 stdin=subprocess.DEVNULL,
                 stderr=subprocess.STDOUT,
-                encoding="cp{}".format(RUtils.getWindowsCodePage()) if isWindows() else None,
-                startupinfo=si if isWindows() else None,
+                encoding="cp{}".format(RUtils.get_windows_code_page()) if RUtils.is_windows() else None,
+                startupinfo=si if RUtils.is_windows() else None,
                 universal_newlines=True
         ) as proc:
             for line in iter(proc.stdout.readline, ''):
@@ -275,26 +283,32 @@ class RUtils(object):
         return s
 
     @staticmethod
-    def check_r_is_installed(ignore_registry_settings=False):
-        if isWindows():
-            path = RUtils.RFolder()
+    def path_to_r_executable() -> str:
+        """
+        Returns the path to the R executable
+        """
+        bin_folder = RUtils.r_binary_folder()
+        if bin_folder:
+            if RUtils.is_windows():
+                if ProcessingConfig.getSetting(RUtils.R_USE64):
+                    exec_dir = 'x64'
+                else:
+                    exec_dir = 'i386'
+                return os.path.join(bin_folder, 'bin', exec_dir, 'R.exe')
+            else:
+                return os.path.join(bin_folder, 'R')
+
+        return 'R'
+
+    @staticmethod
+    def check_r_is_installed() -> Optional[str]:
+        if RUtils.is_windows():
+            path = RUtils.r_binary_folder()
             if path == '':
                 return RUtils.tr('R folder is not configured.\nPlease configure '
                                  'it before running R scripts.')
 
-        settings = QgsSettings()
-        if not ignore_registry_settings:
-            if settings.value(RUtils.R_INSTALLED_SETTINGS_PATH, False, bool, QgsSettings.Plugins):
-                return
-
-        if isWindows():
-            if ProcessingConfig.getSetting(RUtils.R_USE64):
-                execDir = 'x64'
-            else:
-                execDir = 'i386'
-            command = [os.path.join(RUtils.RFolder(), 'bin', execDir, 'R.exe'), '--version']
-        else:
-            command = ['R --version']
+        command = ['{} --version'.format(RUtils.path_to_r_executable())]
 
         with subprocess.Popen(
                 command,
@@ -306,8 +320,7 @@ class RUtils(object):
         ) as proc:
             for line in proc.stdout:
                 if 'R version' in line:
-                    settings.setValue(RUtils.R_INSTALLED_SETTINGS_PATH, True, QgsSettings.Plugins)
-                    return
+                    return None
 
         html = RUtils.tr(
             '<p>This algorithm requires R to be run. Unfortunately, it '
@@ -328,6 +341,9 @@ class RUtils(object):
 
     @staticmethod
     def tr(string, context=''):
+        """
+        Translates a string
+        """
         if context == '':
             context = 'RUtils'
         return QCoreApplication.translate(context, string)
