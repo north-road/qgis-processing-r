@@ -170,7 +170,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         while ender < 10:
             if line.startswith('##'):
                 try:
-                    self.process_parameter_line(line)
+                    self.process_metadata_line(line)
                 except Exception:  # pylint: disable=broad-except
                     self.error = self.tr('This script has a syntax error.\n'
                                          'Problem with line: {0}').format(line)
@@ -201,9 +201,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         return self.script_body_commands
 
-    def process_parameter_line(self, line):
+    def process_metadata_line(self, line):
         """
-        Processes a single script line representing a parameter
+        Processes a "metadata" (##) line
         """
         line = line.replace('#', '')
 
@@ -220,19 +220,35 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.pass_file_names = True
             return
 
-        tokens = line.split('=')
-        description = RUtils.create_descriptive_name(tokens[0])
-        if tokens[1].lower().strip() == 'group':
-            self._group = tokens[0]
+        value, type_= self.split_tokens(line)
+        if type_.lower().strip() == 'group':
+            self._group = value
             return
-        if tokens[1].lower().strip() == 'name':
-            self._name = self._display_name = tokens[0]
+        if type_.lower().strip() == 'name':
+            self._name = self._display_name = value
             self._name = RUtils.strip_special_characters(self._name.lower())
             return
 
+        self.process_parameter_line(line)
+
+    @staticmethod
+    def split_tokens(line):
+        """
+        Attempts to split a line into tokens
+        """
+        tokens = line.split('=')
+        return tokens[0], tokens[1]
+
+    def process_parameter_line(self, line):
+        """
+        Processes a single script line representing a parameter
+        """
+        value, type_ = self.split_tokens(line)
+        description = RUtils.create_descriptive_name(value)
+
         output = create_output_from_string(line)
         if output is not None:
-            output.setName(tokens[0])
+            output.setName(value)
             output.setDescription(description)
             self.addOutput(output)
         else:

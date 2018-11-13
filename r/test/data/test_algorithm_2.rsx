@@ -1,7 +1,5 @@
-# showplots
-# dontuserasterpackage
-# passfilenames
-
+##my test=name
+##my group=group
 ##polyg=vector
 ##polyg_category_id=field polyg
 ##table_category_id=field sizes_table
