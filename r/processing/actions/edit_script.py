@@ -46,7 +46,7 @@ class EditScriptAction(ContextAction):
         """
          Returns whether the action is enabled
          """
-        return isinstance(self.itemData, QgsProcessingAlgorithm) and self.itemData.provider().id() == "r"
+        return isinstance(self.itemData, QgsProcessingAlgorithm) and self.itemData.provider().id() == "r" and self.itemData.is_user_script
 
     def execute(self):
         """

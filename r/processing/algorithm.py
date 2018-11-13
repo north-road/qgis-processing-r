@@ -75,9 +75,10 @@ class RAlgorithm(QgsProcessingAlgorithm):
         self._name = ''
         self._display_name = ''
         self._group = ''
-        self.description_file = description_file
+        self.description_file = os.path.realpath(description_file) if description_file else ''
         self.error = None
         self.commands = []
+        self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
 
         if script is not None:
             self.load_from_string()
@@ -105,6 +106,9 @@ class RAlgorithm(QgsProcessingAlgorithm):
     def displayName(self):
         return self._display_name
 
+    def shortDescription(self):
+        return self.description_file
+
     def group(self):
         return self._group
 
@@ -124,6 +128,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
         """
         filename = os.path.basename(self.description_file)
         self._name = filename[:filename.rfind('.')].replace('_', ' ')
+        self._display_name = self._name
         self._group = self.tr('User R scripts')
         with open(self.description_file, 'r') as f:
             lines = [line.strip() for line in f]
