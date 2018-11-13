@@ -47,7 +47,7 @@ from r.processing.utils import RUtils
 from r.gui.gui_utils import GuiUtils
 
 
-class RAlgorithm(QgsProcessingAlgorithm):
+class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-methods
     """
     R Script Algorithm
     """
@@ -66,7 +66,9 @@ class RAlgorithm(QgsProcessingAlgorithm):
         self.error = None
         self.commands = []
         self.verbose_commands = []
-        self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
+        self.is_user_script = False
+        if description_file:
+            self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
 
         self.show_plots = False
         self.use_raster_package = False
@@ -75,36 +77,58 @@ class RAlgorithm(QgsProcessingAlgorithm):
         self.plots_filename = ''
         self.results = {}
 
-        if script is not None:
-            self.load_from_string()
-        if description_file is not None:
-            self.load_from_file()
-
     def createInstance(self):
+        """
+        Returns a new instance of this algorithm
+        """
         if self.description_file is not None:
             return RAlgorithm(self.description_file)
 
         return RAlgorithm(description_file=None, script=self.script)
 
-    def initAlgorithm(self, config=None):
-        pass
+    def initAlgorithm(self, _=None):
+        """
+        Initializes the algorithm
+        """
+        if self.script is not None:
+            self.load_from_string()
+        if self.description_file is not None:
+            self.load_from_file()
 
     def icon(self):
+        """
+        Returns the algorithm's icon
+        """
         return GuiUtils.get_icon("providerR.svg")
 
     def svgIconPath(self):
+        """
+        Returns a path to the algorithm's icon as a SVG file
+        """
         return GuiUtils.get_icon_svg("providerR.svg")
 
     def name(self):
+        """
+        Internal unique id for algorithm
+        """
         return self._name
 
     def displayName(self):
+        """
+        User friendly display name
+        """
         return self._display_name
 
     def shortDescription(self):
+        """
+        Returns the path to the script file, for use in toolbox tooltips
+        """
         return self.description_file
 
     def group(self):
+        """
+        Returns the algorithm's group
+        """
         return self._group
 
     def load_from_string(self):
@@ -130,6 +154,9 @@ class RAlgorithm(QgsProcessingAlgorithm):
         self.parse_script(iter(lines))
 
     def parse_script(self, lines):
+        """
+        Parse the lines from an R script, initializing parameters and outputs as encountered
+        """
         self.script = ''
         self.commands = []
         self.error = None
@@ -143,7 +170,7 @@ class RAlgorithm(QgsProcessingAlgorithm):
             if line.startswith('##'):
                 try:
                     self.process_parameter_line(line)
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     self.error = self.tr('This script has a syntax error.\n'
                                          'Problem with line: {0}').format(line)
             elif line.startswith('>'):
@@ -327,11 +354,11 @@ class RAlgorithm(QgsProcessingAlgorithm):
                                                              feedback=feedback)
             ogr_layer = QgsVectorLayer(path, '', 'ogr')
             return self.load_vector_layer_command(name, ogr_layer, feedback)
-        else:
-            # already an ogr disk based layer source
-            return self.load_vector_layer_command(name, layer, feedback)
 
-    def load_vector_layer_command(self, name, layer, feedback):
+        # already an ogr disk based layer source
+        return self.load_vector_layer_command(name, layer, feedback)
+
+    def load_vector_layer_command(self, name, layer, _):
         """
         Creates a command to load a vector layer into the workspace
         """
@@ -340,8 +367,8 @@ class RAlgorithm(QgsProcessingAlgorithm):
         layer_name = source_parts.get('layerName')
         if self.pass_file_names:
             return '{}="{}"'.format(name, file_path)
-        else:
-            return '{}=readOgr("{}",layer="{}")'.format(name, file_path, layer_name)
+
+        return '{}=readOgr("{}",layer="{}")'.format(name, file_path, layer_name)
 
     def build_import_commands(self, parameters, context, feedback):
         """
