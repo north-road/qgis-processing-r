@@ -212,15 +212,13 @@ class RUtils:  # pylint: disable=too-many-public-methods
 
         console_results = list()
 
-        with subprocess.Popen(
-                command,
-                stdout=subprocess.PIPE,
-                stdin=subprocess.DEVNULL,
-                stderr=subprocess.STDOUT,
-                encoding="cp{}".format(RUtils.get_windows_code_page()) if RUtils.is_windows() else None,
-                startupinfo=si if RUtils.is_windows() else None,
-                universal_newlines=True
-        ) as proc:
+        with subprocess.Popen(command,
+                              stdout=subprocess.PIPE,
+                              stdin=subprocess.DEVNULL,
+                              stderr=subprocess.STDOUT,
+                              encoding="cp{}".format(RUtils.get_windows_code_page()) if RUtils.is_windows() else None,
+                              startupinfo=si if RUtils.is_windows() else None,
+                              universal_newlines=True) as proc:
             for line in iter(proc.stdout.readline, ''):
                 if feedback.isCanceled():
                     proc.terminate()
@@ -277,14 +275,12 @@ class RUtils:  # pylint: disable=too-many-public-methods
 
         command = ['{} --version'.format(RUtils.path_to_r_executable())]
 
-        with subprocess.Popen(
-                command,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stdin=subprocess.DEVNULL,
-                stderr=subprocess.STDOUT,
-                universal_newlines=True,
-        ) as proc:
+        with subprocess.Popen(command,
+                              shell=True,
+                              stdout=subprocess.PIPE,
+                              stdin=subprocess.DEVNULL,
+                              stderr=subprocess.STDOUT,
+                              universal_newlines=True) as proc:
             for line in proc.stdout:
                 if 'R version' in line:
                     return None

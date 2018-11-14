@@ -18,6 +18,7 @@
 """
 
 import os
+import json
 
 from qgis.core import (QgsProcessing,
                        QgsProviderRegistry,
@@ -39,9 +40,9 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFileDestination,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
-                       QgsVectorLayer)
+                       QgsVectorLayer,
+                       QgsProcessingUtils)
 from qgis.PyQt.QtCore import QCoreApplication
-# from processing.gui.Help2Html import getHtmlFromHelpFile
 from processing.core.parameters import getParameterFromString
 from r.processing.outputs import create_output_from_string
 from r.processing.utils import RUtils
@@ -573,26 +574,22 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         return self.commands
 
-    # def help(self):
-    #     helpfile = str(self.descriptionFile) + '.help'
-    #     if os.path.exists(helpfile):
-    #         return True, getHtmlFromHelpFile(self, helpfile)
-    #     else:
-    #         return False, None
-    #
-    # def shortHelp(self):
-    #     if self.descriptionFile is None:
-    #         return None
-    #     helpFile = str(self.descriptionFile) + '.help'
-    #     if os.path.exists(helpFile):
-    #         with open(helpFile) as f:
-    #             try:
-    #                 descriptions = json.load(f)
-    #                 if 'ALG_DESC' in descriptions:
-    #                     return self._formatHelp(str(descriptions['ALG_DESC']))
-    #             except:
-    #                 return None
-    #     return None
+    def shortHelpString(self):
+        """
+        Returns the algorithms helper string
+        """
+        if self.description_file is None:
+            return ''
+
+        help_file = self.description_file + '.help'
+        print(help_file)
+        if os.path.exists(help_file):
+            with open(help_file) as f:
+                descriptions = json.load(f)
+
+            return QgsProcessingUtils.formatHelpMapAsHtml(descriptions, self)
+
+        return ''
 
     def tr(self, string, context=''):
         """

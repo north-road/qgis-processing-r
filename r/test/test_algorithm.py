@@ -168,6 +168,21 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_export_commands({'Output': '/home/test/lines.gpkg'}, context, feedback)
         self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.gpkg","lines", driver="GPKG")'])
 
+    def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
+        """
+        Test algorithm help
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_1.rsx'))
+        alg.initAlgorithm()
+        self.assertIn('A polygon layer', alg.shortHelpString())
+        self.assertIn('Me2', alg.shortHelpString())
+        self.assertIn('Test help.', alg.shortHelpString())
+
+        # no help file
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
+        alg.initAlgorithm()
+        self.assertFalse(alg.shortHelpString())
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
