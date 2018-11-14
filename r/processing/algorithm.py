@@ -132,6 +132,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         return self._group
 
+    def groupId(self):
+        """
+        Returns the algorithm's group ID
+        """
+        return self._group
+
     def load_from_string(self):
         """
         Load the algorithm from a string
@@ -139,7 +145,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         lines = self.script.split('\n')
         self._name = 'unnamedalgorithm'
         self._display_name = self.tr('[Unnamed algorithm]')
-        self._group = self.tr('User R scripts')
         self.parse_script(iter(lines))
 
     def load_from_file(self):
@@ -150,7 +155,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self._display_name = self._name
         self._name = filename[:filename.rfind('.')]
         self._display_name = self._name.replace('_', ' ')
-        self._group = self.tr('User R scripts')
         with open(self.description_file, 'r') as f:
             lines = [line.strip() for line in f]
         self.parse_script(iter(lines))

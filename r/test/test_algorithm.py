@@ -51,6 +51,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.name(), 'mytest')
         self.assertEqual(alg.displayName(), 'my test')
         self.assertEqual(alg.group(), 'my group')
+        self.assertEqual(alg.groupId(), 'my group')
         self.assertFalse(alg.show_plots)
         self.assertTrue(alg.use_raster_package)
         self.assertFalse(alg.pass_file_names)
