@@ -339,6 +339,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     if not dest.lower().endswith('tif'):
                         dest = dest + '.tif'
                     commands.append('writeGDAL({},"{}")'.format(out.name(), dest))
+                self.results[out.name()] = dest
             elif isinstance(out, QgsProcessingParameterVectorDestination):
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
                 dest = dest.replace('\\', '/')
@@ -348,6 +349,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 filename = filename[:-4]
                 commands.append('writeOGR(' + out.name() + ',"' + dest + '","' +
                                 filename + '", driver="ESRI Shapefile")')
+                self.results[out.name()] = dest
+
             # elif isinstance(out, OutputTable):
             #    value = out.value
             #    value = value.replace('\\', '/')
@@ -542,6 +545,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     layer_idx += 1
                 s += ')\n'
                 commands.append(s)
+            # TODO folder, file/html output paths should be set here
 
         if self.show_plots:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
