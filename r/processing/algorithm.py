@@ -77,6 +77,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self.show_console_output = False
         self.plots_filename = ''
         self.results = {}
+        if self.script is not None:
+            self.load_from_string()
+        if self.description_file is not None:
+            self.load_from_file()
 
     def createInstance(self):
         """
@@ -91,10 +95,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Initializes the algorithm
         """
-        if self.script is not None:
-            self.load_from_string()
-        if self.description_file is not None:
-            self.load_from_file()
+        pass
 
     def icon(self):
         """
