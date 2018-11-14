@@ -176,10 +176,6 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return RUtils.rscriptfilename
 
     @staticmethod
-    def getConsoleOutputFilename():
-        return RUtils.getRScriptFilename() + '.Rout'
-
-    @staticmethod
     def is_error_line(line):
         """
         Returns True if the given line looks like an error message
@@ -212,13 +208,9 @@ class RUtils:  # pylint: disable=too-many-public-methods
 
         command = [
             RUtils.path_to_r_executable(),
-            'CMD',
-            'BATCH',
-            '--vanilla',
-            RUtils.getRScriptFilename(),
-            RUtils.getConsoleOutputFilename()
+            RUtils.getRScriptFilename()
         ]
-        
+
         feedback.pushInfo(RUtils.tr('R execution console output'))
 
         # For MS-Windows, we need to hide the console window.
@@ -228,9 +220,10 @@ class RUtils:  # pylint: disable=too-many-public-methods
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
 
+        RUtils.consoleResults = []
+
         with subprocess.Popen(
                 command,
-                shell=True,
                 stdout=subprocess.PIPE,
                 stdin=subprocess.DEVNULL,
                 stderr=subprocess.STDOUT,
@@ -240,34 +233,10 @@ class RUtils:  # pylint: disable=too-many-public-methods
         ) as proc:
             for line in iter(proc.stdout.readline, ''):
                 if RUtils.is_error_line(line):
-                    feedback.reportError(line)
+                    feedback.reportError(line.strip())
                 else:
-                    feedback.pushConsoleInfo(line)
-
-        RUtils.createConsoleOutput()
-
-        loglines = RUtils.allConsoleResults
-        for line in loglines:
-            if RUtils.is_error_line(line):
-                feedback.reportError(line)
-            else:
-                feedback.pushConsoleInfo(line)
-
-    @staticmethod
-    def createConsoleOutput():
-        RUtils.consoleResults = []
-        RUtils.allConsoleResults = []
-        add = False
-        if os.path.exists(RUtils.getConsoleOutputFilename()):
-            with open(RUtils.getConsoleOutputFilename()) as lines:
-                for line in lines:
-                    line = line.strip().strip(' ')
-                    if line.startswith('>'):
-                        line = line[1:].strip(' ')
-                        add = line in RUtils.verboseCommands
-                    elif add:
-                        RUtils.consoleResults.append('<p>' + line + '</p>\n')
-                    RUtils.allConsoleResults.append(line)
+                    feedback.pushConsoleInfo(line.strip())
+                RUtils.consoleResults.append('<p>' + line.strip() + '</p>\n')
 
     @staticmethod
     def getConsoleOutput():
@@ -291,11 +260,11 @@ class RUtils:  # pylint: disable=too-many-public-methods
                     exec_dir = 'x64'
                 else:
                     exec_dir = 'i386'
-                return os.path.join(bin_folder, 'bin', exec_dir, 'R.exe')
+                return os.path.join(bin_folder, 'bin', exec_dir, 'Rscript.exe')
             else:
-                return os.path.join(bin_folder, 'R')
+                return os.path.join(bin_folder, 'Rscript')
 
-        return 'R'
+        return 'Rscript'
 
     @staticmethod
     def check_r_is_installed() -> Optional[str]:
