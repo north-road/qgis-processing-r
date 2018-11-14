@@ -206,22 +206,19 @@ class RUtils:  # pylint: disable=too-many-public-methods
         # run commands
         RUtils.verboseCommands = alg.get_script_body_commands()
         RUtils.createRScriptFromRCommands(alg.build_r_script(parameters, context, feedback))
-        if RUtils.is_windows():
-            command = [
-                RUtils.path_to_r_executable(),
-                'CMD',
-                'BATCH',
-                '--vanilla',
-                RUtils.getRScriptFilename(),
-                RUtils.getConsoleOutputFilename()
-            ]
-        else:
+        if not RUtils.is_windows():
             os.chmod(RUtils.getRScriptFilename(), stat.S_IEXEC | stat.S_IREAD |
                      stat.S_IWRITE)
-            command = '{} CMD BATCH --vanilla '.format(RUtils.path_to_r_executable()) \
-                      + RUtils.getRScriptFilename() \
-                      + ' ' + RUtils.getConsoleOutputFilename()
 
+        command = [
+            RUtils.path_to_r_executable(),
+            'CMD',
+            'BATCH',
+            '--vanilla',
+            RUtils.getRScriptFilename(),
+            RUtils.getConsoleOutputFilename()
+        ]
+        
         feedback.pushInfo(RUtils.tr('R execution console output'))
 
         # For MS-Windows, we need to hide the console window.
