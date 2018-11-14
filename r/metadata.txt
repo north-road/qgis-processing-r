@@ -8,16 +8,16 @@
 
 [general]
 name=Processing R Provider
-qgisMinimumVersion=3.2
+qgisMinimumVersion=3.4
 description=A Processing provider for connecting to the R statistics framework
-version=0.1
+version=0.0.2
 author=North Road
 email=nyall@north-road.com
 
 about=Processing provider for R scripts
 
-tracker=http://bugs
-repository=http://repo
+tracker=https://github.com/north-road/qgis-processing-r/issues
+repository=https://github.com/north-road/qgis-processing-r
 # End of mandatory metadata
 
 # Recommended items:
@@ -28,7 +28,7 @@ repository=http://repo
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=http://homepage
+homepage=https://github.com/north-road/qgis-processing-r
 category=Plugins
 icon=icon.png
 # experimental flag
