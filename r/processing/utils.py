@@ -222,6 +222,9 @@ class RUtils:  # pylint: disable=too-many-public-methods
                 universal_newlines=True
         ) as proc:
             for line in iter(proc.stdout.readline, ''):
+                if feedback.isCanceled():
+                    proc.terminate()
+
                 if RUtils.is_error_line(line):
                     feedback.reportError(line.strip())
                 else:
