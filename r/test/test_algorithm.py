@@ -17,7 +17,10 @@ __revision__ = '$Format:%H$'
 import unittest
 import os
 from qgis.core import (QgsProcessingParameterNumber,
-                       QgsProcessing)
+                       QgsProcessing,
+                       QgsProcessingContext,
+                       QgsProcessingFeedback,
+                       QgsVectorLayer)
 from r.processing.algorithm import RAlgorithm
 from .utilities import get_qgis_app
 
@@ -128,6 +131,28 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.name(), 'bad_algorithm')
         self.assertEqual(alg.displayName(), 'bad algorithm')
         self.assertEqual(alg.error, 'This script has a syntax error.\nProblem with line: polyg=xvector')
+
+    def testReadOgr(self):
+        """
+        Test reading vector inputs
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_vectorin.rsx'))
+        alg.initAlgorithm()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp')}, context, feedback)
+        self.assertEqual(script, ['Layer=readOGR("{}",layer="lines")'.format(test_data_path)])
+        vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
+        self.assertTrue(vl.isValid())
+        script = alg.build_import_commands({'Layer': vl}, context, feedback)
+        self.assertEqual(script,
+                         ['Layer=readOGR("{}",layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+        vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
+        self.assertTrue(vl.isValid())
+        script = alg.build_import_commands({'Layer': vl}, context, feedback)
+        self.assertEqual(script,
+                         ['Layer=readOGR("{}",layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
 
 
 if __name__ == "__main__":

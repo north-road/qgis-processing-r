@@ -314,6 +314,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         Builds up the set of R commands to run for the script
         """
         commands = []
+        commands += self.build_script_header_commands(parameters, context, feedback)
         commands += self.build_import_commands(parameters, context, feedback)
         commands += self.build_r_commands(parameters, context, feedback)
         commands += self.build_export_commands(parameters, context, feedback)
@@ -394,16 +395,22 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
         file_path = source_parts.get('path')
-        layer_name = source_parts.get('layerName')
         if self.pass_file_names:
             return '{}="{}"'.format(name, file_path)
 
-        return '{}=readOGR("{}",layer="{}")'.format(name, file_path, layer_name)
+        layer_name = source_parts.get('layerName')
+        if layer_name:
+            # eg geopackage source
+            return '{}=readOGR("{}",layer="{}")'.format(name, file_path, layer_name)
 
-    def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-                              parameters, context, feedback):
+        # no layer name -- readOGR expects the folder, with the filename as layer
+        folder, file_name = os.path.split(file_path)
+        base_name, _ = os.path.splitext(file_name)
+        return '{}=readOGR("{}",layer="{}")'.format(name, folder, base_name)
+
+    def build_script_header_commands(self, _, __, ___):
         """
-        Builds the set of input commands for the algorithm
+        Builds the set of script startup commands for the algorithm
         """
         commands = list()
 
@@ -422,6 +429,15 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                             '", dependencies=TRUE))')
         commands.append('library("raster")')
         commands.append('library("rgdal")')
+
+        return commands
+
+    def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+                              parameters, context, feedback):
+        """
+        Builds the set of input commands for the algorithm
+        """
+        commands = list()
 
         for param in self.parameterDefinitions():
             if param.isDestination():
