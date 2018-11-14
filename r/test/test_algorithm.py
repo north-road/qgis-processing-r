@@ -154,6 +154,20 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(script,
                          ['Layer=readOGR("{}",layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
 
+    def testVectorOutputs(self):
+        """
+        Test writing vector outputs
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_vectorout.rsx'))
+        alg.initAlgorithm()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+        script = alg.build_export_commands({'Output': '/home/test/lines.shp'}, context, feedback)
+        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.shp","lines", driver="ESRI Shapefile")'])
+        script = alg.build_export_commands({'Output': '/home/test/lines.gpkg'}, context, feedback)
+        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.gpkg","lines", driver="GPKG")'])
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)

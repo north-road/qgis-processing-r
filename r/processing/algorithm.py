@@ -340,12 +340,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             elif isinstance(out, QgsProcessingParameterVectorDestination):
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
                 dest = dest.replace('\\', '/')
-                if not dest.lower().endswith('shp'):
-                    dest = dest + '.shp'
                 filename = os.path.basename(dest)
-                filename = filename[:-4]
+                filename, ext = os.path.splitext(filename)
                 commands.append('writeOGR(' + out.name() + ',"' + dest + '","' +
-                                filename + '", driver="ESRI Shapefile")')
+                                filename + '", driver="{}")'.format(QgsVectorFileWriter.driverForExtension(ext)))
                 self.results[out.name()] = dest
 
             # elif isinstance(out, OutputTable):
