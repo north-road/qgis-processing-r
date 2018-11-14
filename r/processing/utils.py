@@ -235,11 +235,11 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Returns a HTML formatted string of the given output lines
         """
-        s = '<font face="courier">\n'
-        s += RUtils.tr('<h2>R Output</h2>\n')
+        s = '<h2>{}</h2>\n'.format(RUtils.tr('R Output'))
+        s += '<code>\n'
         for line in output:
-            s += line
-        s += '</font>\n'
+            s += '{}<br />\n'.format(line)
+        s += '</code>'
         return s
 
     @staticmethod
