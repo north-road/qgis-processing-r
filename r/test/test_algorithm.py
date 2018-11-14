@@ -108,8 +108,12 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(layer_output.type(), 'outputLayer')
         folder_output = alg.outputDefinition('out_folder')
         self.assertEqual(folder_output.type(), 'outputFolder')
+        folder_dest_param = alg.parameterDefinition('param_folder_dest')
+        self.assertEqual(folder_dest_param.type(), 'folderDestination')
         html_output = alg.outputDefinition('out_html')
         self.assertEqual(html_output.type(), 'outputHtml')
+        html_dest_param = alg.parameterDefinition('param_html_dest')
+        self.assertEqual(html_dest_param.type(), 'fileDestination')
 
     def testBadAlgorithm(self):
         """

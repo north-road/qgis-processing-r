@@ -22,8 +22,10 @@
 ##out_number=output number
 ##out_string=output string
 ##out_layer=output layer
-##out_folder=output folder
-##out_html=output html
+##param_folder_dest=output folder
+##out_folder=output folder noprompt
+##param_html_dest=output html
+##out_html=output html noprompt
 
 library(sp)
 i <- 1
