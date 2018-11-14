@@ -105,10 +105,13 @@ class RUtilsTest(unittest.TestCase):
         Test retrieving R executable
         """
         self.assertEqual(RUtils.path_to_r_executable(), 'R')
+        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), 'Rscript')
         ProcessingConfig.setSettingValue(RUtils.R_FOLDER, '/usr/local/bin')
         self.assertEqual(RUtils.path_to_r_executable(), '/usr/local/bin/R')
+        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), '/usr/local/bin/Rscript')
         ProcessingConfig.setSettingValue(RUtils.R_FOLDER, None)
         self.assertEqual(RUtils.path_to_r_executable(), 'R')
+        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), 'Rscript')
 
     def test_package_repo(self):
         """

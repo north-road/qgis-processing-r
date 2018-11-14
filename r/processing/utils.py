@@ -18,7 +18,6 @@
 """
 import re
 import os
-import stat
 import subprocess
 from typing import Optional
 
@@ -41,11 +40,6 @@ class RUtils:  # pylint: disable=too-many-public-methods
     R_REPO = 'R_REPO'
 
     VALID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-
-    rscriptfilename = os.path.join(userFolder(), 'processing_script.r')
-
-    consoleResults = []
-    allConsoleResults = []
 
     @staticmethod
     def is_windows() -> bool:
@@ -166,14 +160,16 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return ''.join(c for c in name if c in RUtils.VALID_CHARS)
 
     @staticmethod
-    def createRScriptFromRCommands(commands):
-        with open(RUtils.getRScriptFilename(), 'w') as scriptfile:
+    def create_r_script_from_commands(commands):
+        """
+        Creates an R script in a temporary location consisting of the given commands.
+        Returns the path to the temporary script file.
+        """
+        script_file = QgsProcessingUtils.generateTempFilename('processing_script.r')
+        with open(script_file, 'w') as f:
             for command in commands:
-                scriptfile.write(command + '\n')
-
-    @staticmethod
-    def getRScriptFilename():
-        return RUtils.rscriptfilename
+                f.write(command + '\n')
+        return script_file
 
     @staticmethod
     def is_error_line(line):
@@ -194,21 +190,15 @@ class RUtils:  # pylint: disable=too-many-public-methods
     @staticmethod
     def execute_r_algorithm(alg, parameters, context, feedback):
         """
-        Runs a prepared algorithm in R
+        Runs a prepared algorithm in R, and returns a list of the output received from R
         """
-
         # generate new R script file name in a temp folder
-        RUtils.rscriptfilename = QgsProcessingUtils.generateTempFilename('processing_script.r')
-        # run commands
-        RUtils.verboseCommands = alg.get_script_body_commands()
-        RUtils.createRScriptFromRCommands(alg.build_r_script(parameters, context, feedback))
-        if not RUtils.is_windows():
-            os.chmod(RUtils.getRScriptFilename(), stat.S_IEXEC | stat.S_IREAD |
-                     stat.S_IWRITE)
+        script_filename = RUtils.create_r_script_from_commands(alg.build_r_script(parameters, context, feedback))
 
+        # run commands
         command = [
-            RUtils.path_to_r_executable(),
-            RUtils.getRScriptFilename()
+            RUtils.path_to_r_executable(script_executable=True),
+            script_filename
         ]
 
         feedback.pushInfo(RUtils.tr('R execution console output'))
@@ -220,7 +210,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
 
-        RUtils.consoleResults = []
+        console_results = list()
 
         with subprocess.Popen(
                 command,
@@ -236,23 +226,27 @@ class RUtils:  # pylint: disable=too-many-public-methods
                     feedback.reportError(line.strip())
                 else:
                     feedback.pushConsoleInfo(line.strip())
-                RUtils.consoleResults.append('<p>' + line.strip() + '</p>\n')
+                console_results.append(line.strip())
+        return console_results
 
     @staticmethod
-    def getConsoleOutput():
+    def html_formatted_console_output(output):
+        """
+        Returns a HTML formatted string of the given output lines
+        """
         s = '<font face="courier">\n'
         s += RUtils.tr('<h2>R Output</h2>\n')
-        for line in RUtils.consoleResults:
+        for line in output:
             s += line
         s += '</font>\n'
-
         return s
 
     @staticmethod
-    def path_to_r_executable() -> str:
+    def path_to_r_executable(script_executable=False) -> str:
         """
         Returns the path to the R executable
         """
+        executable = 'Rscript' if script_executable else 'R'
         bin_folder = RUtils.r_binary_folder()
         if bin_folder:
             if RUtils.is_windows():
@@ -260,14 +254,18 @@ class RUtils:  # pylint: disable=too-many-public-methods
                     exec_dir = 'x64'
                 else:
                     exec_dir = 'i386'
-                return os.path.join(bin_folder, 'bin', exec_dir, 'Rscript.exe')
+                return os.path.join(bin_folder, 'bin', exec_dir, '{}.exe'.format(executable))
             else:
-                return os.path.join(bin_folder, 'Rscript')
+                return os.path.join(bin_folder, executable)
 
-        return 'Rscript'
+        return executable
 
     @staticmethod
     def check_r_is_installed() -> Optional[str]:
+        """
+        Checks if R is installed and working. Returns None if R IS working,
+        or an error string if R was not found.
+        """
         if RUtils.is_windows():
             path = RUtils.r_binary_folder()
             if path == '':

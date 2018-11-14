@@ -66,7 +66,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self.description_file = os.path.realpath(description_file) if description_file else ''
         self.error = None
         self.commands = list()
-        self.script_body_commands = list()
         self.is_user_script = False
         if description_file:
             self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
@@ -178,7 +177,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                                          'Problem with line: {0}').format(line)
             elif line.startswith('>'):
                 self.commands.append(line[1:])
-                self.script_body_commands.append(line[1:])
                 if not self.show_console_output:
                     self.addParameter(
                         QgsProcessingParameterFileDestination(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output'),
@@ -195,13 +193,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 line = next(lines).strip('\n').strip('\r')
             except StopIteration:
                 break
-
-    def get_script_body_commands(self):
-        """
-        Returns the list of commands which make up the main body of the script,
-        excluding commands relating to creating parameters and outputs
-        """
-        return self.script_body_commands
 
     def process_metadata_line(self, line):
         """
@@ -296,7 +287,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         for line in script_lines:
             feedback.pushCommandInfo(line)
 
-        RUtils.execute_r_algorithm(self, parameters, context, feedback)
+        output = RUtils.execute_r_algorithm(self, parameters, context, feedback)
 
         if self.show_plots:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
@@ -308,7 +299,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.R_CONSOLE_OUTPUT, context)
             if html_filename:
                 with open(html_filename, 'w') as f:
-                    f.write(RUtils.getConsoleOutput())
+                    f.write(RUtils.html_formatted_console_output(output))
                 self.results[RAlgorithm.R_CONSOLE_OUTPUT] = html_filename
 
         return self.results
