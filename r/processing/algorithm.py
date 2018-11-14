@@ -402,7 +402,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if self.pass_file_names:
             return '{}="{}"'.format(name, file_path)
 
-        return '{}=readOgr("{}",layer="{}")'.format(name, file_path, layer_name)
+        return '{}=readOGR("{}",layer="{}")'.format(name, file_path, layer_name)
 
     def build_import_commands(self, parameters, context, feedback):
         """
