@@ -16,7 +16,8 @@ __revision__ = '$Format:%H$'
 
 import unittest
 import os
-from qgis.core import QgsProcessingParameterNumber
+from qgis.core import (QgsProcessingParameterNumber,
+                       QgsProcessing)
 from r.processing.algorithm import RAlgorithm
 from .utilities import get_qgis_app
 
@@ -30,7 +31,7 @@ test_data_path = os.path.join(
 class AlgorithmTest(unittest.TestCase):
     """Test algorithm construction."""
 
-    def testScriptParsing(self):  # pylint: disable=too-many-locals
+    def testScriptParsing(self):  # pylint: disable=too-many-locals,too-many-statements
         """
         Test script file parsing
         """
@@ -79,12 +80,36 @@ class AlgorithmTest(unittest.TestCase):
         # outputs
         vector_output = alg.outputDefinition('out_vector')
         self.assertEqual(vector_output.type(), 'outputVector')
+        vector_dest_param = alg.parameterDefinition('param_vector_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorAnyGeometry)
+
+        vector_dest_param = alg.parameterDefinition('param_vector_point_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorPoint)
+
+        vector_dest_param = alg.parameterDefinition('param_vector_line_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorLine)
+
+        vector_dest_param = alg.parameterDefinition('param_vector_polygon_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorPolygon)
+
         raster_output = alg.outputDefinition('out_raster')
         self.assertEqual(raster_output.type(), 'outputRaster')
+        raster_dest_param = alg.parameterDefinition('param_raster_dest')
+        self.assertEqual(raster_dest_param.type(), 'rasterDestination')
         number_output = alg.outputDefinition('out_number')
         self.assertEqual(number_output.type(), 'outputNumber')
         string_output = alg.outputDefinition('out_string')
         self.assertEqual(string_output.type(), 'outputString')
+        layer_output = alg.outputDefinition('out_layer')
+        self.assertEqual(layer_output.type(), 'outputLayer')
+        folder_output = alg.outputDefinition('out_folder')
+        self.assertEqual(folder_output.type(), 'outputFolder')
+        html_output = alg.outputDefinition('out_html')
+        self.assertEqual(html_output.type(), 'outputHtml')
 
     def testBadAlgorithm(self):
         """

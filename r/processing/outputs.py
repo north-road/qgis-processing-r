@@ -19,17 +19,20 @@
 
 import sys
 
-from qgis.core import (QgsProcessingOutputRasterLayer,
+from qgis.core import (QgsProcessing,
+                       QgsProcessingOutputRasterLayer,
                        QgsProcessingOutputVectorLayer,
                        QgsProcessingOutputMapLayer,
                        QgsProcessingOutputHtml,
                        QgsProcessingOutputNumber,
                        QgsProcessingOutputString,
                        QgsProcessingOutputFolder,
-                       QgsProcessingOutputMultipleLayers)
+                       QgsProcessingOutputMultipleLayers,
+                       QgsProcessingParameterVectorDestination,
+                       QgsProcessingParameterRasterDestination)
 
 
-def create_output_from_string(s):
+def create_output_from_string(s: str):
     """
     Tries to create an algorithm output from a line string
     """
@@ -48,40 +51,67 @@ def create_output_from_string(s):
         description = tokens[0]
 
         token = tokens[1].strip()[len('output') + 1:]
-        out = None
+        return create_output_from_token(name, description, token)
 
-        if token.lower().strip().startswith('raster'):
-            out = QgsProcessingOutputRasterLayer(name, description)
-        elif token.lower().strip() == 'vector':
-            out = QgsProcessingOutputVectorLayer(name, description)
-        elif token.lower().strip() == 'layer':
-            out = QgsProcessingOutputMapLayer(name, description)
-        elif token.lower().strip() == 'multilayers':
-            out = QgsProcessingOutputMultipleLayers(name, description)
-#            elif token.lower().strip() == 'vector point':
-#                out = OutputVector(datatype=[dataobjects.TYPE_VECTOR_POINT])
-#            elif token.lower().strip() == 'vector line':
-#                out = OutputVector(datatype=[OutputVector.TYPE_VECTOR_LINE])
-#            elif token.lower().strip() == 'vector polygon':
-#                out = OutputVector(datatype=[OutputVector.TYPE_VECTOR_POLYGON])
-#            elif token.lower().strip().startswith('table'):
-#                out = OutputTable()
-        elif token.lower().strip().startswith('html'):
-            out = QgsProcessingOutputHtml(name, description)
-#            elif token.lower().strip().startswith('file'):
-#                out = OutputFile()
-#                ext = token.strip()[len('file') + 1:]
-#                if ext:
-#                    out.ext = ext
-        elif token.lower().strip().startswith('folder'):
-            out = QgsProcessingOutputFolder(name, description)
-        elif token.lower().strip().startswith('number'):
-            out = QgsProcessingOutputNumber(name, description)
-        elif token.lower().strip().startswith('string'):
-            out = QgsProcessingOutputString(name, description)
-#            elif token.lower().strip().startswith('extent'):
-#                out = OutputExtent()
-
-        return out
     except IndexError:
         return None
+
+
+OUTPUT_FACTORY = {
+    'layer': QgsProcessingOutputMapLayer,
+    'folder': QgsProcessingOutputFolder,
+    'html': QgsProcessingOutputHtml,
+    'number': QgsProcessingOutputNumber,
+    'string': QgsProcessingOutputString
+}
+
+
+def create_output_from_token(name: str, description: str, token: str):  # pylint: disable=too-many-branches
+    """
+    Creates an output (or destination parameter) definition from a token string
+    """
+    no_prompt = False
+    if 'noprompt' in token:
+        no_prompt = True
+        token = token.replace(' noprompt', '')
+
+    output_type = token.lower().strip()
+
+    if output_type.startswith('raster'):
+        if no_prompt:
+            out = QgsProcessingOutputRasterLayer(name, description)
+        else:
+            out = QgsProcessingParameterRasterDestination(name, description)
+    elif token.lower().strip().startswith('vector'):
+        if no_prompt:
+            out = QgsProcessingOutputVectorLayer(name, description)
+        else:
+            vector_type = QgsProcessing.TypeVectorAnyGeometry
+            if token.lower().strip() == 'vector point':
+                vector_type = QgsProcessing.TypeVectorPoint
+            elif token.lower().strip() == 'vector line':
+                vector_type = QgsProcessing.TypeVectorLine
+            elif token.lower().strip() == 'vector polygon':
+                vector_type = QgsProcessing.TypeVectorPolygon
+            out = QgsProcessingParameterVectorDestination(name, description, vector_type)
+    elif output_type in OUTPUT_FACTORY:
+        return OUTPUT_FACTORY[output_type](name, description)
+    elif output_type == 'multilayers':
+        out = QgsProcessingOutputMultipleLayers(name, description)
+    #            elif token.lower().strip() == 'vector point':
+    #                out = OutputVector(datatype=[dataobjects.TYPE_VECTOR_POINT])
+    #            elif token.lower().strip() == 'vector line':
+    #                out = OutputVector(datatype=[OutputVector.TYPE_VECTOR_LINE])
+    #            elif token.lower().strip() == 'vector polygon':
+    #                out = OutputVector(datatype=[OutputVector.TYPE_VECTOR_POLYGON])
+    #            elif token.lower().strip().startswith('table'):
+    #                out = OutputTable()
+    #            elif token.lower().strip().startswith('file'):
+    #                out = OutputFile()
+    #                ext = token.strip()[len('file') + 1:]
+    #                if ext:
+    #                    out.ext = ext
+    #            elif token.lower().strip().startswith('extent'):
+    #                out = OutputExtent()
+
+    return out

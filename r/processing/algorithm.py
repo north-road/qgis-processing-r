@@ -37,6 +37,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingParameterFileDestination,
+                       QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
                        QgsVectorLayer)
 from qgis.PyQt.QtCore import QCoreApplication
@@ -250,7 +251,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if output is not None:
             output.setName(value)
             output.setDescription(description)
-            self.addOutput(output)
+            if issubclass(output.__class__, QgsProcessingOutputDefinition):
+                self.addOutput(output)
+            else:
+                # destination type parameter
+                self.addParameter(output)
         else:
             param = getParameterFromString(line)
             if param is not None:
