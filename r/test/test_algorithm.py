@@ -75,6 +75,9 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(number_param.dataType(), QgsProcessingParameterNumber.Double)
         enum_param = alg.parameterDefinition('in_enum')
         self.assertEqual(enum_param.type(), 'enum')
+        enum_param = alg.parameterDefinition('in_enum2')
+        self.assertEqual(enum_param.type(), 'enum')
+        self.assertEqual(enum_param.options(), ['normal', 'log10', 'ln', 'sqrt', 'exp'])
         bool_param = alg.parameterDefinition('in_bool')
         self.assertEqual(bool_param.type(), 'boolean')
 

@@ -10,6 +10,8 @@
 ##in_file=file
 ##in_number=number
 ##in_enum=enum
+# for compatibility with 2.x scripts, we alias selection->enum
+##in_enum2=selection normal;log10;ln;sqrt;exp
 ##in_bool=boolean
 
 ##param_vector_dest=output vector

@@ -307,6 +307,16 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return regex.findall(code)
 
     @staticmethod
+    def upgrade_parameter_line(line: str) -> str:
+        """
+        Upgrades a parameter definition line from 2.x to 3.x format
+        """
+        # alias 'selection' to 'enum'
+        if '=selection' in line:
+            line = line.replace('=selection', '=enum')
+        return line
+
+    @staticmethod
     def tr(string, context=''):
         """
         Translates a string

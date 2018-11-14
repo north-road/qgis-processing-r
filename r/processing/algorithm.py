@@ -253,6 +253,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 # destination type parameter
                 self.addParameter(output)
         else:
+            line = RUtils.upgrade_parameter_line(line)
             param = getParameterFromString(line)
             if param is not None:
                 self.addParameter(param)
