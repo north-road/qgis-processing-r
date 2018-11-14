@@ -395,7 +395,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return '{}=readOGR("{}",layer="{}")'.format(name, file_path, layer_name)
 
-    def build_import_commands(self, parameters, context, feedback):
+    def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+                              parameters, context, feedback):
         """
         Builds the set of input commands for the algorithm
         """
