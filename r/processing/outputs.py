@@ -45,7 +45,7 @@ def create_output_from_string(s: str):
             return clazz(*params)
 
         tokens = s.split("=")
-        if not tokens[1].lower()[:len('output')] == 'output':
+        if tokens[1].lower().strip()[:len('output')] != 'output':
             return None
 
         name = tokens[0]

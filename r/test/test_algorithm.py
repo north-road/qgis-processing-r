@@ -91,6 +91,10 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(vector_dest_param.type(), 'vectorDestination')
         self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorAnyGeometry)
 
+        vector_dest_param = alg.parameterDefinition('param_vector_dest2')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorAnyGeometry)
+
         vector_dest_param = alg.parameterDefinition('param_vector_point_dest')
         self.assertEqual(vector_dest_param.type(), 'vectorDestination')
         self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorPoint)

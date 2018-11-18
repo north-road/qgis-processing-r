@@ -15,6 +15,7 @@
 ##in_bool=boolean
 
 ##param_vector_dest=output vector
+##param_vector_dest2= output vector
 ##param_vector_point_dest=output vector point
 ##param_vector_line_dest=output vector line
 ##param_vector_polygon_dest=output vector polygon
