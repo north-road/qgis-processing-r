@@ -132,6 +132,19 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.displayName(), 'bad algorithm')
         self.assertEqual(alg.error, 'This script has a syntax error.\nProblem with line: polyg=xvector')
 
+    def testInputs(self):
+        """
+        Test creation of script with algorithm inputs
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
+        alg.initAlgorithm()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        script = alg.build_import_commands({'in_enum': 0}, context, feedback)
+        self.assertIn('in_enum=0', script)
+
     def testReadOgr(self):
         """
         Test reading vector inputs

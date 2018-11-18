@@ -504,7 +504,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 commands.append('{}="{}"'.format(param.name(), value))
             elif isinstance(param, QgsProcessingParameterEnum):
                 value = self.parameterAsEnum(parameters, param.name(), context)
-                commands.append('{}="{}"'.format(param.name(), value))
+                commands.append('{}={}'.format(param.name(), value))
             elif isinstance(param, QgsProcessingParameterBoolean):
                 value = self.parameterAsBool(parameters, param.name(), context)
                 commands.append('{}="{}"'.format(param.name(), 'TRUE' if value else 'FALSE'))
