@@ -14,8 +14,7 @@ __copyright__ = 'Copyright 2018, North Road'
 __revision__ = '$Format:%H$'
 
 import os
-from qgis.PyQt.QtCore import (QSettings,
-                              QTranslator,
+from qgis.PyQt.QtCore import (QTranslator,
                               QCoreApplication)
 from qgis.core import QgsApplication
 from qgis.gui import QgisInterface
@@ -40,7 +39,7 @@ class RProviderPlugin:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QgsApplication.locale()
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
