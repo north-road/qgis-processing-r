@@ -146,8 +146,15 @@ class AlgorithmTest(unittest.TestCase):
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
 
+        # enum evaluation
         script = alg.build_import_commands({'in_enum': 0}, context, feedback)
         self.assertIn('in_enum=0', script)
+
+        # boolean evaluation
+        script = alg.build_import_commands({'in_bool': True}, context, feedback)
+        self.assertIn('in_bool=TRUE', script)
+        script = alg.build_import_commands({'in_bool': False}, context, feedback)
+        self.assertIn('in_bool=FALSE', script)
 
     def testReadOgr(self):
         """

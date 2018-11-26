@@ -507,7 +507,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 commands.append('{}={}'.format(param.name(), value))
             elif isinstance(param, QgsProcessingParameterBoolean):
                 value = self.parameterAsBool(parameters, param.name(), context)
-                commands.append('{}="{}"'.format(param.name(), 'TRUE' if value else 'FALSE'))
+                commands.append('{}={}'.format(param.name(), 'TRUE' if value else 'FALSE'))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
                 layer_idx = 0
                 layers = []
