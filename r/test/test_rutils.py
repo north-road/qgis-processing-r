@@ -84,6 +84,12 @@ class RUtilsTest(unittest.TestCase):
         """
         self.assertFalse(RUtils.is_windows())  # suck it, Windows users!
 
+    def test_is_macos(self):
+        """
+        Test is_macos
+        """
+        self.assertFalse(RUtils.is_macos())  # suck it even more, MacOS users!
+
     def test_guess_r_binary_folder(self):
         """
         Test guessing the R binary folder -- not much to do here, all the logic is Windows specific

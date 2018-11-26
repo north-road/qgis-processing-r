@@ -18,6 +18,7 @@
 """
 import re
 import os
+import platform
 import subprocess
 from typing import Optional
 
@@ -49,6 +50,13 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return os.name == 'nt'
 
     @staticmethod
+    def is_macos() -> bool:
+        """
+        Returns True if the plugin is running on MacOS
+        """
+        return platform.system() == 'Darwin'
+
+    @staticmethod
     def r_binary_folder() -> str:
         """
         Returns the folder (hopefully) containing R binaries
@@ -64,26 +72,26 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Tries to pick a reasonable path for the R binaries to be executed from
         """
-        if not RUtils.is_windows():
-            # expect R to be in OS path
-            return ''
+        if RUtils.is_macos():
+            return '/usr/local/bin'
 
-        search_paths = ['ProgramW6432', 'PROGRAMFILES(x86)', 'PROGRAMFILES', 'C:\\']
-        r_folder = ''
-        for path in search_paths:
-            if path in os.environ and os.path.isdir(
-                    os.path.join(os.environ[path], 'R')):
-                r_folder = os.path.join(os.environ[path], 'R')
-                break
+        elif RUtils.is_windows():
+            search_paths = ['ProgramW6432', 'PROGRAMFILES(x86)', 'PROGRAMFILES', 'C:\\']
+            r_folder = ''
+            for path in search_paths:
+                if path in os.environ and os.path.isdir(
+                        os.path.join(os.environ[path], 'R')):
+                    r_folder = os.path.join(os.environ[path], 'R')
+                    break
 
-        if r_folder:
-            sub_folders = os.listdir(r_folder)
-            sub_folders.sort(reverse=True)
-            for sub_folder in sub_folders:
-                if sub_folder.upper().startswith('R-'):
-                    return os.path.join(r_folder, sub_folder)
+            if r_folder:
+                sub_folders = os.listdir(r_folder)
+                sub_folders.sort(reverse=True)
+                for sub_folder in sub_folders:
+                    if sub_folder.upper().startswith('R-'):
+                        return os.path.join(r_folder, sub_folder)
 
-        # not found!
+        # expect R to be in OS path
         return ''
 
     @staticmethod
