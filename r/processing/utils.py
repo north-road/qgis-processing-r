@@ -188,6 +188,29 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return str(cdll.kernel32.GetACP())
 
     @staticmethod
+    def get_process_startup_info():
+        """
+        Returns the correct startup info to use when calling commands for different platforms
+        """
+        # For MS-Windows, we need to hide the console window.
+        si = None
+        if RUtils.is_windows():
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+        return si
+
+    @staticmethod
+    def get_process_encoding():
+        """
+        Returns the correct encoding to use when calling commands for different platforms
+        """
+        if RUtils.is_windows():
+            return "cp{}".format(RUtils.get_windows_code_page())
+
+        return None
+
+    @staticmethod
     def execute_r_algorithm(alg, parameters, context, feedback):
         """
         Runs a prepared algorithm in R, and returns a list of the output received from R
@@ -203,21 +226,14 @@ class RUtils:  # pylint: disable=too-many-public-methods
 
         feedback.pushInfo(RUtils.tr('R execution console output'))
 
-        # For MS-Windows, we need to hide the console window.
-        si = None
-        if RUtils.is_windows():
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            si.wShowWindow = subprocess.SW_HIDE
-
         console_results = list()
 
         with subprocess.Popen(command,
                               stdout=subprocess.PIPE,
                               stdin=subprocess.DEVNULL,
                               stderr=subprocess.STDOUT,
-                              encoding="cp{}".format(RUtils.get_windows_code_page()) if RUtils.is_windows() else None,
-                              startupinfo=si if RUtils.is_windows() else None,
+                              encoding=RUtils.get_process_encoding(),
+                              startupinfo=RUtils.get_process_startup_info(),
                               universal_newlines=True) as proc:
             for line in iter(proc.stdout.readline, ''):
                 if feedback.isCanceled():
@@ -273,17 +289,20 @@ class RUtils:  # pylint: disable=too-many-public-methods
                 return RUtils.tr('R folder is not configured.\nPlease configure '
                                  'it before running R scripts.')
 
-        command = ['{} --version'.format(RUtils.path_to_r_executable())]
-
-        with subprocess.Popen(command,
-                              shell=True,
-                              stdout=subprocess.PIPE,
-                              stdin=subprocess.DEVNULL,
-                              stderr=subprocess.STDOUT,
-                              universal_newlines=True) as proc:
-            for line in proc.stdout:
-                if 'R version' in line:
-                    return None
+        command = [RUtils.path_to_r_executable(), '--version']
+        try:
+            with subprocess.Popen(command,
+                                  stdout=subprocess.PIPE,
+                                  stdin=subprocess.DEVNULL,
+                                  stderr=subprocess.STDOUT,
+                                  encoding=RUtils.get_process_encoding(),
+                                  startupinfo=RUtils.get_process_startup_info(),
+                                  universal_newlines=True) as proc:
+                for line in proc.stdout:
+                    if 'R version' in line:
+                        return None
+        except FileNotFoundError:
+            pass
 
         html = RUtils.tr(
             '<p>This algorithm requires R to be run. Unfortunately, it '
