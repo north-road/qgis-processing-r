@@ -95,7 +95,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Initializes the algorithm
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def icon(self):
         """

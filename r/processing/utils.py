@@ -75,7 +75,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         if RUtils.is_macos():
             return '/usr/local/bin'
 
-        elif RUtils.is_windows():
+        if RUtils.is_windows():
             search_paths = ['ProgramW6432', 'PROGRAMFILES(x86)', 'PROGRAMFILES', 'C:\\']
             r_folder = ''
             for path in search_paths:

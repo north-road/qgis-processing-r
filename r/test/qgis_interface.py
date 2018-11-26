@@ -96,7 +96,7 @@ class QgisInterface(QObject):
         .. note: The addLayer method was deprecated in QGIS 1.8 so you should
                  not need this method much.
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     @pyqtSlot()
     def removeAllLayers(self):  # pylint: disable=no-self-use
@@ -112,19 +112,19 @@ class QgisInterface(QObject):
 
     def zoomFull(self):
         """Zoom to the map full extent."""
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def zoomToPrevious(self):
         """Zoom to previous view extent."""
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def zoomToNext(self):
         """Zoom to next view extent."""
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def zoomToActiveLayer(self):
         """Zoom to extent of active layer."""
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def addVectorLayer(self, path: str, base_name: str, provider_key: str):
         """Add a vector layer.
@@ -138,7 +138,7 @@ class QgisInterface(QObject):
         :param provider_key: Provider key e.g. 'ogr'
         :type provider_key: str
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def addRasterLayer(self, path: str, base_name: str):
         """Add a raster layer given a raster layer file name
@@ -149,7 +149,7 @@ class QgisInterface(QObject):
         :param base_name: Base name for layer.
         :type base_name: str
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def activeLayer(self)->QgsMapLayer:  # pylint: disable=no-self-use
         """Get pointer to the active layer (layer selected in the legend)."""
@@ -164,7 +164,7 @@ class QgisInterface(QObject):
         :param action: Action to add to the toolbar.
         :type action: QAction
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def removeToolBarIcon(self, action):
         """Remove an action (icon) from the plugin toolbar.
@@ -172,7 +172,7 @@ class QgisInterface(QObject):
         :param action: Action to add to the toolbar.
         :type action: QAction
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def addToolBar(self, name):
         """Add toolbar with specified name.
@@ -180,7 +180,7 @@ class QgisInterface(QObject):
         :param name: Name for the toolbar.
         :type name: str
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def mapCanvas(self) -> QgsMapCanvas:
         """Return a pointer to the map canvas."""
@@ -191,7 +191,7 @@ class QgisInterface(QObject):
 
         In case of QGIS it returns an instance of QgisApp.
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def addDockWidget(self, area, dock_widget: QDockWidget):
         """Add a dock widget to the main window.
@@ -202,7 +202,7 @@ class QgisInterface(QObject):
         :param dock_widget: A dock widget to add to the UI.
         :type dock_widget: QDockWidget
         """
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def legendInterface(self):
         """Get the legend."""
