@@ -23,9 +23,13 @@ import subprocess
 from typing import Optional
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsProcessingUtils
+from qgis.core import (QgsProcessingUtils,
+                       QgsMessageLog,
+                       Qgis)
 from processing.core.ProcessingConfig import ProcessingConfig
 from processing.tools.system import userFolder, mkdir
+
+DEBUG = True
 
 
 class RUtils:  # pylint: disable=too-many-public-methods
@@ -291,6 +295,10 @@ class RUtils:  # pylint: disable=too-many-public-methods
         Checks if R is installed and working. Returns None if R IS working,
         or an error string if R was not found.
         """
+        if DEBUG:
+            QgsMessageLog.logMessage(RUtils.tr('R binary path: {}').format(RUtils.path_to_r_executable()), 'R',
+                                     Qgis.Info)
+
         if RUtils.is_windows():
             path = RUtils.r_binary_folder()
             if path == '':
