@@ -430,6 +430,28 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return commands
 
+    def build_raster_layer_import_command(self, variable_name, layer):
+        """
+        Returns an import command for the specified raster layer, storing it in a variable
+        """
+        if layer is None:
+            return '{}=NULL'.format(variable_name)
+
+        if layer.dataProvider().name() != 'gdal':
+            raise QgsProcessingException(
+                self.tr(
+                    "Layer {} is not a GDAL layer. Currently only GDAL based raster layers are supported."
+                ).format(variable_name))
+
+        path = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.source())['path']
+        value = path.replace('\\', '/')
+        if self.pass_file_names:
+            return '{}="{}"'.format(variable_name, value)
+        if self.use_raster_package:
+            return '{}=brick("{}")'.format(variable_name, value)
+
+        return '{}=readGDAL("{}")'.format(variable_name, value)
+
     def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
                               parameters, context, feedback):
         """
@@ -447,23 +469,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
             if isinstance(param, QgsProcessingParameterRasterLayer):
                 rl = self.parameterAsRasterLayer(parameters, param.name(), context)
-                if rl is None:
-                    commands.append('{}=NULL'.format(param.name()))
-                else:
-                    if rl.dataProvider().name() != 'gdal':
-                        raise QgsProcessingException(
-                            self.tr(
-                                "Layer {} is not a GDAL layer. Currently only GDAL based raster layers are supported."
-                            ).format(param.name()))
-
-                    path = QgsProviderRegistry.instance().decodeUri(rl.dataProvider().name(), rl.source())['path']
-                    value = path.replace('\\', '/')
-                    if self.pass_file_names:
-                        commands.append(param.name() + ' = "' + value + '"')
-                    elif self.use_raster_package:
-                        commands.append(param.name() + ' = ' + 'brick("' + value + '")')
-                    else:
-                        commands.append(param.name() + ' = ' + 'readGDAL("' + value + '")')
+                commands.append(self.build_raster_layer_import_command(param.name(), rl))
             elif isinstance(param, QgsProcessingParameterVectorLayer):
                 commands.append(self.load_vector_layer_from_parameter(param.name(), parameters, context, feedback))
             elif isinstance(param, QgsProcessingParameterExtent):
@@ -496,22 +502,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 commands.append('{}={}'.format(param.name(), 'TRUE' if value else 'FALSE'))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
                 layer_idx = 0
-                layers = []
+                layers = self.parameterAsLayerList(parameters, param.name(), context)
                 if param.layerType() == QgsProcessing.TypeRaster:
-                    pass
-                    # layers = param.value.split(';')
-                    # for layer in layers:
-                    #    layer = layer.replace('\\', '/')
-                    #    if self.pass_file_names:
-                    #        commands.append('tempvar' + str(layer_idx) + ' <- "' +
-                    #                        layer + '"')
-                    #    elif self.use_raster_package:
-                    #        commands.append('tempvar' + str(layer_idx) + ' <- ' +
-                    #                        'brick("' + layer + '")')
-                    #    else:
-                    #        commands.append('tempvar' + str(layer_idx) + ' <- ' +
-                    #                        'readGDAL("' + layer + '")')
-                    #    #layer_idx += 1
+                    for layer in layers:
+                        variable_name = 'tempvar{}'.format(layer_idx)
+                        commands.append(self.build_raster_layer_import_command(variable_name, layer))
+                        layer_idx += 1
                 else:
                     pass
                     # exported = param.getSafeExportedLayers()#
@@ -533,7 +529,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     #                        filename + '")')
                     #    layer_idx += 1
                 s = ''
-                s += param.name
+                s += param.name()
                 s += ' = c('
                 layer_idx = 0
                 for _ in layers:
@@ -541,7 +537,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                         s += ','
                     s += 'tempvar{}'.format(layer_idx)
                     layer_idx += 1
-                s += ')\n'
+                s += ')'
                 commands.append(s)
             # TODO folder, file/html output paths should be set here
 

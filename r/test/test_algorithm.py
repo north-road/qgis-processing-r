@@ -186,6 +186,55 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(script,
                          ['Layer=readOGR("{}",layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
 
+    def testRasterIn(self):
+        """
+        Test reading raster inputs
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_rasterin.rsx'))
+        alg.initAlgorithm()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
+        self.assertEqual(script, ['Layer=brick("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
+        script = alg.build_import_commands({'Layer': None}, context, feedback)
+        self.assertEqual(script, ['Layer=NULL'])
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_rasterin_names.rsx'))
+        alg.initAlgorithm()
+        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
+        self.assertEqual(script, ['Layer="{}"'.format(os.path.join(test_data_path, 'dem.tif'))])
+        script = alg.build_import_commands({'Layer': None}, context, feedback)
+        self.assertEqual(script, ['Layer=NULL'])
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_rasterin_norasterpackage.rsx'))
+        alg.initAlgorithm()
+        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
+        self.assertEqual(script, ['Layer=readGDAL("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
+        script = alg.build_import_commands({'Layer': None}, context, feedback)
+        self.assertEqual(script, ['Layer=NULL'])
+
+    def testMultiRasterIn(self):
+        """
+        Test raster multilayer input parameter
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_multirasterin.rsx'))
+        alg.initAlgorithm()
+        raster_param = alg.parameterDefinition('Layer')
+        self.assertEqual(raster_param.type(), 'multilayer')
+        self.assertEqual(raster_param.layerType(), QgsProcessing.TypeRaster)
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+        script = alg.build_import_commands(
+            {'Layer': [os.path.join(test_data_path, 'dem.tif'), os.path.join(test_data_path, 'dem2.tif')]}, context,
+            feedback)
+        self.assertEqual(script, ['tempvar0=brick("{}")'.format(os.path.join(test_data_path, 'dem.tif')),
+                                  'tempvar1=brick("{}")'.format(os.path.join(test_data_path, 'dem2.tif')),
+                                  'Layer = c(tempvar0,tempvar1)'])
+        script = alg.build_import_commands({'Layer': []}, context, feedback)
+        self.assertEqual(script, ['Layer = c()'])
+
     def testVectorOutputs(self):
         """
         Test writing vector outputs
