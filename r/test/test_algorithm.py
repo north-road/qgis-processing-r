@@ -87,9 +87,17 @@ class AlgorithmTest(unittest.TestCase):
         # outputs
         vector_output = alg.outputDefinition('out_vector')
         self.assertEqual(vector_output.type(), 'outputVector')
+        self.assertEqual(vector_output.dataType(), QgsProcessing.TypeVectorAnyGeometry)
         vector_dest_param = alg.parameterDefinition('param_vector_dest')
         self.assertEqual(vector_dest_param.type(), 'vectorDestination')
         self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorAnyGeometry)
+
+        table_output = alg.outputDefinition('out_table')
+        self.assertEqual(table_output.type(), 'outputVector')
+        self.assertEqual(table_output.dataType(), QgsProcessing.TypeVector)
+        table_dest_param = alg.parameterDefinition('param_table_dest')
+        self.assertEqual(table_dest_param.type(), 'vectorDestination')
+        self.assertEqual(table_dest_param.dataType(), QgsProcessing.TypeVector)
 
         vector_dest_param = alg.parameterDefinition('param_vector_dest2')
         self.assertEqual(vector_dest_param.type(), 'vectorDestination')
@@ -187,10 +195,14 @@ class AlgorithmTest(unittest.TestCase):
 
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
-        script = alg.build_export_commands({'Output': '/home/test/lines.shp'}, context, feedback)
-        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.shp","lines", driver="ESRI Shapefile")'])
-        script = alg.build_export_commands({'Output': '/home/test/lines.gpkg'}, context, feedback)
-        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.gpkg","lines", driver="GPKG")'])
+        script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
+                                           context, feedback)
+        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.shp","lines", driver="ESRI Shapefile")',
+                                  'write.csv(OutputCSV,"/home/test/tab.csv")'])
+        script = alg.build_export_commands({'Output': '/home/test/lines.gpkg', 'OutputCSV': '/home/test/tab.csv'},
+                                           context, feedback)
+        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.gpkg","lines", driver="GPKG")',
+                                  'write.csv(OutputCSV,"/home/test/tab.csv")'])
 
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
         """

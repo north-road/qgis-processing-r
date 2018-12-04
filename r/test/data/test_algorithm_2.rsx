@@ -19,8 +19,10 @@
 ##param_vector_point_dest=output vector point
 ##param_vector_line_dest=output vector line
 ##param_vector_polygon_dest=output vector polygon
+##param_table_dest=output table
 ##param_raster_dest=output raster
 ##out_vector=output vector noprompt
+##out_table=output table noprompt
 ##out_raster=output raster noprompt
 ##out_number=output number
 ##out_string=output string

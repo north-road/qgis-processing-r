@@ -343,14 +343,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 dest = dest.replace('\\', '/')
                 filename = os.path.basename(dest)
                 filename, ext = os.path.splitext(filename)
-                commands.append('writeOGR(' + out.name() + ',"' + dest + '","' +
-                                filename + '", driver="{}")'.format(QgsVectorFileWriter.driverForExtension(ext)))
-                self.results[out.name()] = dest
-
-            # elif isinstance(out, OutputTable):
-            #    value = out.value
-            #    value = value.replace('\\', '/')
-            #    commands.append('write.csv(' + out.name + ',"' + value + '")')
+                if ext.lower() == '.csv':
+                    # CSV table export
+                    commands.append('write.csv(' + out.name() + ',"' + dest + '")')
+                else:
+                    commands.append('writeOGR(' + out.name() + ',"' + dest + '","' +
+                                    filename + '", driver="{}")'.format(QgsVectorFileWriter.driverForExtension(ext)))
+                    self.results[out.name()] = dest
 
         if self.show_plots:
             commands.append('dev.off()')

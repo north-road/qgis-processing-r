@@ -184,3 +184,15 @@ class RAlgorithmProvider(QgsProcessingProvider):
         if context == '':
             context = 'RAlgorithmProvider'
         return QCoreApplication.translate(context, string)
+
+    def supportedOutputTableExtensions(self):
+        """
+        Extensions for non-spatial vector outputs
+        """
+        return ['csv']
+
+    def defaultVectorFileExtension(self, hasGeometry=True):
+        """
+        Default extension -- we use Geopackage for spatial layers, CSV for non-spatial layers
+        """
+        return 'gpkg' if hasGeometry else 'csv'

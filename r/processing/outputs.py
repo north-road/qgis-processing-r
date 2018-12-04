@@ -91,7 +91,12 @@ def create_output_from_token(name: str, description: str, token: str):  # pylint
         if no_prompt:
             out = QgsProcessingOutputVectorLayer(name, description, vector_type)
         else:
-            out = QgsProcessingParameterVectorDestination(name, description, vector_type)
+            out = QgsProcessingParameterVectorDestination(name, description, type=vector_type)
+    elif output_type.startswith('table'):
+        if no_prompt:
+            out = QgsProcessingOutputVectorLayer(name, description, QgsProcessing.TypeVector)
+        else:
+            out = QgsProcessingParameterVectorDestination(name, description, type=QgsProcessing.TypeVector)
     elif output_type == 'multilayers':
         # out = QgsProcessingOutputMultipleLayers(name, description)
         #            elif token.lower().strip() == 'vector point':
