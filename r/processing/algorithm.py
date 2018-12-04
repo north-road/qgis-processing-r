@@ -466,19 +466,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                         commands.append(param.name() + ' = ' + 'readGDAL("' + value + '")')
             elif isinstance(param, QgsProcessingParameterVectorLayer):
                 commands.append(self.load_vector_layer_from_parameter(param.name(), parameters, context, feedback))
-            # elif isinstance(param, ParameterTable):
-            #     if param.value is None:
-            #         commands.append(param.name + '= NULL')
-            #     else:
-            #         value = param.value
-            #         if not value.lower().endswith('csv'):
-            #             raise GeoAlgorithmExecutionException(
-            #                 'Unsupported input file format.\n' + value)
-            #         if self.pass_file_names:
-            #             commands.append(param.name + ' = "' + value + '"')
-            #         else:
-            #             commands.append(param.name + ' <- read.csv("' + value +
-            #                             '", head=TRUE, sep=",")')
             elif isinstance(param, QgsProcessingParameterExtent):
                 extent = self.parameterAsExtent(parameters, param.name(), context)
                 # Extent from raster package is "xmin, xmax, ymin, ymax" like in Processing
