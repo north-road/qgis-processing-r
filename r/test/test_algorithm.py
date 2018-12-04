@@ -235,6 +235,27 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands({'Layer': []}, context, feedback)
         self.assertEqual(script, ['Layer = c()'])
 
+    def testMultiVectorIn(self):
+        """
+        Test vector multilayer input parameter
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_multivectorin.rsx'))
+        alg.initAlgorithm()
+        param = alg.parameterDefinition('Layer')
+        self.assertEqual(param.type(), 'multilayer')
+        self.assertEqual(param.layerType(), QgsProcessing.TypeVectorAnyGeometry)
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+        script = alg.build_import_commands(
+            {'Layer': [os.path.join(test_data_path, 'lines.shp'), os.path.join(test_data_path, 'points.gml')]}, context,
+            feedback)
+        self.assertEqual(script, ['tempvar0=readOGR("{}",layer="lines")'.format(test_data_path),
+                                  'tempvar1=readOGR("{}",layer="points")'.format(test_data_path),
+                                  'Layer = c(tempvar0,tempvar1)'])
+        script = alg.build_import_commands({'Layer': []}, context, feedback)
+        self.assertEqual(script, ['Layer = c()'])
+
     def testVectorOutputs(self):
         """
         Test writing vector outputs

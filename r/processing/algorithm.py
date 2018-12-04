@@ -364,6 +364,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         :param context: Processing context
         """
         layer = self.parameterAsVectorLayer(parameters, name, context)
+        if layer is None:
+            return '{}=NULL'.format(name)
 
         is_ogr_disk_based_layer = layer is not None and layer.dataProvider().name() == 'ogr'
         if is_ogr_disk_based_layer:
@@ -386,6 +388,37 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         # already an ogr disk based layer source
         return self.load_vector_layer_command(name, layer, feedback)
+
+    def build_vector_layer_import_command(self, variable_name, layer, context, feedback):
+        """
+        Returns an import command for the specified vector layer, storing it in a variable
+        """
+        if layer is None:
+            return '{}=NULL'.format(variable_name)
+
+        is_ogr_disk_based_layer = layer is not None and layer.dataProvider().name() == 'ogr'
+        if is_ogr_disk_based_layer:
+            # we only support direct reading of disk based ogr layers -- not ogr postgres layers, etc
+            source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
+            if not source_parts.get('path'):
+                is_ogr_disk_based_layer = False
+            elif source_parts.get('layerId'):
+                # no support for directly reading layers by id in grass
+                is_ogr_disk_based_layer = False
+
+        if not is_ogr_disk_based_layer:
+            # parameter is not a vector layer or not an OGR layer - try to convert to a source compatible with
+            # grass OGR inputs and extract selection if required
+            path = QgsProcessingUtils.convertToCompatibleFormat(layer, False, variable_name,
+                                                                compatibleFormats=QgsVectorFileWriter.supportedFormatExtensions(),
+                                                                preferredFormat='gpkg',
+                                                                context=context,
+                                                                feedback=feedback)
+            ogr_layer = QgsVectorLayer(path, '', 'ogr')
+            return self.load_vector_layer_command(variable_name, ogr_layer, None)
+
+        # already an ogr disk based layer source
+        return self.load_vector_layer_command(variable_name, layer, None)
 
     def load_vector_layer_command(self, name, layer, _):
         """
@@ -509,25 +542,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                         commands.append(self.build_raster_layer_import_command(variable_name, layer))
                         layer_idx += 1
                 else:
-                    pass
-                    # exported = param.getSafeExportedLayers()#
-                    # layers = exported.split(';')
-                    # for layer in layers:
-                    #    if not layer.lower().endswith('shp') \
-                    #            and not self.pass_file_names:
-                    #        raise GeoAlgorithmExecutionException(
-                    #            'Unsupported input file format.\n' + layer)
-                    #    layer = layer.replace('\\', '/')
-                    #    filename = os.path.basename(layer)
-                    #    filename = filename[:-4]
-                    #    if self.pass_file_names:
-                    #        commands.append('tempvar' + str(layer_idx) + ' <- "' +
-                    #                        layer + '"')
-                    #    else:
-                    #        commands.append('tempvar' + str(layer_idx) + ' <- ' +
-                    #                        'readOGR("' + layer + '",layer="' +
-                    #                        filename + '")')
-                    #    layer_idx += 1
+                    for layer in layers:
+                        variable_name = 'tempvar{}'.format(layer_idx)
+                        commands.append(self.build_vector_layer_import_command(variable_name, layer, context, feedback))
+                        layer_idx += 1
+
                 s = ''
                 s += param.name()
                 s += ' = c('
