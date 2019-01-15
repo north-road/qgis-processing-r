@@ -30,7 +30,7 @@ from qgis.utils import iface
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QMessageBox
 from processing.gui.ContextAction import ContextAction
-from processing.script.ScriptEditorDialog import ScriptEditorDialog
+from r.gui.script_editor.script_editor_dialog import ScriptEditorDialog
 
 
 class EditScriptAction(ContextAction):

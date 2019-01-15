@@ -27,7 +27,7 @@ __revision__ = '$Format:%H$'
 
 from qgis.PyQt.QtCore import QCoreApplication
 from processing.gui.ToolboxAction import ToolboxAction
-from processing.script.ScriptEditorDialog import ScriptEditorDialog
+from r.gui.script_editor.script_editor_dialog import ScriptEditorDialog
 
 
 class CreateNewScriptAction(ToolboxAction):
