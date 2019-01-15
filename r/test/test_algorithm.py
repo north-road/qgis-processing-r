@@ -164,6 +164,14 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands({'in_bool': False}, context, feedback)
         self.assertIn('in_bool=FALSE', script)
 
+        # number evaluation
+        script = alg.build_import_commands({'in_number': None}, context, feedback)
+        self.assertIn('in_number=NULL', script)
+        script = alg.build_import_commands({'in_number': 5}, context, feedback)
+        self.assertIn('in_number=5.0', script)
+        script = alg.build_import_commands({'in_number': 5.5}, context, feedback)
+        self.assertIn('in_number=5.5', script)
+
     def testReadOgr(self):
         """
         Test reading vector inputs
