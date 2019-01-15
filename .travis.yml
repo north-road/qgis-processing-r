@@ -35,6 +35,7 @@ install:
   - sleep 10
   - docker exec -it qgis-testing-environment sh -c "qgis_setup.sh r"
 
+  - docker exec -it qgis-testing-environment sh -c "pip3 install -r /tests_directory/REQUIREMENTS_TESTING.txt"
 
 script:
 
