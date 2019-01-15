@@ -87,11 +87,5 @@ def test_environment():
     _run_tests(test_suite, package)
 
 
-def test_qgis3():
-    """Run all QGIS3 tests"""
-    test_package('qgis-r.test')
-
-
-
 if __name__ == '__main__':
-    test_qgis3()
+    test_package()
