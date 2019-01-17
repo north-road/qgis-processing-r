@@ -12,11 +12,13 @@ Test Suite.
 import sys
 import os
 import unittest
-import qgis  # NOQA  For SIP API to V2 if run outside of QGIS
+import tempfile
+import qgis  # pylint: disable=unused-import
+from qgis.PyQt import Qt
 
 try:
     from pip import main as pipmain
-except:
+except ImportError:
     from pip._internal import main as pipmain
 
 try:
@@ -24,9 +26,7 @@ try:
 except ImportError:
     pipmain(['install', 'coverage'])
     import coverage
-import tempfile
 from osgeo import gdal
-from qgis.PyQt import Qt
 
 __author__ = 'Alessandro Pasotti'
 __revision__ = '$Format:%H$'
@@ -46,7 +46,7 @@ def _run_tests(test_suite, package_name, with_coverage=False):
     if with_coverage:
         cov = coverage.Coverage(
             source=['/r'],
-            omit=['*/test/*' ],
+            omit=['*/test/*'],
         )
         cov.start()
 
