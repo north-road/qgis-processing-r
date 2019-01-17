@@ -39,7 +39,7 @@ install:
   - docker exec -it qgis-testing-environment sh -c "ln -s /tests_directory/r /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/r"
 
   - docker exec -it qgis-testing-environment sh -c "pip3 install -r /tests_directory/REQUIREMENTS_TESTING.txt"
-  - docker exec -it qgis-testing-environment sh -c "apt-get install r-base"
+  - docker exec -it qgis-testing-environment sh -c "apt-get install -y r-base"
 
 script:
 
