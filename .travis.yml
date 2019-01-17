@@ -23,6 +23,7 @@ addons:
     packages:
       - git
       - python-software-properties
+      - r-base
 
 before_install:
   - docker pull ${IMAGE}:${QGIS_VERSION_TAG}
