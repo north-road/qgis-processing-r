@@ -51,3 +51,20 @@ class GuiUtils:
             return ''
 
         return path
+
+    @staticmethod
+    def get_ui_file_path(file: str) -> str:
+        """
+        Returns a UI file's path
+        :param file: file name (uifile name)
+        :return: ui file path
+        """
+        path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            'ui',
+            file)
+        if not os.path.exists(path):
+            return ''
+
+        return path

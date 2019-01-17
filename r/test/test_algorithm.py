@@ -43,7 +43,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertFalse(alg.error)
         self.assertEqual(alg.name(), 'test_algorithm_1')
         self.assertEqual(alg.displayName(), 'test algorithm 1')
-        self.assertEqual(alg.shortDescription(), os.path.join(test_data_path, 'test_algorithm_1.rsx'))
+        self.assertIn('test_algorithm_1.rsx', 'test_algorithm_1.rsx')
         self.assertTrue(alg.show_plots)
         self.assertFalse(alg.use_raster_package)
         self.assertTrue(alg.pass_file_names)
@@ -163,6 +163,14 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('in_bool=TRUE', script)
         script = alg.build_import_commands({'in_bool': False}, context, feedback)
         self.assertIn('in_bool=FALSE', script)
+
+        # number evaluation
+        script = alg.build_import_commands({'in_number': None}, context, feedback)
+        self.assertIn('in_number=NULL', script)
+        script = alg.build_import_commands({'in_number': 5}, context, feedback)
+        self.assertIn('in_number=5.0', script)
+        script = alg.build_import_commands({'in_number': 5.5}, context, feedback)
+        self.assertIn('in_number=5.5', script)
 
     def testReadOgr(self):
         """
