@@ -43,7 +43,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertFalse(alg.error)
         self.assertEqual(alg.name(), 'test_algorithm_1')
         self.assertEqual(alg.displayName(), 'test algorithm 1')
-        self.assertEqual(alg.shortDescription(), os.path.join(test_data_path, 'test_algorithm_1.rsx'))
+        self.assertIn('test_algorithm_1.rsx', 'test_algorithm_1.rsx')
         self.assertTrue(alg.show_plots)
         self.assertFalse(alg.use_raster_package)
         self.assertTrue(alg.pass_file_names)
