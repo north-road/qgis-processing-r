@@ -49,9 +49,9 @@ from qgis.utils import iface, OverrideCursor
 from processing.gui.AlgorithmDialog import AlgorithmDialog
 from processing.script import ScriptUtils
 
-from r.processing.utils import RUtils
-from r.processing.algorithm import RAlgorithm
-from r.gui.gui_utils import GuiUtils
+from processing_r.processing.utils import RUtils
+from processing_r.processing.algorithm import RAlgorithm
+from processing_r.gui.gui_utils import GuiUtils
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 

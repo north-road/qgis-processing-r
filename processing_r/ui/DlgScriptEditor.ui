@@ -252,7 +252,7 @@
   <customwidget>
    <class>ScriptEdit</class>
    <extends>QTextEdit</extends>
-   <header location="global">r.gui.script_editor.script_editor_widget</header>
+   <header location="global">processing_r.gui.script_editor.script_editor_widget</header>
   </customwidget>
  </customwidgets>
  <resources/>

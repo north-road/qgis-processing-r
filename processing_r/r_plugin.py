@@ -18,7 +18,7 @@ from qgis.PyQt.QtCore import (QTranslator,
                               QCoreApplication)
 from qgis.core import QgsApplication
 from qgis.gui import QgisInterface
-from r.processing.provider import RAlgorithmProvider
+from processing_r.processing.provider import RAlgorithmProvider
 VERSION = '0.1'
 
 

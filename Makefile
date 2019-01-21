@@ -14,18 +14,11 @@ QGISDIR=.local/share/QGIS/QGIS3/profiles/default
 
 # translation
 SOURCES = \
-	r/__init__.py \
-	r/RAlgorithm.py \
-	r/RAlgorithmProvider.py \
-	r/RUtils.py
-
-PLUGINNAME = qgis-r
-
-PY_FILES = \
-	r/__init__.py \
-	r/RAlgorithm.py \
-	r/RAlgorithmProvider.py \
-	r/RUtils.py
+	processing_r/__init__.py \
+	processing_r/r_plugin.py \
+	processing_r/processing/algorithm.py \
+	processing_r/processing/provider.py \
+	processing_r/processing/utils.py
 
 EXTRAS = metadata.txt icon.png
 
@@ -48,7 +41,7 @@ test: transcompile
 	@-export PYTHONPATH=`pwd`:$(PYTHONPATH); \
 		export QGIS_DEBUG=0; \
 		export QGIS_LOG_FILE=/dev/null; \
-		nosetests3 -v -s --with-id --with-coverage --cover-package=. r.test \
+		nosetests3 -v -s --with-id --with-coverage --cover-package=. processing_r.test \
 		3>&1 1>&2 2>&3 3>&- || true
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core error, try sourcing"
@@ -96,7 +89,7 @@ pylint:
 	@echo "-----------------"
 	@echo "Pylint violations"
 	@echo "-----------------"
-	@pylint --reports=n --rcfile=pylintrc r
+	@pylint --reports=n --rcfile=pylintrc processing_r
 	@echo
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core' error, try sourcing"
@@ -112,7 +105,7 @@ pycodestyle:
 	@echo "-----------"
 	@echo "pycodestyle PEP8 issues"
 	@echo "-----------"
-	@pycodestyle --repeat --ignore=E203,E121,E122,E123,E124,E125,E126,E127,E128,E402,E501,W504 --exclude $(PEP8EXCLUDE) r
+	@pycodestyle --repeat --ignore=E203,E121,E122,E123,E124,E125,E126,E127,E128,E402,E501,W504 --exclude $(PEP8EXCLUDE) processing_r
 	@echo "-----------"
 	@echo "Ignored in PEP8 check:"
 	@echo $(PEP8EXCLUDE)

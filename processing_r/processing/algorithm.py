@@ -44,9 +44,9 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingUtils)
 from qgis.PyQt.QtCore import QCoreApplication
 from processing.core.parameters import getParameterFromString
-from r.processing.outputs import create_output_from_string
-from r.processing.utils import RUtils
-from r.gui.gui_utils import GuiUtils
+from processing_r.processing.outputs import create_output_from_string
+from processing_r.processing.utils import RUtils
+from processing_r.gui.gui_utils import GuiUtils
 
 
 class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-methods

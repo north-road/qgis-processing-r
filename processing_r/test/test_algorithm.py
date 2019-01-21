@@ -21,7 +21,7 @@ from qgis.core import (QgsProcessingParameterNumber,
                        QgsProcessingContext,
                        QgsProcessingFeedback,
                        QgsVectorLayer)
-from r.processing.algorithm import RAlgorithm
+from processing_r.processing.algorithm import RAlgorithm
 from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
