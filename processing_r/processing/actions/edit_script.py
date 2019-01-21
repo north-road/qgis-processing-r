@@ -2,7 +2,7 @@
 
 """
 ***************************************************************************
-    create_new_script.py
+    edit_script.py
     ---------------------
     Date                 : August 2012
     Copyright            : (C) 2012 by Victor Olaya
@@ -25,24 +25,38 @@ __copyright__ = '(C) 2012, Victor Olaya'
 
 __revision__ = '$Format:%H$'
 
+from qgis.core import QgsProcessingAlgorithm
+from qgis.utils import iface
 from qgis.PyQt.QtCore import QCoreApplication
-from processing.gui.ToolboxAction import ToolboxAction
-from r.gui.script_editor.script_editor_dialog import ScriptEditorDialog
+from qgis.PyQt.QtWidgets import QMessageBox
+from processing.gui.ContextAction import ContextAction
+from processing_r.gui.script_editor.script_editor_dialog import ScriptEditorDialog
 
 
-class CreateNewScriptAction(ToolboxAction):
+class EditScriptAction(ContextAction):
     """
-    Action for creating a new R script
+    Toolbox context menu action for editing an existing script
     """
 
     def __init__(self):
         super().__init__()
-        self.name = QCoreApplication.translate("RAlgorithmProvider", "Create New R Script…")
-        self.group = self.tr("Tools")
+        self.name = QCoreApplication.translate("EditScriptAction", "Edit Script…")
+
+    def isEnabled(self):
+        """
+         Returns whether the action is enabled
+         """
+        return isinstance(self.itemData, QgsProcessingAlgorithm) and self.itemData.provider().id() == "r" and self.itemData.is_user_script
 
     def execute(self):
         """
         Called whenever the action is triggered
         """
-        dlg = ScriptEditorDialog(None)
-        dlg.show()
+        file_path = self.itemData.description_file
+        if file_path is not None:
+            dlg = ScriptEditorDialog(file_path, iface.mainWindow())
+            dlg.show()
+        else:
+            QMessageBox.warning(None,
+                                self.tr("Edit Script"),
+                                self.tr("Can not find corresponding script file."))

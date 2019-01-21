@@ -33,17 +33,17 @@ install:
   - pip install --upgrade pycodestyle
   - docker run -d --name qgis-testing-environment -v ${TRAVIS_BUILD_DIR}:/tests_directory -e DISPLAY=:99 ${IMAGE}:${QGIS_VERSION_TAG}
   - sleep 10
-  - docker exec -it qgis-testing-environment sh -c "qgis_setup.sh r"
+  - docker exec -it qgis-testing-environment sh -c "qgis_setup.sh processing_r"
 
-  - docker exec -it qgis-testing-environment sh -c "rm -f  /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/r"
-  - docker exec -it qgis-testing-environment sh -c "ln -s /tests_directory/r /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/r"
+  - docker exec -it qgis-testing-environment sh -c "rm -f  /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/processing_r"
+  - docker exec -it qgis-testing-environment sh -c "ln -s /tests_directory/r /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/processing_r"
 
   - docker exec -it qgis-testing-environment sh -c "pip3 install -r /tests_directory/REQUIREMENTS_TESTING.txt"
   - docker exec -it qgis-testing-environment sh -c "apt-get install -y r-base"
 
 script:
 
-  - docker exec -it qgis-testing-environment sh -c "qgis_testrunner.sh r.test_suite.test_package"
+  - docker exec -it qgis-testing-environment sh -c "qgis_testrunner.sh processing_r.test_suite.test_package"
 
   - make pylint
   - make pycodestyle

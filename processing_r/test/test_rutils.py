@@ -18,8 +18,8 @@ import os
 import unittest
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
 from processing.core.ProcessingConfig import ProcessingConfig
-from r.processing.utils import RUtils
-from r.processing.provider import RAlgorithmProvider
+from processing_r.processing.utils import RUtils
+from processing_r.processing.provider import RAlgorithmProvider
 from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()

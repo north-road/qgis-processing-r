@@ -27,13 +27,13 @@ from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from processing.gui.ProviderActions import (ProviderActions,
                                             ProviderContextMenuActions)
 
-from r.processing.actions.create_new_script import CreateNewScriptAction
-from r.processing.actions.edit_script import EditScriptAction
-from r.processing.actions.delete_script import DeleteScriptAction
-from r.processing.exceptions import InvalidScriptException
-from r.processing.utils import RUtils
-from r.processing.algorithm import RAlgorithm
-from r.gui.gui_utils import GuiUtils
+from processing_r.processing.actions.create_new_script import CreateNewScriptAction
+from processing_r.processing.actions.edit_script import EditScriptAction
+from processing_r.processing.actions.delete_script import DeleteScriptAction
+from processing_r.processing.exceptions import InvalidScriptException
+from processing_r.processing.utils import RUtils
+from processing_r.processing.algorithm import RAlgorithm
+from processing_r.gui.gui_utils import GuiUtils
 
 
 class RAlgorithmProvider(QgsProcessingProvider):
