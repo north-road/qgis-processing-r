@@ -42,7 +42,7 @@ from qgis.core import (QgsProcessing,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
                        QgsProcessingUtils)
-from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication, QDir
 from processing.core.parameters import getParameterFromString
 from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
@@ -432,12 +432,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         layer_name = source_parts.get('layerName')
         if layer_name:
             # eg geopackage source
-            return '{}=readOGR("{}",layer="{}")'.format(name, file_path, layer_name)
+            return '{}=readOGR("{}",layer="{}")'.format(name, QDir.fromNativeSeparators(file_path), layer_name)
 
         # no layer name -- readOGR expects the folder, with the filename as layer
         folder, file_name = os.path.split(file_path)
         base_name, _ = os.path.splitext(file_name)
-        return '{}=readOGR("{}",layer="{}")'.format(name, folder, base_name)
+        return '{}=readOGR("{}",layer="{}")'.format(name, QDir.fromNativeSeparators(folder), base_name)
 
     def build_script_header_commands(self, _, __, ___):
         """
@@ -477,7 +477,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 ).format(variable_name))
 
         path = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.source())['path']
-        value = path.replace('\\', '/')
+        value = QDir.fromNativeSeparators(path)
         if self.pass_file_names:
             return '{}="{}"'.format(variable_name, value)
         if self.use_raster_package:
