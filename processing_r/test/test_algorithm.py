@@ -183,7 +183,8 @@ class AlgorithmTest(unittest.TestCase):
         feedback = QgsProcessingFeedback()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp')}, context, feedback)
         self.assertEqual(script, ['Layer=readOGR("{}",layer="lines")'.format(test_data_path)])
-        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/','\\')}, context, feedback)
+        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
+                                           context, feedback)
         self.assertEqual(script, ['Layer=readOGR("{}",layer="lines")'.format(test_data_path)])
         vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
         self.assertTrue(vl.isValid())
@@ -207,7 +208,8 @@ class AlgorithmTest(unittest.TestCase):
         feedback = QgsProcessingFeedback()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
         self.assertEqual(script, ['Layer=brick("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
-        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif').replace('/','\\')}, context, feedback)
+        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif').replace('/', '\\')},
+                                           context, feedback)
         self.assertEqual(script, ['Layer=brick("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
         script = alg.build_import_commands({'Layer': None}, context, feedback)
         self.assertEqual(script, ['Layer=NULL'])
