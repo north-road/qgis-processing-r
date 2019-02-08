@@ -10,7 +10,7 @@
 name=Processing R Provider
 qgisMinimumVersion=3.4
 description=A Processing provider for connecting to the R statistics framework
-version=1.0.1
+version=1.0.2
 author=North Road
 email=nyall@north-road.com
 
@@ -23,7 +23,7 @@ repository=https://github.com/north-road/qgis-processing-r
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog=
+changelog=1.0.2 Fix vector paths under windows
 
 # Tags are comma separated with spaces allowed
 tags=python
