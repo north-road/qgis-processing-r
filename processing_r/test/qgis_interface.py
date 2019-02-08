@@ -151,7 +151,7 @@ class QgisInterface(QObject):
         """
         pass  # pylint: disable=unnecessary-pass
 
-    def activeLayer(self)->QgsMapLayer:  # pylint: disable=no-self-use
+    def activeLayer(self) -> QgsMapLayer:  # pylint: disable=no-self-use
         """Get pointer to the active layer (layer selected in the legend)."""
         # noinspection PyArgumentList
         layers = QgsProject.instance().mapLayers()
