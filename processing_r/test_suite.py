@@ -13,6 +13,7 @@ import sys
 import os
 import unittest
 import tempfile
+from osgeo import gdal
 import qgis  # pylint: disable=unused-import
 from qgis.PyQt import Qt
 
@@ -26,7 +27,6 @@ try:
 except ImportError:
     pipmain(['install', 'coverage'])
     import coverage
-from osgeo import gdal
 
 __author__ = 'Alessandro Pasotti'
 __revision__ = '$Format:%H$'
