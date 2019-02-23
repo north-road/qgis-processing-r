@@ -55,15 +55,10 @@ class RAlgorithmProvider(QgsProcessingProvider):
         Called when first loading provider
         """
         ProcessingConfig.settingIcons[self.name()] = self.icon()
-        ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_R',
-                                            self.tr('Activate'), False))
         ProcessingConfig.addSetting(Setting(
             self.name(), RUtils.RSCRIPTS_FOLDER,
             self.tr('R scripts folder'), RUtils.default_scripts_folder(),
             valuetype=Setting.MULTIPLE_FOLDERS))
-
-        ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_R',
-                                            self.tr('Activate'), False))
 
         ProcessingConfig.addSetting(Setting(self.name(), RUtils.R_USE_USER_LIB,
                                             self.tr('Use user library folder instead of system libraries'), True))
@@ -97,7 +92,6 @@ class RAlgorithmProvider(QgsProcessingProvider):
         """
         Called when unloading provider
         """
-        ProcessingConfig.removeSetting('ACTIVATE_R')
         ProcessingConfig.removeSetting(RUtils.RSCRIPTS_FOLDER)
         ProcessingConfig.removeSetting(RUtils.R_LIBS_USER)
         ProcessingConfig.removeSetting(RUtils.R_FOLDER)
@@ -105,18 +99,6 @@ class RAlgorithmProvider(QgsProcessingProvider):
             ProcessingConfig.removeSetting(RUtils.R_USE64)
         ProviderActions.deregisterProviderActions(self)
         ProviderContextMenuActions.deregisterProviderContextMenuActions(self.contextMenuActions)
-
-    def isActive(self):
-        """
-        Returns True if provider is active
-        """
-        return ProcessingConfig.getSetting('ACTIVATE_R')
-
-    def setActive(self, active):
-        """
-        Sets whether the provider should be activated
-        """
-        ProcessingConfig.setSettingValue('ACTIVATE_R', active)
 
     def icon(self):
         """
