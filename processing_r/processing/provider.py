@@ -178,3 +178,9 @@ class RAlgorithmProvider(QgsProcessingProvider):
         Default extension -- we use Geopackage for spatial layers, CSV for non-spatial layers
         """
         return 'gpkg' if hasGeometry else 'csv'
+
+    def supportsNonFileBasedOutput(self):
+        """
+        Provider cannot handle memory layers/db sources
+        """
+        return False
