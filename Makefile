@@ -20,6 +20,8 @@ SOURCES = \
 	processing_r/processing/provider.py \
 	processing_r/processing/utils.py
 
+PLUGIN_NAME = processing_r
+
 EXTRAS = metadata.txt icon.png
 
 EXTRA_DIRS =
@@ -109,3 +111,23 @@ pycodestyle:
 	@echo "-----------"
 	@echo "Ignored in PEP8 check:"
 	@echo $(PEP8EXCLUDE)
+
+# The dclean target removes compiled python files from plugin directory
+# also deletes any .git entry
+dclean:
+	@echo
+	@echo "-----------------------------------"
+	@echo "Removing any compiled python files."
+	@echo "-----------------------------------"
+	find $(PLUGIN_NAME) -iname "*.pyc" -delete
+	find $(PLUGIN_NAME) -iname ".git" -prune -exec rm -Rf {} \;
+
+zip: dclean
+	@echo
+	@echo "---------------------------"
+	@echo "Creating plugin zip bundle."
+	@echo "---------------------------"
+	# The zip target deploys the plugin and creates a zip file with the deployed
+	# content. You can then upload the zip file on http://plugins.qgis.org
+	rm -f $(PLUGIN_NAME).zip
+	zip -9r $(PLUGIN_NAME).zip $(PLUGIN_NAME) -x *.git* -x *__pycache__* -x *test*
