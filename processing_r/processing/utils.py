@@ -284,8 +284,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
                 else:
                     exec_dir = 'i386'
                 return os.path.join(bin_folder, 'bin', exec_dir, '{}.exe'.format(executable))
-            else:
-                return os.path.join(bin_folder, executable)
+            return os.path.join(bin_folder, executable)
 
         return executable
 
