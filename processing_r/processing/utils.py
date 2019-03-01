@@ -345,6 +345,8 @@ class RUtils:  # pylint: disable=too-many-public-methods
         # alias 'selection' to 'enum'
         if '=selection' in line:
             line = line.replace('=selection', '=enum')
+        if '=vector' in line:
+            line = line.replace('=vector', '=source')
         return line
 
     @staticmethod

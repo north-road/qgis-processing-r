@@ -63,7 +63,7 @@ class AlgorithmTest(unittest.TestCase):
         raster_param = alg.parameterDefinition('in_raster')
         self.assertEqual(raster_param.type(), 'raster')
         vector_param = alg.parameterDefinition('in_vector')
-        self.assertEqual(vector_param.type(), 'vector')
+        self.assertEqual(vector_param.type(), 'source')
         field_param = alg.parameterDefinition('in_field')
         self.assertEqual(field_param.type(), 'field')
         self.assertEqual(field_param.parentLayerParameterName(), 'in_vector')
