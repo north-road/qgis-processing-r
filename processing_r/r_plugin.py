@@ -68,9 +68,13 @@ class RProviderPlugin:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('RProvider', message)
 
-    def initGui(self):
-        """Create the menu entries and toolbar icons inside the QGIS GUI."""
+    def initProcessing(self):
+        """Create the Processing provider"""
         QgsApplication.processingRegistry().addProvider(self.provider)
+
+    def initGui(self):
+        """Creates application GUI widgets"""
+        self.initProcessing()
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
