@@ -38,6 +38,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingParameterFileDestination,
+                       QgsProcessingParameterFeatureSource,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
@@ -363,31 +364,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         :param parameters: Parameters of the algorithm.
         :param context: Processing context
         """
-        layer = self.parameterAsVectorLayer(parameters, name, context)
-        if layer is None:
-            return '{}=NULL'.format(name)
-
-        is_ogr_disk_based_layer = layer is not None and layer.dataProvider().name() == 'ogr'
-        if is_ogr_disk_based_layer:
-            # we only support direct reading of disk based ogr layers -- not ogr postgres layers, etc
-            source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
-            if not source_parts.get('path'):
-                is_ogr_disk_based_layer = False
-            elif source_parts.get('layerId'):
-                # no support for directly reading layers by id in grass
-                is_ogr_disk_based_layer = False
-
-        if not is_ogr_disk_based_layer:
-            # parameter is not a vector layer or not an OGR layer - try to convert to a source compatible with
-            # grass OGR inputs and extract selection if required
-            path = self.parameterAsCompatibleSourceLayerPath(parameters, name, context,
-                                                             QgsVectorFileWriter.supportedFormatExtensions(),
-                                                             feedback=feedback)
-            ogr_layer = QgsVectorLayer(path, '', 'ogr')
-            return self.load_vector_layer_command(name, ogr_layer, feedback)
-
-        # already an ogr disk based layer source
-        return self.load_vector_layer_command(name, layer, feedback)
+        ogr_data_path = self.parameterAsCompatibleSourceLayerPath(parameters, name, context,
+                                                                  QgsVectorFileWriter.supportedFormatExtensions(),
+                                                                  feedback=feedback)
+        ogr_layer = QgsVectorLayer(ogr_data_path, '', 'ogr')
+        return self.load_vector_layer_command(name, ogr_layer, feedback)
 
     def build_vector_layer_import_command(self, variable_name, layer, context, feedback):
         """
@@ -504,6 +485,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 rl = self.parameterAsRasterLayer(parameters, param.name(), context)
                 commands.append(self.build_raster_layer_import_command(param.name(), rl))
             elif isinstance(param, QgsProcessingParameterVectorLayer):
+                commands.append(self.load_vector_layer_from_parameter(param.name(), parameters, context, feedback))
+            elif isinstance(param, QgsProcessingParameterFeatureSource):
                 commands.append(self.load_vector_layer_from_parameter(param.name(), parameters, context, feedback))
             elif isinstance(param, QgsProcessingParameterExtent):
                 extent = self.parameterAsExtent(parameters, param.name(), context)
