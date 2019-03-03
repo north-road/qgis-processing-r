@@ -314,7 +314,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
                                   startupinfo=RUtils.get_process_startup_info(),
                                   universal_newlines=True) as proc:
                 for line in proc.stdout:
-                    if 'R version' in line:
+                    if ('R version' in line) or ('R Under development' in line):
                         return None
         except FileNotFoundError:
             pass
