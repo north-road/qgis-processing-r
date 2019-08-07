@@ -256,7 +256,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 self.addParameter(output)
         else:
             line = RUtils.upgrade_parameter_line(line)
-            param = getParameterFromString(line, context="")
+
+            # this is annoying, but required to work around a bug in early 3.8.0 versions
+            try:
+                param = getParameterFromString(line, context="")
+            except TypeError:
+                param = getParameterFromString(line)
+
             if param is not None:
                 self.addParameter(param)
             else:
