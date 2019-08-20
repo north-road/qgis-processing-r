@@ -418,7 +418,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
         file_path = source_parts.get('path')
         if self.pass_file_names:
-            return '{}="{}"'.format(name, file_path)
+            return '{}="{}"'.format(name, QDir.fromNativeSeparators(file_path))
 
         layer_name = source_parts.get('layerName')
         if layer_name:
