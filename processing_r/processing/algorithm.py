@@ -43,7 +43,11 @@ from qgis.core import (QgsProcessing,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
                        QgsProcessingUtils)
-from qgis.PyQt.QtCore import QCoreApplication, QDir
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QDir,
+    QUrl
+)
 from processing.core.parameters import getParameterFromString
 from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
@@ -306,7 +310,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
             if html_filename:
                 with open(html_filename, 'w') as f:
-                    f.write('<html><img src="' + self.plots_filename + '"/></html>')
+                    f.write('<html><img src="{}"/></html>'.format(QUrl.fromLocalFile(self.plots_filename).toString()))
                 self.results[RAlgorithm.RPLOTS] = html_filename
         if self.show_console_output:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.R_CONSOLE_OUTPUT, context)
