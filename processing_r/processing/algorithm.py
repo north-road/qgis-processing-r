@@ -513,8 +513,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     commands.append('{}="{}"'.format(param.name(), crs.authid()))
                 else:
                     commands.append('{}=NULL'.format(param.name()))
+            elif isinstance(param, QgsProcessingParameterFile):
+                value = self.parameterAsString(parameters, param.name(), context)
+                commands.append('{}="{}"'.format(param.name(), QDir.fromNativeSeparators(value)))
             elif isinstance(param,
-                            (QgsProcessingParameterField, QgsProcessingParameterString, QgsProcessingParameterFile)):
+                            (QgsProcessingParameterField, QgsProcessingParameterString)):
                 value = self.parameterAsString(parameters, param.name(), context)
                 commands.append('{}="{}"'.format(param.name(), value))
             elif isinstance(param, QgsProcessingParameterNumber):
