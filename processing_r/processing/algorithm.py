@@ -52,6 +52,7 @@ from processing.core.parameters import getParameterFromString
 from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
 from processing_r.gui.gui_utils import GuiUtils
+from processing_r.processing.r_templates import RTemplates
 
 
 class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-methods
@@ -86,6 +87,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.load_from_string()
         if self.description_file is not None:
             self.load_from_file()
+        self.r_templates = RTemplates()
+        self.necessary_packages = ['raster', 'sf']
 
     def createInstance(self):
         """
@@ -343,11 +346,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
                 dest = dest.replace('\\', '/')
                 if self.use_raster_package or self.pass_file_names:
-                    commands.append('writeRaster({},"{}", overwrite=TRUE)'.format(out.name(), dest))
+                    commands.append(self.r_templates.write_raster_output(out.name(), dest))
                 else:
                     if not dest.lower().endswith('tif'):
                         dest = dest + '.tif'
-                    commands.append('writeGDAL({},"{}")'.format(out.name(), dest))
+                    commands.append(self.r_templates.write_raster_gdal_output(out.name(), dest))
                 self.results[out.name()] = dest
             elif isinstance(out, QgsProcessingParameterVectorDestination):
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
@@ -356,14 +359,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 filename, ext = os.path.splitext(filename)
                 if ext.lower() == '.csv':
                     # CSV table export
-                    commands.append('write.csv(' + out.name() + ',"' + dest + '")')
+                    commands.append(self.r_templates.write_csv_output(out.name(), dest))
                 else:
-                    commands.append('writeOGR(' + out.name() + ',"' + dest + '","' +
-                                    filename + '", driver="{}")'.format(QgsVectorFileWriter.driverForExtension(ext)))
+                    commands.append(self.r_templates.write_sf_output(out.name(), dest, filename))
                     self.results[out.name()] = dest
 
         if self.show_plots:
-            commands.append('dev.off()')
+            commands.append(self.r_templates.dev_off())
 
         return commands
 
@@ -385,7 +387,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         Returns an import command for the specified vector layer, storing it in a variable
         """
         if layer is None:
-            return '{}=NULL'.format(variable_name)
+            return self.r_templates.set_variable_null(variable_name)
 
         is_ogr_disk_based_layer = layer is not None and layer.dataProvider().name() == 'ogr'
         if is_ogr_disk_based_layer:
@@ -418,17 +420,16 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
         file_path = source_parts.get('path')
         if self.pass_file_names:
-            return '{}="{}"'.format(name, QDir.fromNativeSeparators(file_path))
+            return self.r_templates.set_variable_string(name, QDir.fromNativeSeparators(file_path))
 
         layer_name = source_parts.get('layerName')
         if layer_name:
-            # eg geopackage source
-            return '{}=readOGR("{}",layer="{}")'.format(name, QDir.fromNativeSeparators(file_path), layer_name)
+            return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(file_path), layer=layer_name)
 
         # no layer name -- readOGR expects the folder, with the filename as layer
         folder, file_name = os.path.split(file_path)
         base_name, _ = os.path.splitext(file_name)
-        return '{}=readOGR("{}",layer="{}")'.format(name, QDir.fromNativeSeparators(folder), base_name)
+        return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(file_path))
 
     def build_script_header_commands(self, _, __, ___):
         """
@@ -437,20 +438,20 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         commands = list()
 
         # Just use main mirror
-        commands.append('options("repos"="{}")'.format(RUtils.package_repo()))
+        commands.append(self.r_templates.set_option_repos(RUtils.package_repo()))
 
         # Try to install packages if needed
         if RUtils.use_user_library():
-            commands.append('.libPaths(\"' + str(RUtils.r_library_folder()).replace('\\', '/') + '\")')
+            path_to_use = str(RUtils.r_library_folder()).replace('\\', '/')
+            commands.append(self.r_templates.change_libPath(path_to_use))
 
         packages = RUtils.get_required_packages(self.script)
-        packages.extend(['rgdal', 'raster'])
+        packages.extend(self.necessary_packages)
+
         for p in packages:
-            commands.append('tryCatch(find.package("' + p +
-                            '"), error=function(e) install.packages("' + p +
-                            '", dependencies=TRUE))')
-        commands.append('library("raster")')
-        commands.append('library("rgdal")')
+            commands.append(self.r_templates.check_package_availability(p))
+        commands.append(self.r_templates.load_package("raster"))
+        commands.append(self.r_templates.load_package("sf"))
 
         return commands
 
@@ -459,7 +460,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         Returns an import command for the specified raster layer, storing it in a variable
         """
         if layer is None:
-            return '{}=NULL'.format(variable_name)
+            return self.r_templates.set_variable_null(variable_name)
 
         if layer.dataProvider().name() != 'gdal':
             raise QgsProcessingException(
@@ -470,11 +471,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         path = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.source())['path']
         value = QDir.fromNativeSeparators(path)
         if self.pass_file_names:
-            return '{}="{}"'.format(variable_name, value)
+            return self.r_templates.set_variable_string(variable_name, value)
         if self.use_raster_package:
-            return '{}=brick("{}")'.format(variable_name, value)
+            return self.r_templates.set_variable_raster(variable_name, value)
 
-        return '{}=readGDAL("{}")'.format(variable_name, value)
+        return self.r_templates.set_variable_raster_gdal(variable_name, value)
 
     def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
                               parameters, context, feedback):
@@ -488,7 +489,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 continue
 
             if param.name() not in parameters or parameters[param.name()] is None:
-                commands.append('{}=NULL'.format(param.name()))
+                commands.append(self.r_templates.set_variable_null(param.name()))
                 continue
 
             if isinstance(param, QgsProcessingParameterRasterLayer):
@@ -502,33 +503,36 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 extent = self.parameterAsExtent(parameters, param.name(), context)
                 # Extent from raster package is "xmin, xmax, ymin, ymax" like in Processing
                 # http://www.inside-r.org/packages/cran/raster/docs/Extent
-                commands.append('{}=extent({},{},{},{})'.format(param.name(),
-                                                                extent.xMinimum(),
-                                                                extent.xMaximum(),
-                                                                extent.yMinimum(),
-                                                                extent.yMaximum()))
+                commands.append(self.r_templates.set_variable_extent(param.name(),
+                                                                     extent.xMinimum(),
+                                                                     extent.xMaximum(),
+                                                                     extent.yMinimum(),
+                                                                     extent.yMaximum()))
             elif isinstance(param, QgsProcessingParameterCrs):
                 crs = self.parameterAsCrs(parameters, param.name(), context)
                 if crs.isValid():
-                    commands.append('{}="{}"'.format(param.name(), crs.authid()))
+                    commands.append(self.r_templates.set_variable_string(param.name(),
+                                                                         crs.authid()))
                 else:
-                    commands.append('{}=NULL'.format(param.name()))
+                    commands.append(self.r_templates.set_variable_null(param.name()))
             elif isinstance(param, QgsProcessingParameterFile):
                 value = self.parameterAsString(parameters, param.name(), context)
-                commands.append('{}="{}"'.format(param.name(), QDir.fromNativeSeparators(value)))
+                commands.append(self.r_templates.set_variable_string(param.name(),
+                                                                     QDir.fromNativeSeparators(value)))
             elif isinstance(param,
                             (QgsProcessingParameterField, QgsProcessingParameterString)):
                 value = self.parameterAsString(parameters, param.name(), context)
-                commands.append('{}="{}"'.format(param.name(), value))
+                commands.append(self.r_templates.set_variable_string(param.name(), value))
             elif isinstance(param, QgsProcessingParameterNumber):
                 value = self.parameterAsDouble(parameters, param.name(), context)
-                commands.append('{}={}'.format(param.name(), value))
+                commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterEnum):
                 value = self.parameterAsEnum(parameters, param.name(), context)
-                commands.append('{}={}'.format(param.name(), value))
+                commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterBoolean):
                 value = self.parameterAsBool(parameters, param.name(), context)
-                commands.append('{}={}'.format(param.name(), 'TRUE' if value else 'FALSE'))
+                value = 'TRUE' if value else 'FALSE'
+                commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
                 layer_idx = 0
                 layers = self.parameterAsLayerList(parameters, param.name(), context)
@@ -561,7 +565,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             path, _ = os.path.splitext(html_filename)
             self.plots_filename = path + '.png'
             self.plots_filename = self.plots_filename.replace('\\', '/')
-            commands.append('png("' + self.plots_filename + '")')
+            commands.append(self.r_templates.png(self.plots_filename))
 
         return commands
 
