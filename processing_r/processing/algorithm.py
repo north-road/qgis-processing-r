@@ -78,7 +78,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
 
         self.show_plots = False
-        self.use_raster_package = False
         self.pass_file_names = False
         self.show_console_output = False
         self.plots_filename = ''
@@ -176,7 +175,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self.error = None
         self.show_plots = False
         self.show_console_output = False
-        self.use_raster_package = True
         self.pass_file_names = False
         ender = 0
         line = next(lines).strip('\n').strip('\r')
