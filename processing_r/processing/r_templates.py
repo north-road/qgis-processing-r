@@ -1,18 +1,48 @@
 class RTemplates:
 
     def __init__(self):
-        pass
+        self._use_sf = True
+        self._use_raster = True
 
-    # https://www.geeksforgeeks.org/getter-and-setter-in-python/
+    @property
+    def use_sf(self):
+        return self._use_sf
+
+    @use_sf.setter
+    def use_sf(self, use: bool):
+        self._use_sf = use
+
+    @property
+    def use_raster(self):
+        return self._use_raster
+
+    @use_raster.setter
+    def use_raster(self, use: bool):
+        self._use_raster = use
+
+    def get_necessary_packages(self):
+        packages = []
+
+        if self.use_sf:
+            packages.append("sf")
+        else:
+            packages.append("sp")
+
+        if self.use_raster:
+            packages.append("raster")
+        else:
+            packages.append("rgdal")
+
+        return packages
 
     def set_variable_vector(self, variable: str, path: str, layer: str = None):
 
         command = ""
 
         if layer is not None:
-            command = '{0} <- st_read("{1}", layer = "{2}")'.format(variable, path, layer)
+            command = '{0} <- st_read("{1}", layer = "{2}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable, path, layer)
         else:
-            command = '{0} <- st_read("{1}")'.format(variable, path)
+            command = '{0} <- st_read("{1}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable, path)
 
         return command
 
@@ -45,9 +75,9 @@ class RTemplates:
         command = ""
 
         if layer_name is not None:
-            command = 'st_write({0}, "{1}", layer = "{2}")'.format(variable, path, layer_name)
+            command = 'st_write({0}, "{1}", layer = "{2}", quiet = TRUE)'.format(variable, path, layer_name)
         else:
-            command = 'st_write({0}, "{1}")'.format(variable, path)
+            command = 'st_write({0}, "{1}", quiet = TRUE)'.format(variable, path)
 
         return command
 

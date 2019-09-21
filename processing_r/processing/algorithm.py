@@ -88,7 +88,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if self.description_file is not None:
             self.load_from_file()
         self.r_templates = RTemplates()
-        self.necessary_packages = ['raster', 'sf']
 
     def createInstance(self):
         """
@@ -446,7 +445,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             commands.append(self.r_templates.change_libPath(path_to_use))
 
         packages = RUtils.get_required_packages(self.script)
-        packages.extend(self.necessary_packages)
+        packages.extend(self.r_templates.get_necessary_packages())
 
         for p in packages:
             commands.append(self.r_templates.check_package_availability(p))
