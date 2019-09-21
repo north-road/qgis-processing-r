@@ -26,6 +26,7 @@ class RTemplates:
         if self.use_sf:
             packages.append("sf")
         else:
+            packages.append("rgdal")
             packages.append("sp")
 
         if self.use_raster:
@@ -35,22 +36,48 @@ class RTemplates:
 
         return packages
 
-    def set_variable_vector(self, variable: str, path: str, layer: str = None):
+    def __set_variable_vector_sf(self, variable: str, path: str, layer: str = None):
 
         command = ""
 
         if layer is not None:
-            command = '{0} <- st_read("{1}", layer = "{2}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable, path, layer)
+            command = '{0} <- st_read("{1}", layer = "{2}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable,
+                                                                                                            path, layer)
         else:
             command = '{0} <- st_read("{1}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable, path)
 
         return command
 
-    def set_variable_raster(self, variable: str, path: str):
+    def __set_variable_vector_rgdal(self, variable: str, path: str, layer: str = None):
+
+        command = ""
+
+        if layer is not None:
+            command = '{0}=readOGR("{1}", layer="{2}")'.format(variable, path, layer)
+        else:
+            command = '{0}=readOGR("{1}")'.format(variable, path)
+
+        return command
+
+    def set_variable_vector(self, variable: str, path: str, layer: str = None):
+
+        if self.use_sf:
+            return self.__set_variable_vector_sf(variable, path, layer)
+        else:
+            return self. __set_variable_vector_rgdal(variable, path, layer)
+
+    def __set_variable_raster_raster(self, variable: str, path: str):
         return '{0} <- brick("{1}")'.format(variable, path)
 
-    def set_variable_raster_gdal(self, variable: str, path: str):
+    def __set_variable_raster_gdal(self, variable: str, path: str):
         return '{0} <- readGDAL("{1}")'.format(variable, path)
+
+    def set_variable_raster(self, variable: str, path: str):
+
+        if self.use_raster:
+            return self.__set_variable_raster_raster(variable, path)
+        else:
+            return self.__set_variable_raster_gdal(variable, path)
 
     def set_variable_extent(self, variable: str, x_min: float, x_max: float, y_min: float, y_max: float):
         return '{0} <- extent({1},{2},{3},{4})'.format(variable, x_min, x_max, y_min, y_max)
@@ -70,7 +97,7 @@ class RTemplates:
     def dev_off(self):
         return 'dev.off()'
 
-    def write_sf_output(self, variable: str, path: str, layer_name: str = None):
+    def __write_vector_sf(self, variable: str, path: str, layer_name: str = None):
 
         command = ""
 
@@ -81,11 +108,33 @@ class RTemplates:
 
         return command
 
-    def write_raster_output(self, variable: str, path: str):
+    def __write_vector_ogr(self, variable: str, path: str, layer_name: str = None, driver: str = "gpkg"):
+
+        command = 'writeOGR({0},"{1}","{2}", driver="{3}")'.format(variable, path, layer_name, driver)
+
+        return command
+
+    def write_vector_output(self, variable: str, path: str, layer_name: str = None, driver: str = "gpkg"):
+
+        if self.use_sf:
+            return self.__write_vector_sf(variable, path, layer_name)
+        else:
+            return self.__write_vector_ogr(variable, path, layer_name, driver)
+
+    def __write_raster_raster(self, variable: str, path: str):
         return 'writeRaster({0}, "{1}", overwrite = TRUE)'.format(variable, path)
 
-    def write_raster_gdal_output(self, variable: str, path: str):
+    def __write_raster_gdal(self, variable: str, path: str):
+        if not path.lower().endswith('tif'):
+            path = path + '.tif'
         return 'writeGDAL({0}, "{1}")'.format(variable, path)
+
+    def write_raster_output(self, variable: str, path: str):
+
+        if self.use_raster:
+            return self.__write_raster_raster(variable, path)
+        else:
+            return self.__write_raster_gdal(variable, path)
 
     def write_csv_output(self, variable: str, path: str):
         return 'write.csv({0}, "{1}")'.format(variable, path)

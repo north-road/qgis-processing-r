@@ -219,7 +219,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                                                                     self.tr('HTML files (*.html)'), optional=True))
             return
         if line.lower().strip().startswith('dontuserasterpackage'):
-            self.use_raster_package = False
+            self.r_templates.use_raster = False
             return
         if line.lower().strip().startswith('passfilenames'):
             self.pass_file_names = True
@@ -344,12 +344,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             if isinstance(out, QgsProcessingParameterRasterDestination):
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
                 dest = dest.replace('\\', '/')
-                if self.use_raster_package or self.pass_file_names:
-                    commands.append(self.r_templates.write_raster_output(out.name(), dest))
-                else:
-                    if not dest.lower().endswith('tif'):
-                        dest = dest + '.tif'
-                    commands.append(self.r_templates.write_raster_gdal_output(out.name(), dest))
+                commands.append(self.r_templates.write_raster_output(out.name(), dest))
                 self.results[out.name()] = dest
             elif isinstance(out, QgsProcessingParameterVectorDestination):
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
@@ -360,7 +355,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     # CSV table export
                     commands.append(self.r_templates.write_csv_output(out.name(), dest))
                 else:
-                    commands.append(self.r_templates.write_sf_output(out.name(), dest, filename))
+                    commands.append(self.r_templates.write_vector_output(out.name(), dest, filename, ext))
                     self.results[out.name()] = dest
 
         if self.show_plots:
@@ -471,10 +466,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         value = QDir.fromNativeSeparators(path)
         if self.pass_file_names:
             return self.r_templates.set_variable_string(variable_name, value)
-        if self.use_raster_package:
-            return self.r_templates.set_variable_raster(variable_name, value)
 
-        return self.r_templates.set_variable_raster_gdal(variable_name, value)
+        return self.r_templates.set_variable_raster(variable_name, value)
 
     def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
                               parameters, context, feedback):
