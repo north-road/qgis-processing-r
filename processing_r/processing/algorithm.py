@@ -219,6 +219,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if line.lower().strip().startswith('dontuserasterpackage'):
             self.r_templates.use_raster = False
             return
+        if line.lower().strip().startswith('dontusesfpackage'):
+            self.r_templates.use_sf = False
+            return
         if line.lower().strip().startswith('passfilenames'):
             self.pass_file_names = True
             return
