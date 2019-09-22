@@ -66,6 +66,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
     def __init__(self, description_file, script=None):
         super().__init__()
 
+        self.r_templates = RTemplates()
         self.script = script
         self._name = ''
         self._display_name = ''
@@ -86,7 +87,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.load_from_string()
         if self.description_file is not None:
             self.load_from_file()
-        self.r_templates = RTemplates()
 
     def createInstance(self):
         """
@@ -353,7 +353,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     # CSV table export
                     commands.append(self.r_templates.write_csv_output(out.name(), dest))
                 else:
-                    commands.append(self.r_templates.write_vector_output(out.name(), dest, filename, ext))
+                    commands.append(self.r_templates.write_vector_output(out.name(), dest, filename,
+                                                                         QgsVectorFileWriter.driverForExtension(ext)))
                     self.results[out.name()] = dest
 
         if self.show_plots:
@@ -442,8 +443,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         for p in packages:
             commands.append(self.r_templates.check_package_availability(p))
-        commands.append(self.r_templates.load_package("raster"))
-        commands.append(self.r_templates.load_package("sf"))
+            commands.append(self.r_templates.load_package(p))
 
         return commands
 
