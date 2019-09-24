@@ -375,7 +375,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         :param parameters: Parameters of the algorithm.
         :param context: Processing context
         """
-        if Qgis.QGIS_VERSION_INT >= 30900:
+        if Qgis.QGIS_VERSION_INT >= 30900 and hasattr(self, 'parameterAsCompatibleSourceLayerPathAndLayerName'):
             # requires qgis 3.10 or later!
             ogr_data_path, layer_name = self.parameterAsCompatibleSourceLayerPathAndLayerName(parameters, name, context,
                                                                                               QgsVectorFileWriter.supportedFormatExtensions(),

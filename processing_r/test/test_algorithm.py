@@ -21,7 +21,8 @@ from qgis.core import (Qgis,
                        QgsProcessing,
                        QgsProcessingContext,
                        QgsProcessingFeedback,
-                       QgsVectorLayer)
+                       QgsVectorLayer,
+                       QgsProcessingAlgorithm)
 from processing_r.processing.algorithm import RAlgorithm
 from .utilities import get_qgis_app
 
@@ -183,13 +184,15 @@ class AlgorithmTest(unittest.TestCase):
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp')}, context, feedback)
-        if Qgis.QGIS_VERSION_INT >= 30900:
+
+        USE_NEW_API = Qgis.QGIS_VERSION_INT >= 30900 and hasattr(QgsProcessingAlgorithm, 'parameterAsCompatibleSourceLayerPathAndLayerName')
+        if USE_NEW_API:
             self.assertEqual(script[0], 'Layer=readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
             self.assertEqual(script[0], 'Layer=readOGR("{}",layer="lines")'.format(test_data_path))
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
                                            context, feedback)
-        if Qgis.QGIS_VERSION_INT >= 30900:
+        if USE_NEW_API:
             self.assertEqual(script[0], 'Layer=readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
             self.assertEqual(script[0], 'Layer=readOGR("{}",layer="lines")'.format(test_data_path))
@@ -199,7 +202,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertTrue(vl2.isValid())
         script = alg.build_import_commands({'Layer': vl, 'Layer2': vl2}, context, feedback)
 
-        if Qgis.QGIS_VERSION_INT >= 30900:
+        if USE_NEW_API:
             # use the newer api and avoid unnecessary layer translation
             self.assertEqual(script,
                              ['Layer=readOGR("{}",layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg')),
