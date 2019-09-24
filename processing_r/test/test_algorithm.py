@@ -16,7 +16,8 @@ __revision__ = '$Format:%H$'
 
 import unittest
 import os
-from qgis.core import (QgsProcessingParameterNumber,
+from qgis.core import (Qgis,
+                       QgsProcessingParameterNumber,
                        QgsProcessing,
                        QgsProcessingContext,
                        QgsProcessingFeedback,
@@ -182,20 +183,33 @@ class AlgorithmTest(unittest.TestCase):
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp')}, context, feedback)
-        self.assertEqual(script, ['Layer=readOGR("{}",layer="lines")'.format(test_data_path)])
+        if Qgis.QGIS_VERSION_INT >= 30900:
+            self.assertEqual(script[0], 'Layer=readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+        else:
+            self.assertEqual(script[0], 'Layer=readOGR("{}",layer="lines")'.format(test_data_path))
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
                                            context, feedback)
-        self.assertEqual(script, ['Layer=readOGR("{}",layer="lines")'.format(test_data_path)])
+        if Qgis.QGIS_VERSION_INT >= 30900:
+            self.assertEqual(script[0], 'Layer=readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+        else:
+            self.assertEqual(script[0], 'Layer=readOGR("{}",layer="lines")'.format(test_data_path))
         vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
         self.assertTrue(vl.isValid())
-        script = alg.build_import_commands({'Layer': vl}, context, feedback)
-        self.assertEqual(script,
-                         ['Layer=readOGR("{}",layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
-        vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
-        self.assertTrue(vl.isValid())
-        script = alg.build_import_commands({'Layer': vl}, context, feedback)
-        self.assertEqual(script,
-                         ['Layer=readOGR("{}",layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+        vl2 = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
+        self.assertTrue(vl2.isValid())
+        script = alg.build_import_commands({'Layer': vl, 'Layer2': vl2}, context, feedback)
+
+        if Qgis.QGIS_VERSION_INT >= 30900:
+            # use the newer api and avoid unnecessary layer translation
+            self.assertEqual(script,
+                             ['Layer=readOGR("{}",layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg')),
+                              'Layer2=readOGR("{}",layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+        else:
+            # older version, forced to use inefficient api
+            self.assertIn('layer="Layer")', script[0])
+            self.assertIn('Layer=readOGR("/tmp', script[0])
+            self.assertIn('layer="Layer2")', script[1])
+            self.assertIn('Layer2=readOGR("/tmp', script[1])
 
     def testRasterIn(self):
         """
