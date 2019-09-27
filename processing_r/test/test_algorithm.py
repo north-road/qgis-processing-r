@@ -190,12 +190,12 @@ class AlgorithmTest(unittest.TestCase):
         self.assertTrue(vl.isValid())
         script = alg.build_import_commands({'Layer': vl}, context, feedback)
         self.assertEqual(script,
-                         ['Layer=readOGR("{}",layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+                         ['Layer=readOGR("{}", layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
         vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
         self.assertTrue(vl.isValid())
         script = alg.build_import_commands({'Layer': vl}, context, feedback)
         self.assertEqual(script,
-                         ['Layer=readOGR("{}",layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+                         ['Layer=readOGR("{}", layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
 
     def testRasterIn(self):
         """
@@ -281,12 +281,12 @@ class AlgorithmTest(unittest.TestCase):
         feedback = QgsProcessingFeedback()
         script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
-        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.shp","lines", driver="ESRI Shapefile")',
-                                  'write.csv(OutputCSV,"/home/test/tab.csv")'])
+        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile"))',
+                                  'write.csv(OutputCSV, "/home/test/tab.csv")'])
         script = alg.build_export_commands({'Output': '/home/test/lines.gpkg', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
-        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.gpkg","lines", driver="GPKG")',
-                                  'write.csv(OutputCSV,"/home/test/tab.csv")'])
+        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.gpkg", "lines", driver="GPKG")',
+                                  'write.csv(OutputCSV, "/home/test/tab.csv")'])
 
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
         """
