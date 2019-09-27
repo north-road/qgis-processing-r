@@ -209,9 +209,7 @@ class AlgorithmTest(unittest.TestCase):
                               'Layer2 <- readOGR("{}", layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
         else:
             # older version, forced to use inefficient api
-            self.assertIn('layer <- "Layer")', script[0])
             self.assertIn('Layer <- readOGR("/tmp', script[0])
-            self.assertIn('layer <- "Layer2")', script[1])
             self.assertIn('Layer2 <- readOGR("/tmp', script[1])
 
     def testRasterIn(self):
