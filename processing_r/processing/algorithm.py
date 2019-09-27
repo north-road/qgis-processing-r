@@ -20,7 +20,8 @@
 import os
 import json
 
-from qgis.core import (QgsProcessing,
+from qgis.core import (Qgis,
+                       QgsProcessing,
                        QgsProviderRegistry,
                        QgsProcessingAlgorithm,
                        QgsProcessingException,
@@ -372,6 +373,16 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         :param parameters: Parameters of the algorithm.
         :param context: Processing context
         """
+        if Qgis.QGIS_VERSION_INT >= 30900 and hasattr(self, 'parameterAsCompatibleSourceLayerPathAndLayerName'):
+            # requires qgis 3.10 or later!
+            ogr_data_path, layer_name = self.parameterAsCompatibleSourceLayerPathAndLayerName(parameters, name, context,
+                                                                                              QgsVectorFileWriter.supportedFormatExtensions(),
+                                                                                              feedback=feedback)
+            if layer_name:
+                return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path), layer_name)
+
+            return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path))
+
         ogr_data_path = self.parameterAsCompatibleSourceLayerPath(parameters, name, context,
                                                                   QgsVectorFileWriter.supportedFormatExtensions(),
                                                                   feedback=feedback)
@@ -392,12 +403,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             if not source_parts.get('path'):
                 is_ogr_disk_based_layer = False
             elif source_parts.get('layerId'):
-                # no support for directly reading layers by id in grass
+                # no support for directly reading layers by id in R
                 is_ogr_disk_based_layer = False
 
         if not is_ogr_disk_based_layer:
             # parameter is not a vector layer or not an OGR layer - try to convert to a source compatible with
-            # grass OGR inputs and extract selection if required
+            # R OGR inputs and extract selection if required
             path = QgsProcessingUtils.convertToCompatibleFormat(layer, False, variable_name,
                                                                 compatibleFormats=QgsVectorFileWriter.supportedFormatExtensions(),
                                                                 preferredFormat='gpkg',
