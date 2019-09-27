@@ -264,8 +264,8 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands(
             {'Layer': [os.path.join(test_data_path, 'lines.shp'), os.path.join(test_data_path, 'points.gml')]}, context,
             feedback)
-        self.assertEqual(script, ['tempvar0 <- readOGR("{}",layer="lines")'.format(test_data_path),
-                                  'tempvar1 <- readOGR("{}",layer="points")'.format(test_data_path),
+        self.assertEqual(script, ['tempvar0 <- readOGR("{}")'.format(test_data_path),
+                                  'tempvar1 <- readOGR("{}")'.format(test_data_path),
                                   'Layer = c(tempvar0,tempvar1)'])
         script = alg.build_import_commands({'Layer': []}, context, feedback)
         self.assertEqual(script, ['Layer = c()'])
