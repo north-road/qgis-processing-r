@@ -110,7 +110,7 @@ class RTemplates:
 
     def __write_vector_ogr(self, variable: str, path: str, layer_name: str = None, driver: str = "gpkg"):
 
-        command = 'writeOGR({0},"{1}","{2}", driver="{3}")'.format(variable, path, layer_name, driver)
+        command = 'writeOGR({0}, "{1}", "{2}", driver="{3}")'.format(variable, path, layer_name, driver)
 
         return command
 
