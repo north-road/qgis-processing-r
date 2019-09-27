@@ -45,7 +45,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.displayName(), 'test algorithm 1')
         self.assertIn('test_algorithm_1.rsx', 'test_algorithm_1.rsx')
         self.assertTrue(alg.show_plots)
-        self.assertFalse(alg.use_raster_package)
+        self.assertFalse(alg.r_templates.use_raster)
         self.assertTrue(alg.pass_file_names)
 
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
@@ -56,7 +56,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.group(), 'my group')
         self.assertEqual(alg.groupId(), 'my group')
         self.assertFalse(alg.show_plots)
-        self.assertTrue(alg.use_raster_package)
+        self.assertTrue(alg.r_templates.use_raster)
         self.assertFalse(alg.pass_file_names)
 
         # test that inputs were created correctly
@@ -156,21 +156,21 @@ class AlgorithmTest(unittest.TestCase):
 
         # enum evaluation
         script = alg.build_import_commands({'in_enum': 0}, context, feedback)
-        self.assertIn('in_enum=0', script)
+        self.assertIn('in_enum <- 0', script)
 
         # boolean evaluation
         script = alg.build_import_commands({'in_bool': True}, context, feedback)
-        self.assertIn('in_bool=TRUE', script)
+        self.assertIn('in_bool <- TRUE', script)
         script = alg.build_import_commands({'in_bool': False}, context, feedback)
-        self.assertIn('in_bool=FALSE', script)
+        self.assertIn('in_bool <- FALSE', script)
 
         # number evaluation
         script = alg.build_import_commands({'in_number': None}, context, feedback)
-        self.assertIn('in_number=NULL', script)
+        self.assertIn('in_number <- NULL', script)
         script = alg.build_import_commands({'in_number': 5}, context, feedback)
-        self.assertIn('in_number=5.0', script)
+        self.assertIn('in_number <- 5.0', script)
         script = alg.build_import_commands({'in_number': 5.5}, context, feedback)
-        self.assertIn('in_number=5.5', script)
+        self.assertIn('in_number <- 5.5', script)
 
     def testReadOgr(self):
         """
