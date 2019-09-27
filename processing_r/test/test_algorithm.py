@@ -189,13 +189,13 @@ class AlgorithmTest(unittest.TestCase):
         if USE_NEW_API:
             self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
-            self.assertEqual(script[0], 'Layer <- readOGR("{}", layer="lines")'.format(test_data_path))
+            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
                                            context, feedback)
         if USE_NEW_API:
             self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
-            self.assertEqual(script[0], 'Layer <- readOGR("{}", layer="lines")'.format(test_data_path))
+            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
         self.assertTrue(vl.isValid())
         vl2 = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
