@@ -182,10 +182,10 @@ class AlgorithmTest(unittest.TestCase):
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp')}, context, feedback)
-        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(test_data_path)])
+        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp'))])
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
                                            context, feedback)
-        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(test_data_path)])
+        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp'))])
         vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
         self.assertTrue(vl.isValid())
         script = alg.build_import_commands({'Layer': vl}, context, feedback)
@@ -264,8 +264,8 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands(
             {'Layer': [os.path.join(test_data_path, 'lines.shp'), os.path.join(test_data_path, 'points.gml')]}, context,
             feedback)
-        self.assertEqual(script, ['tempvar0 <- readOGR("{}")'.format(test_data_path),
-                                  'tempvar1 <- readOGR("{}")'.format(test_data_path),
+        self.assertEqual(script, ['tempvar0 <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+                                  'tempvar1 <- readOGR("{}")'.format(os.path.join(test_data_path, 'points.gml')),
                                   'Layer = c(tempvar0,tempvar1)'])
         script = alg.build_import_commands({'Layer': []}, context, feedback)
         self.assertEqual(script, ['Layer = c()'])
@@ -281,7 +281,7 @@ class AlgorithmTest(unittest.TestCase):
         feedback = QgsProcessingFeedback()
         script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
-        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile"))',
+        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")',
                                   'write.csv(OutputCSV, "/home/test/tab.csv")'])
         script = alg.build_export_commands({'Output': '/home/test/lines.gpkg', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
