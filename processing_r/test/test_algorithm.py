@@ -186,16 +186,16 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
                                            context, feedback)
         self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp'))])
-        vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
-        self.assertTrue(vl.isValid())
-        script = alg.build_import_commands({'Layer': vl}, context, feedback)
-        self.assertEqual(script,
-                         ['Layer=readOGR("{}", layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
-        vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
-        self.assertTrue(vl.isValid())
-        script = alg.build_import_commands({'Layer': vl}, context, feedback)
-        self.assertEqual(script,
-                         ['Layer=readOGR("{}", layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+        # vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
+        # self.assertTrue(vl.isValid())
+        # script = alg.build_import_commands({'Layer': vl}, context, feedback)
+        # self.assertEqual(script,
+        #                  ['Layer=readOGR("{}", layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+        # vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
+        # self.assertTrue(vl.isValid())
+        # script = alg.build_import_commands({'Layer': vl}, context, feedback)
+        # self.assertEqual(script,
+        #                  ['Layer=readOGR("{}", layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
 
     def testRasterIn(self):
         """
