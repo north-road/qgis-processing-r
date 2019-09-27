@@ -53,9 +53,9 @@ class RTemplates:
         command = ""
 
         if layer is not None:
-            command = '{0}=readOGR("{1}", layer="{2}")'.format(variable, path, layer)
+            command = '{0} <- readOGR("{1}", layer="{2}")'.format(variable, path, layer)
         else:
-            command = '{0}=readOGR("{1}")'.format(variable, path)
+            command = '{0} <- readOGR("{1}")'.format(variable, path)
 
         return command
 
