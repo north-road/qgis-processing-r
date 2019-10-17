@@ -166,7 +166,7 @@ class RTemplates:
         """
         return "{0} <- NULL".format(variable)
 
-    def png(self, path: str) -> str:
+    def create_png(self, path: str) -> str:
         """
         Funtion that produces R code to write PNG file at given location.
 

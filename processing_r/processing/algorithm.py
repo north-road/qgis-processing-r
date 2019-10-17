@@ -569,7 +569,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             path, _ = os.path.splitext(html_filename)
             self.plots_filename = path + '.png'
             self.plots_filename = self.plots_filename.replace('\\', '/')
-            commands.append(self.r_templates.png(self.plots_filename))
+            commands.append(self.r_templates.create_png(self.plots_filename))
 
         return commands
 
