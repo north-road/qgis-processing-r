@@ -1,5 +1,5 @@
 ##showplots
-##dontuserasterpackage
+##load_raster_using_rgdal
 ##passfilenames
 
 ##polyg=vector

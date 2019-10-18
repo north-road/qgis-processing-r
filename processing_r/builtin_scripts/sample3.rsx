@@ -1,5 +1,5 @@
 ##test_sp=name
-##dontusesfpackage
+##load_vector_using_rgdal
 ##Layer=vector
 ##output= output vector
 
