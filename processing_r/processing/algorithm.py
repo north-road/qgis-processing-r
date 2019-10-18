@@ -217,10 +217,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.RPLOTS, self.tr('R Plots'),
                                                                     self.tr('HTML files (*.html)'), optional=True))
             return
-        if line.lower().strip().startswith('dontuserasterpackage'):
+        if line.lower().strip().startswith('load_raster_using_rgdal'):
             self.r_templates.use_raster = False
             return
-        if line.lower().strip().startswith('dontusesfpackage'):
+        if line.lower().strip().startswith('load_vector_using_rgdal'):
             self.r_templates.use_sf = False
             return
         if line.lower().strip().startswith('passfilenames'):
