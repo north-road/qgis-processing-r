@@ -145,6 +145,10 @@ class RTemplates:
         :param value: string. Value of the variable.
         :return: string. R code to produce variable with given value.
         """
+
+        if '"' in value:
+            value = value.replace('"', '\\"')
+
         return '{0} <- "{1}"'.format(variable, value)
 
     def set_variable_directly(self, variable: str, value) -> str:
