@@ -1,6 +1,6 @@
-##showplots
+##output_plots_to_html
 ##load_raster_using_rgdal
-##passfilenames
+##pass_filenames
 
 ##polyg=vector
 ##polyg_category_id=field polyg

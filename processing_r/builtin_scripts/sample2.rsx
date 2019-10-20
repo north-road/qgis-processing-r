@@ -1,5 +1,5 @@
 ##test_sf=name
-##showplots
+##output_plots_to_html
 ##Layer=vector
 ##output= output vector
 
