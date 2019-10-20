@@ -212,18 +212,27 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         line = line.replace('#', '')
 
         # special commands
-        if line.lower().strip().startswith('showplots'):
+        # showplots is the older version, should be considere obsolete
+        if line.lower().strip().startswith('output_plots_to_html') or \
+           line.lower().strip().startswith('showplots'):
             self.show_plots = True
             self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.RPLOTS, self.tr('R Plots'),
                                                                     self.tr('HTML files (*.html)'), optional=True))
             return
-        if line.lower().strip().startswith('load_raster_using_rgdal'):
+
+        # dontuserasterpackage is the older version, should be considere obsolete
+        if line.lower().strip().startswith('load_raster_using_rgdal') or \
+           line.lower().strip().startswith('dontuserasterpackage'):
             self.r_templates.use_raster = False
             return
+
         if line.lower().strip().startswith('load_vector_using_rgdal'):
             self.r_templates.use_sf = False
             return
-        if line.lower().strip().startswith('passfilenames'):
+
+        # passfilenames is the older version, should be considere obsolete
+        if line.lower().strip().startswith('pass_filenames') or\
+           line.lower().strip().startswith('passfilenames'):
             self.pass_file_names = True
             return
 
