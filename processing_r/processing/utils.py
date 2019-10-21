@@ -21,6 +21,7 @@ import os
 import platform
 import subprocess
 from typing import Optional
+from ctypes import cdll
 
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (QgsProcessingUtils,
@@ -196,7 +197,6 @@ class RUtils:  # pylint: disable=too-many-public-methods
         Determines MS-Windows CMD.exe shell codepage.
         Used into GRASS exec script under MS-Windows.
         """
-        from ctypes import cdll
         return str(cdll.kernel32.GetACP())
 
     @staticmethod
