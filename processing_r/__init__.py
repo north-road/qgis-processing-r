@@ -10,6 +10,8 @@
  ***************************************************************************/
 """
 
+from .r_plugin import RProviderPlugin
+
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
@@ -19,5 +21,4 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .r_plugin import RProviderPlugin
     return RProviderPlugin(iface)
