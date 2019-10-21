@@ -4,8 +4,15 @@
 import sys
 import logging
 import os
+import atexit
 
+from qgis.core import QgsApplication
 from qgis.utils import iface
+from qgis.gui import QgsMapCanvas
+from qgis.PyQt.QtCore import QSize
+from qgis.PyQt.QtWidgets import QWidget
+
+from .qgis_interface import QgisInterface
 
 LOGGER = logging.getLogger('QGIS')
 QGIS_APP = None  # Static variable used to hold hand to running QGIS app
@@ -27,18 +34,11 @@ def get_qgis_app(cleanup=True):
     global QGIS_APP, PARENT, IFACE, CANVAS  # pylint: disable=W0603
 
     if iface:
-        from qgis.core import QgsApplication
         QGIS_APP = QgsApplication
         CANVAS = iface.mapCanvas()
         PARENT = iface.mainWindow()
         IFACE = iface
         return QGIS_APP, CANVAS, IFACE, PARENT
-
-    from qgis.core import QgsApplication
-    from qgis.gui import QgsMapCanvas
-    from qgis.PyQt.QtCore import QSize
-    from qgis.PyQt.QtWidgets import QWidget
-    from .qgis_interface import QgisInterface
 
     global QGISAPP  # pylint: disable=global-variable-undefined
 
@@ -76,8 +76,6 @@ def get_qgis_app(cleanup=True):
             debug_log_message)
 
         if cleanup:
-            import atexit  # pylint: disable=import-outside-toplevel
-
             @atexit.register
             def exitQgis():  # pylint: disable=unused-variable
                 """
