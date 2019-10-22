@@ -1,5 +1,5 @@
 ##Scatterplot=name
-##showplots
+##output_plots_to_html
 ##Layer=vector
 ##X=Field Layer
 ##Y=Field Layer

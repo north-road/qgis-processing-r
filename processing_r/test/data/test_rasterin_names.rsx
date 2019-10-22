@@ -1,2 +1,2 @@
-##passfilenames
+##pass_filenames
 ##Layer=raster

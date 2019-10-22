@@ -47,7 +47,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.displayName(), 'test algorithm 1')
         self.assertIn('test_algorithm_1.rsx', 'test_algorithm_1.rsx')
         self.assertTrue(alg.show_plots)
-        self.assertFalse(alg.use_raster_package)
+        self.assertFalse(alg.r_templates.use_raster)
         self.assertTrue(alg.pass_file_names)
 
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
@@ -58,7 +58,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.group(), 'my group')
         self.assertEqual(alg.groupId(), 'my group')
         self.assertFalse(alg.show_plots)
-        self.assertTrue(alg.use_raster_package)
+        self.assertTrue(alg.r_templates.use_raster)
         self.assertFalse(alg.pass_file_names)
 
         # test that inputs were created correctly
@@ -158,21 +158,21 @@ class AlgorithmTest(unittest.TestCase):
 
         # enum evaluation
         script = alg.build_import_commands({'in_enum': 0}, context, feedback)
-        self.assertIn('in_enum=0', script)
+        self.assertIn('in_enum <- 0', script)
 
         # boolean evaluation
         script = alg.build_import_commands({'in_bool': True}, context, feedback)
-        self.assertIn('in_bool=TRUE', script)
+        self.assertIn('in_bool <- TRUE', script)
         script = alg.build_import_commands({'in_bool': False}, context, feedback)
-        self.assertIn('in_bool=FALSE', script)
+        self.assertIn('in_bool <- FALSE', script)
 
         # number evaluation
         script = alg.build_import_commands({'in_number': None}, context, feedback)
-        self.assertIn('in_number=NULL', script)
+        self.assertIn('in_number <- NULL', script)
         script = alg.build_import_commands({'in_number': 5}, context, feedback)
-        self.assertIn('in_number=5.0', script)
+        self.assertIn('in_number <- 5.0', script)
         script = alg.build_import_commands({'in_number': 5.5}, context, feedback)
-        self.assertIn('in_number=5.5', script)
+        self.assertIn('in_number <- 5.5', script)
 
     def testReadOgr(self):
         """
@@ -187,15 +187,15 @@ class AlgorithmTest(unittest.TestCase):
 
         USE_NEW_API = Qgis.QGIS_VERSION_INT >= 30900 and hasattr(QgsProcessingAlgorithm, 'parameterAsCompatibleSourceLayerPathAndLayerName')
         if USE_NEW_API:
-            self.assertEqual(script[0], 'Layer=readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
-            self.assertEqual(script[0], 'Layer=readOGR("{}",layer="lines")'.format(test_data_path))
+            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
                                            context, feedback)
         if USE_NEW_API:
-            self.assertEqual(script[0], 'Layer=readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
-            self.assertEqual(script[0], 'Layer=readOGR("{}",layer="lines")'.format(test_data_path))
+            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
         vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
         self.assertTrue(vl.isValid())
         vl2 = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
@@ -205,14 +205,12 @@ class AlgorithmTest(unittest.TestCase):
         if USE_NEW_API:
             # use the newer api and avoid unnecessary layer translation
             self.assertEqual(script,
-                             ['Layer=readOGR("{}",layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg')),
-                              'Layer2=readOGR("{}",layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+                             ['Layer <- readOGR("{}", layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg')),
+                              'Layer2 <- readOGR("{}", layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
         else:
             # older version, forced to use inefficient api
-            self.assertIn('layer="Layer")', script[0])
-            self.assertIn('Layer=readOGR("/tmp', script[0])
-            self.assertIn('layer="Layer2")', script[1])
-            self.assertIn('Layer2=readOGR("/tmp', script[1])
+            self.assertIn('Layer <- readOGR("/tmp', script[0])
+            self.assertIn('Layer2 <- readOGR("/tmp', script[1])
 
     def testRasterIn(self):
         """
@@ -224,26 +222,26 @@ class AlgorithmTest(unittest.TestCase):
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
-        self.assertEqual(script, ['Layer=brick("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
+        self.assertEqual(script, ['Layer <- brick("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif').replace('/', '\\')},
                                            context, feedback)
-        self.assertEqual(script, ['Layer=brick("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
+        self.assertEqual(script, ['Layer <- brick("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
         script = alg.build_import_commands({'Layer': None}, context, feedback)
-        self.assertEqual(script, ['Layer=NULL'])
+        self.assertEqual(script, ['Layer <- NULL'])
 
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_rasterin_names.rsx'))
         alg.initAlgorithm()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
-        self.assertEqual(script, ['Layer="{}"'.format(os.path.join(test_data_path, 'dem.tif'))])
+        self.assertEqual(script, ['Layer <- "{}"'.format(os.path.join(test_data_path, 'dem.tif'))])
         script = alg.build_import_commands({'Layer': None}, context, feedback)
-        self.assertEqual(script, ['Layer=NULL'])
+        self.assertEqual(script, ['Layer <- NULL'])
 
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_rasterin_norasterpackage.rsx'))
         alg.initAlgorithm()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
-        self.assertEqual(script, ['Layer=readGDAL("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
+        self.assertEqual(script, ['Layer <- readGDAL("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
         script = alg.build_import_commands({'Layer': None}, context, feedback)
-        self.assertEqual(script, ['Layer=NULL'])
+        self.assertEqual(script, ['Layer <- NULL'])
 
     def testMultiRasterIn(self):
         """
@@ -260,8 +258,8 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands(
             {'Layer': [os.path.join(test_data_path, 'dem.tif'), os.path.join(test_data_path, 'dem2.tif')]}, context,
             feedback)
-        self.assertEqual(script, ['tempvar0=brick("{}")'.format(os.path.join(test_data_path, 'dem.tif')),
-                                  'tempvar1=brick("{}")'.format(os.path.join(test_data_path, 'dem2.tif')),
+        self.assertEqual(script, ['tempvar0 <- brick("{}")'.format(os.path.join(test_data_path, 'dem.tif')),
+                                  'tempvar1 <- brick("{}")'.format(os.path.join(test_data_path, 'dem2.tif')),
                                   'Layer = c(tempvar0,tempvar1)'])
         script = alg.build_import_commands({'Layer': []}, context, feedback)
         self.assertEqual(script, ['Layer = c()'])
@@ -281,8 +279,8 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands(
             {'Layer': [os.path.join(test_data_path, 'lines.shp'), os.path.join(test_data_path, 'points.gml')]}, context,
             feedback)
-        self.assertEqual(script, ['tempvar0=readOGR("{}",layer="lines")'.format(test_data_path),
-                                  'tempvar1=readOGR("{}",layer="points")'.format(test_data_path),
+        self.assertEqual(script, ['tempvar0 <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+                                  'tempvar1 <- readOGR("{}")'.format(os.path.join(test_data_path, 'points.gml')),
                                   'Layer = c(tempvar0,tempvar1)'])
         script = alg.build_import_commands({'Layer': []}, context, feedback)
         self.assertEqual(script, ['Layer = c()'])
@@ -298,12 +296,12 @@ class AlgorithmTest(unittest.TestCase):
         feedback = QgsProcessingFeedback()
         script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
-        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.shp","lines", driver="ESRI Shapefile")',
-                                  'write.csv(OutputCSV,"/home/test/tab.csv")'])
+        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")',
+                                  'write.csv(OutputCSV, "/home/test/tab.csv")'])
         script = alg.build_export_commands({'Output': '/home/test/lines.gpkg', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
-        self.assertEqual(script, ['writeOGR(Output,"/home/test/lines.gpkg","lines", driver="GPKG")',
-                                  'write.csv(OutputCSV,"/home/test/tab.csv")'])
+        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.gpkg", "lines", driver="GPKG")',
+                                  'write.csv(OutputCSV, "/home/test/tab.csv")'])
 
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
         """
