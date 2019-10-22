@@ -138,7 +138,6 @@ class RTemplates:
 
         return code
 
-
     def __set_variable_raster_raster(self, variable: str, path: str) -> str:
         """
         Internal function that produces R code to read raster data using raster package.
