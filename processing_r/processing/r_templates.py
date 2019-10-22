@@ -326,7 +326,7 @@ class RTemplates:
             code = self.__write_raster_gdal(variable, path)
 
         return code
-    
+
     def write_csv_output(self, variable: str, path: str) -> str:
         """
         Functions that produces R code to write table data.
