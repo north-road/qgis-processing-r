@@ -132,9 +132,12 @@ class RTemplates:
         """
 
         if self.use_sf:
-            return self.__set_variable_vector_sf(variable, path, layer)
+            code = self.__set_variable_vector_sf(variable, path, layer)
         else:
-            return self. __set_variable_vector_rgdal(variable, path, layer)
+            code = self. __set_variable_vector_rgdal(variable, path, layer)
+
+        return code
+
 
     def __set_variable_raster_raster(self, variable: str, path: str) -> str:
         """
@@ -167,9 +170,11 @@ class RTemplates:
         """
 
         if self.use_raster:
-            return self.__set_variable_raster_raster(variable, path)
+            code = self.__set_variable_raster_raster(variable, path)
         else:
-            return self.__set_variable_raster_gdal(variable, path)
+            code = self.__set_variable_raster_gdal(variable, path)
+
+        return code
 
     def set_variable_extent(self, variable: str, x_min: float, x_max: float, y_min: float, y_max: float):
         """
@@ -208,7 +213,7 @@ class RTemplates:
         """
         return '{0} <- {1}'.format(variable, value)
 
-    def set_variable_null(self, variable:str) -> str:
+    def set_variable_null(self, variable: str) -> str:
         """
         Function that produces R code to specify variable with `NULL` value.
 
@@ -279,9 +284,11 @@ class RTemplates:
         :return: string. R code to write vector data to disc.
         """
         if self.use_sf:
-            return self.__write_vector_sf(variable, path, layer_name)
+            code = self.__write_vector_sf(variable, path, layer_name)
         else:
-            return self.__write_vector_ogr(variable, path, layer_name, driver)
+            code = self.__write_vector_ogr(variable, path, layer_name, driver)
+
+        return code
 
     def __write_raster_raster(self, variable: str, path: str) -> str:
         """
@@ -299,7 +306,7 @@ class RTemplates:
 
         :param variable: string
         :param path: string
-        :return: string
+        :return: stringable_n
         """
 
         if not path.lower().endswith('tif'):
@@ -315,10 +322,12 @@ class RTemplates:
         :return: string. R code to write raster data to disc.
         """
         if self.use_raster:
-            return self.__write_raster_raster(variable, path)
+            code = self.__write_raster_raster(variable, path)
         else:
-            return self.__write_raster_gdal(variable, path)
+            code = self.__write_raster_gdal(variable, path)
 
+        return code
+    
     def write_csv_output(self, variable: str, path: str) -> str:
         """
         Functions that produces R code to write table data.
