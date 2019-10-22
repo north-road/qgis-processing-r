@@ -443,8 +443,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(file_path), layer=layer_name)
 
         # no layer name -- readOGR expects the folder, with the filename as layer
-        folder, file_name = os.path.split(file_path)
-        base_name, _ = os.path.splitext(file_name)
         return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(file_path))
 
     def build_script_header_commands(self, _, __, ___):
