@@ -32,18 +32,34 @@ class RTemplates:
 
     @property
     def use_sf(self):
+        """
+        Getter for class variable use_sf.
+        :return: bool
+        """
         return self._use_sf
 
     @use_sf.setter
     def use_sf(self, use: bool):
+        """
+        Setter for class variable use_sf.
+        :param use: bool
+        """
         self._use_sf = use
 
     @property
     def use_raster(self):
+        """
+        Getter fir class variable use_raster.
+        :return: bool
+        """
         return self._use_raster
 
     @use_raster.setter
     def use_raster(self, use: bool):
+        """
+        Setter for class variable use_raster.
+        :param use: bool
+        """
         self._use_raster = use
 
     def get_necessary_packages(self) -> list:
@@ -68,6 +84,14 @@ class RTemplates:
         return packages
 
     def __set_variable_vector_sf(self, variable: str, path: str, layer: str = None) -> str:
+        """
+        Internal function that produces R code to read vector data using sf package.
+
+        :param variable: string
+        :param path: string
+        :param layer: string
+        :return: string
+        """
         command = ""
 
         if layer is not None:
@@ -79,6 +103,14 @@ class RTemplates:
         return command
 
     def __set_variable_vector_rgdal(self, variable: str, path: str, layer: str = None) -> str:
+        """
+        Internal function that produces R code to read vector data using rgdal package.
+
+        :param variable: string
+        :param path: string
+        :param layer: string
+        :return: string
+        """
 
         command = ""
 
@@ -105,9 +137,24 @@ class RTemplates:
             return self. __set_variable_vector_rgdal(variable, path, layer)
 
     def __set_variable_raster_raster(self, variable: str, path: str) -> str:
+        """
+        Internal function that produces R code to read raster data using raster package.
+
+        :param variable: string
+        :param path: string
+        :return: string
+        """
         return '{0} <- brick("{1}")'.format(variable, path)
 
     def __set_variable_raster_gdal(self, variable: str, path: str) -> str:
+        """
+        Internal function that produces R code to read raster data using rgdal package.
+
+        :param variable: string
+        :param path: string
+        :return: string
+        """
+
         return '{0} <- readGDAL("{1}")'.format(variable, path)
 
     def set_variable_raster(self, variable: str, path: str) -> str:
@@ -188,6 +235,14 @@ class RTemplates:
         return 'dev.off()'
 
     def __write_vector_sf(self, variable: str, path: str, layer_name: str = None) -> str:
+        """
+        Internal function that produces R code to write vector data using sf package.
+
+        :param variable: string
+        :param path: string
+        :param layer_name: string
+        :return: string
+        """
 
         command = ""
 
@@ -199,6 +254,15 @@ class RTemplates:
         return command
 
     def __write_vector_ogr(self, variable: str, path: str, layer_name: str = None, driver: str = "gpkg") -> str:
+        """
+        Internal function that produces R code to write vector data using rgdal package.
+
+        :param variable: string
+        :param path: string
+        :param layer_name: string
+        :param driver: string
+        :return: string
+        """
 
         command = 'writeOGR({0}, "{1}", "{2}", driver="{3}")'.format(variable, path, layer_name, driver)
 
@@ -220,9 +284,24 @@ class RTemplates:
             return self.__write_vector_ogr(variable, path, layer_name, driver)
 
     def __write_raster_raster(self, variable: str, path: str) -> str:
+        """
+        Internal function that produces R code to write raster data using raster package.
+
+        :param variable: string
+        :param path: string
+        :return: string
+        """
         return 'writeRaster({0}, "{1}", overwrite = TRUE)'.format(variable, path)
 
     def __write_raster_gdal(self, variable: str, path: str) -> str:
+        """
+        Internal function that produces R code to write raster data using rgdal package.
+
+        :param variable: string
+        :param path: string
+        :return: string
+        """
+
         if not path.lower().endswith('tif'):
             path = path + '.tif'
         return 'writeGDAL({0}, "{1}")'.format(variable, path)
