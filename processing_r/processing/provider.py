@@ -118,6 +118,12 @@ class RAlgorithmProvider(QgsProcessingProvider):
         """
         return self.tr('R')
 
+    def versionInfo(self):
+        """
+        Provider plugin version
+        """
+        return "2.0.0"
+
     def id(self):
         """
         Unique ID for provider
