@@ -228,7 +228,12 @@ class RUtils:  # pylint: disable=too-many-public-methods
         Runs a prepared algorithm in R, and returns a list of the output received from R
         """
         # generate new R script file name in a temp folder
-        script_filename = RUtils.create_r_script_from_commands(alg.build_r_script(parameters, context, feedback))
+
+        script_lines = alg.build_r_script(parameters, context, feedback)
+        for line in script_lines:
+            feedback.pushCommandInfo(line)
+
+        script_filename = RUtils.create_r_script_from_commands(script_lines)
 
         # run commands
         command = [

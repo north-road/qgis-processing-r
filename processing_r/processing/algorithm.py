@@ -313,9 +313,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                             'before running R scripts.'))
 
         feedback.pushInfo(self.tr('R execution commands'))
-        script_lines = self.build_r_script(parameters, context, feedback)
-        for line in script_lines:
-            feedback.pushCommandInfo(line)
 
         output = RUtils.execute_r_algorithm(self, parameters, context, feedback)
 
