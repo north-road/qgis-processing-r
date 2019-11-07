@@ -285,6 +285,32 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands({'Layer': []}, context, feedback)
         self.assertEqual(script, ['Layer = c()'])
 
+    def testMultiFieldIn(self):
+        """
+        Test multiple field input parameter
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_field_multiple.rsx'))
+        alg.initAlgorithm()
+        param = alg.parameterDefinition('MultiField')
+        self.assertEqual(param.type(), 'field')
+        self.assertTrue(param.allowMultiple())
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+        script = alg.build_import_commands(
+            {'Layer': os.path.join(test_data_path, 'lines.shp')}, context,
+            feedback)
+        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+                                  'MultiField <- NULL'])
+        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp'), 'MultiField': ['a']},
+                                           context, feedback)
+        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+                                  'MultiField <- c("a")'])
+        script = alg.build_import_commands(
+            {'Layer': os.path.join(test_data_path, 'lines.shp'), 'MultiField': ['a', 'b"c']}, context, feedback)
+        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+                                  'MultiField <- c("a","b\\"c")'])
+
     def testVectorOutputs(self):
         """
         Test writing vector outputs
