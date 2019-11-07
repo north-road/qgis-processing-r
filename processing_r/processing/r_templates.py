@@ -365,7 +365,7 @@ class RTemplates:
         :param path: string. Path to search for packages and install there if missing.
         :return: string. R code to change path to package library.
         """
-        return '.libPaths({0})'.format(path)
+        return '.libPaths(\"{0}\")'.format(path.replace('\\', '/'))
 
     def set_option(self, option_name: str, value: str) -> str:
         """
