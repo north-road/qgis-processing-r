@@ -12,6 +12,8 @@ __author__ = '(C) 2019 by Jan Caha'
 __date__ = '17/10/2019'
 __copyright__ = 'Copyright 2018, North Road'
 
+from typing import List
+
 
 class RTemplates:
     """
@@ -201,6 +203,22 @@ class RTemplates:
             value = value.replace('"', '\\"')
 
         return '{0} <- "{1}"'.format(variable, value)
+
+    def set_variable_string_list(self, variable: str, value: List[str]) -> str:
+        """
+        Function that produces R code to specify string list variable.
+
+        :param variable: string. Name of the variable.
+        :param value: list of strings. Value of the variable.
+        :return: string. R code to produce variable with given value.
+        """
+        escaped_values = []
+        for v in value:
+            if '"' in v:
+                v = v.replace('"', '\\"')
+            escaped_values.append('"{0}"'.format(v))
+
+        return '{0} <- c({1})'.format(variable, ','.join(escaped_values))
 
     def set_variable_directly(self, variable: str, value) -> str:
         """

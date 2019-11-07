@@ -527,10 +527,16 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 value = self.parameterAsString(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_string(param.name(),
                                                                      QDir.fromNativeSeparators(value)))
-            elif isinstance(param,
-                            (QgsProcessingParameterField, QgsProcessingParameterString)):
+            elif isinstance(param, QgsProcessingParameterString):
                 value = self.parameterAsString(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_string(param.name(), value))
+            elif isinstance(param, QgsProcessingParameterField):
+                if param.allowMultiple():
+                    value = self.parameterAsFields(parameters, param.name(), context)
+                    commands.append(self.r_templates.set_variable_string_list(param.name(), value))
+                else:
+                    value = self.parameterAsString(parameters, param.name(), context)
+                    commands.append(self.r_templates.set_variable_string(param.name(), value))
             elif isinstance(param, QgsProcessingParameterNumber):
                 value = self.parameterAsDouble(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_directly(param.name(), value))
