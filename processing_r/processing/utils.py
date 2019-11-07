@@ -20,6 +20,7 @@ import re
 import os
 import platform
 import subprocess
+import sys
 from typing import Optional
 from ctypes import cdll
 
@@ -213,14 +214,16 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return si
 
     @staticmethod
-    def get_process_encoding():
+    def get_process_keywords():
         """
-        Returns the correct encoding to use when calling commands for different platforms
+        Returns the correct process keywords dict to use when calling commands for different platforms
         """
+        kw = {}
         if RUtils.is_windows():
-            return "cp{}".format(RUtils.get_windows_code_page())
-
-        return None
+            kw['startupinfo'] = RUtils.get_process_startup_info()
+            if sys.version_info >= (3, 6):
+                kw['encoding'] = "cp{}".format(RUtils.get_windows_code_page())
+        return kw
 
     @staticmethod
     def execute_r_algorithm(alg, parameters, context, feedback):
@@ -249,9 +252,9 @@ class RUtils:  # pylint: disable=too-many-public-methods
                               stdout=subprocess.PIPE,
                               stdin=subprocess.DEVNULL,
                               stderr=subprocess.STDOUT,
-                              encoding=RUtils.get_process_encoding(),
-                              startupinfo=RUtils.get_process_startup_info(),
-                              universal_newlines=True) as proc:
+                              universal_newlines=True,
+                              **RUtils.get_process_keywords()
+                              ) as proc:
             for line in iter(proc.stdout.readline, ''):
                 if feedback.isCanceled():
                     proc.terminate()
@@ -315,9 +318,8 @@ class RUtils:  # pylint: disable=too-many-public-methods
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.DEVNULL,
                                   stderr=subprocess.STDOUT,
-                                  encoding=RUtils.get_process_encoding(),
-                                  startupinfo=RUtils.get_process_startup_info(),
-                                  universal_newlines=True) as proc:
+                                  universal_newlines=True,
+                                  **RUtils.get_process_keywords()) as proc:
                 for line in proc.stdout:
                     if ('R version' in line) or ('R Under development' in line):
                         return None
