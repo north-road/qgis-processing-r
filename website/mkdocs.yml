@@ -9,9 +9,6 @@ copyright: Copyright &copy; 2019 <a href="https://twitter.com/northroadgeo">Nort
 docs_dir: pages
 site_dir: docs
 
-repo_url: https://github.com/JanCaha/qgis-processing-r
-repo_name: JanCaha/qgis-processing-r
-
 lang: en
 
 theme:
