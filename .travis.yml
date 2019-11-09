@@ -69,5 +69,6 @@ script:
   - git remote add gh-token "${GH_REF}";
   - git fetch gh-token && git fetch gh-token gh-pages:gh-pages;
   - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then echo "Pushing to github"; PYTHONPATH=src/ mkdocs gh-deploy -v --clean --config-file "${MKDOCS_YML}" --remote-name gh-token; git push gh-token gh-pages; fi;
-
+  # end build and deploy website
+  
 sudo: false
