@@ -2,6 +2,16 @@
 
 Processing provider for R scripts plugin for [QGIS](https://www.qgis.org/en/site/). The plugin allows execution of R scripts directly from QGIS on data loaded in QGIS.
 
+## Instalation
+
+The plugin is available QGIS Python Plugins Repository [here](https://plugins.qgis.org/plugins/processing_r/). It can also be installed directly from QGIS via the **Plugins** tool.
+
+Building from source for offline install can be done by downloading the [source code](https://github.com/north-road/qgis-processing-r) and running command:
+```
+make zip
+```
+in the main directory. The produced zip file can then be installed in QGIS from **Plugins** tool in the **Install from zip** window.
+
 ## R
 
 [R](https://www.r-project.org) is a free and open-source software environment for statistical computing and graphics.
