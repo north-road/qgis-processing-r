@@ -112,7 +112,7 @@
                 <div class="col-md-9" role="main">
 
 <h1 id="script-syntax">Script syntax</h1>
-<p>The R scripts for the plugin use extension <strong>.rsx</strong>. It is classic R script with several metadata lines (starting with <code>##</code>) that define the interaction between QGIS and R. Metadata amongst other things specify how UI of the tool will look like.</p>
+<p>The R scripts for the plugin use extension <strong>.rsx</strong>. These are classic R scripts with several metadata lines (starting with <code>##</code>) that define the interaction between QGIS and R. Metadata amongst other things specify how UI of the tool will look like.</p>
 <p>The script loads necessary packages by itself. Combination of <em>sp</em> and <em>rgdal</em> or <em>sf</em> for vector data and <em>sp</em> and <em>rgdal</em> or <em>raster</em> for raster data. Any other packages need to be directly loaded using <code>library()</code> command in the script body.</p>
 <h2 id="metadata">Metadata</h2>
 <p><code>##script_name=name</code> <em>script_name</em> is the name of the script; under this name, it will be listed in processing toolbox.</p>
