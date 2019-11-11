@@ -4,8 +4,6 @@ services:
 env:
   global:
     - IMAGE=qgis/qgis
-    - GIT_NAME: "'Automatic Publish'"
-    - GIT_EMAIL: jan.caha@outlook.org
     - GH_REF: git@github.com:north-road/qgis-processing-r.git
     - MKDOCS_YML: ./website/mkdocs.yml
 
