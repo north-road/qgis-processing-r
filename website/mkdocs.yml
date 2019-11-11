@@ -1,0 +1,28 @@
+site_name: Processing R Provider
+site_url: https://jancaha.github.io/qgis-processing-r/
+site_description: Plugin for QGIS for processing using R language
+site_author: Jan Caha
+
+
+copyright: Copyright &copy; 2019 <a href="https://twitter.com/northroadgeo">North Road</a> and <a href="https://twitter.com/cahik13">Jan Caha</a>.
+
+docs_dir: pages
+site_dir: docs
+
+lang: en
+
+theme:
+    name: bootstrap
+
+nav:
+    - Home: index.md
+    - Script syntax: script-syntax.md
+    - Examples:
+        - Example with vector output: ex_vector_output.md
+        - Example with raster output: ex_raster_output.md
+        - Example with table output: ex_table_output.md
+        - Example with tool console log: ex_console_output.md
+        - Example of graphs output: ex_plot.md
+
+plugins:
+    - search
