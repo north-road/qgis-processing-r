@@ -20,7 +20,7 @@ It has to be installed separately ([Download and Install R](https://cran.r-proje
 
 The beauty of Processing implementation is that you can add your scripts, simple or complex ones, and they may then be used as any other module, piped into more complex workflows, etc.
 
-Test some of the preinstalled examples, if you have [R](https://www.r-project.org) already installed (remember to activate R modules from the General configuration of Processing - QGIS -> Settings -> Processing -> Providers -> R).
+Test some of the preinstalled examples, if you have [R](https://www.r-project.org) already installed.
 
 ## Settings for the plugin
 
