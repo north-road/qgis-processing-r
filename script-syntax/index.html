@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <meta name="author" content="Jan Caha">
+        <link rel="canonical" href="https://north-road.github.io/qgis-processing-r/script-syntax/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Script syntax - Processing R Provider</title>
+    <link href="../css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="../js/jquery-1.10.2.min.js" defer></script>
+    <script src="../js/bootstrap-3.3.7.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">Processing R Provider</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li class="active">
+                                <a href="./">Script syntax</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li >
+    <a href="../ex_vector_output/">Example with vector output</a>
+</li>
+                                    
+<li >
+    <a href="../ex_raster_output/">Example with raster output</a>
+</li>
+                                    
+<li >
+    <a href="../ex_table_output/">Example with table output</a>
+</li>
+                                    
+<li >
+    <a href="../ex_console_output/">Example with tool console log</a>
+</li>
+                                    
+<li >
+    <a href="../ex_plot/">Example of graphs output</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li >
+                                <a rel="next" href="..">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li >
+                                <a rel="prev" href="../ex_vector_output/">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#script-syntax">Script syntax</a></li>
+            <li><a href="#metadata">Metadata</a></li>
+            <li><a href="#outputs">Outputs</a></li>
+            <li><a href="#printing-from-r-to-tool-log">Printing from R to tool log</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="script-syntax">Script syntax</h1>
+<p>The R scripts for the plugin use extension <strong>.rsx</strong>. It is classic R script with several metadata lines (starting with <code>##</code>) that define the interaction between QGIS and R. Metadata amongst other things specify how UI of the tool will look like.</p>
+<p>The script loads necessary packages by itself. Combination of <em>sp</em> and <em>rgdal</em> or <em>sf</em> for vector data and <em>sp</em> and <em>rgdal</em> or <em>raster</em> for raster data. Any other packages need to be directly loaded using <code>library()</code> command in the script body.</p>
+<h2 id="metadata">Metadata</h2>
+<p><code>##script_name=name</code> <em>script_name</em> is the name of the script; under this name, it will be listed in processing toolbox.</p>
+<p><code>##group_name=group</code> <em>group_name</em> is the name of the group of the script, which allows sorting of scripts into groups in processing toolbox.</p>
+<h3 id="script-behaviour">Script behaviour</h3>
+<p>Several metadata lines define the general behaviour of the script. </p>
+<p><code>##output_plots_to_html</code> (older version of this metadata keyword is <code>##showplots</code>) defines that there will be graphical output from the script that will be presented as an HTML page with images.</p>
+<p><code>##load_raster_using_rgdal</code> (legacy alias <code>##dontuserasterpackage</code>) specifies that raster data should not be pased to R using <a href="https://CRAN.R-project.org/package=raster">raster</a> package as <strong>RasterLayer</strong> or <strong>RasterBrick</strong> object. Raster data are instead read using <a href="https://CRAN.R-project.org/package=rgdal">rgdal</a> into object <strong>SpatialGridDataFrame</strong> from <a href="https://CRAN.R-project.org/package=sp">sp</a>.</p>
+<p><code>##load_vector_using_rgdal</code> specifies that vector data should not be pased to R using <a href="https://CRAN.R-project.org/package=sf">sf</a> package as <strong>sf</strong> <strong>data.frame</strong>. Instead data are passed as <strong>Spatial?DataFrame</strong> (where <strong>?</strong> is the type of vector object) from <a href="https://CRAN.R-project.org/package=sp">sp</a> package.</p>
+<p><code>##pass_filenames</code> (legacy alias <code>##passfilenames</code>) specifies that data are not passed directly. Instead only their file names are passed.</p>
+<h3 id="inputs">Inputs</h3>
+<p>The inputs to R script are specified as: <code>variable_name=variable_type [default_value/from_variable]</code>. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification <em>variable_name</em> is the name of the variable used in R script, <em>variable_type</em> is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field). </p>
+<p>The <em>default_value</em> is applicable to number, string and boolean inputs.</p>
+<p>The <em>from</em> variable_ applies to Field and must point to <em>variable_name</em> of vector input.</p>
+<p>So the inputs can look like this:</p>
+<p><code>##Layer=vector</code> specifies that there will be variable <code>Layer</code> that will be a vector.</p>
+<p><code>##Size=number 10</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>10</code>.</p>
+<p><code>##X=Field Layer</code> specifies that variable <code>X</code> will be field name taken from <code>Layer</code>.</p>
+<h2 id="outputs">Outputs</h2>
+<p>The outputs of R script are specified as <code>##variable_name=output output_type</code>. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification <em>variable_name</em> specifies variable from the script that will be exported back to QGIS, <em>output_type</em> is one of the allowed types that can be returned from R script (layer, raster, folder, HTML, number, string, table).</p>
+<p>So the inputs can look like this:</p>
+<p><code>##New_layer=output vector</code> specifies that the variable <code>New_layer</code> will be imported to QGIS as a vector layer.</p>
+<p><code>##New_raster=output raster</code> specifies that variable <code>New_raster</code> will be imported to QGIS as a raster layer.</p>
+<h2 id="printing-from-r-to-tool-log">Printing from R to tool log</h2>
+<p>If any output of any line in R script should be outputted to tool log, it needs to be preceded by <code>&gt;</code>. So, for example, the following code will print the number of rows in <code>Layer</code>.</p>
+<pre><code>&gt;nrow(Layer)
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2019 <a href="https://twitter.com/northroadgeo">North Road</a> and <a href="https://twitter.com/cahik13">Jan Caha</a>.</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
