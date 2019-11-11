@@ -1,6 +1,6 @@
 # Script syntax
 
-The R scripts for the plugin use extension **.rsx**. It is classic R script with several metadata lines (starting with `##`) that define the interaction between QGIS and R. Metadata amongst other things specify how UI of the tool will look like.
+The R scripts for the plugin use extension **.rsx**. These are classic R scripts with several metadata lines (starting with `##`) that define the interaction between QGIS and R. Metadata amongst other things specify how UI of the tool will look like.
 
 The script loads necessary packages by itself. Combination of _sp_ and _rgdal_ or _sf_ for vector data and _sp_ and _rgdal_ or _raster_ for raster data. Any other packages need to be directly loaded using `library()` command in the script body.
 
