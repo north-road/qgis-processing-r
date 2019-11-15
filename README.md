@@ -6,4 +6,4 @@ Processing R Provider Plugin for QGIS 3.x
 
 # Website
 
-[https://jancaha.github.io/qgis-processing-r/](https://jancaha.github.io/qgis-processing-r/)
+[Plugin website.](https://north-road.github.io/qgis-processing-r/)

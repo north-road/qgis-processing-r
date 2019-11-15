@@ -4,11 +4,7 @@ services:
 env:
   global:
     - IMAGE=qgis/qgis
-    - GIT_NAME: "'Automatic Publish'"
-    - GIT_EMAIL: jan.caha@outlook.org
-    - GH_REF: git@github.com:JanCaha/qgis-processing-r.git
-    - MKDOCS_YML: ./website/mkdocs.yml
-
+    
   matrix:
     - QGIS_VERSION_TAG=latest
     - QGIS_VERSION_TAG=release-3_4
@@ -35,11 +31,6 @@ install:
   - pip install --upgrade pip
   - pip install --upgrade pylint
   - pip install --upgrade pycodestyle
-  # install to build website 
-  - pip install mkdocs
-  - pip install MarkdownHighlight
-  - pip install https://codeload.github.com/mkdocs/mkdocs-bootstrap/zip/master
-  #
   
   - docker run -d --name qgis-testing-environment -v ${TRAVIS_BUILD_DIR}:/tests_directory -e DISPLAY=:99 ${IMAGE}:${QGIS_VERSION_TAG}
   - sleep 10
@@ -58,17 +49,5 @@ script:
 
   - make pylint
   - make pycodestyle
-  
-  # build and deploy website
-  - openssl aes-256-cbc -K $encrypted_9bd3898936c8_key -iv $encrypted_9bd3898936c8_iv -in deploy-key.enc -out deploy-key -d
-  - chmod 600 deploy-key
-  - eval `ssh-agent -s`
-  - ssh-add deploy-key
-  - git config user.name "${GIT_NAME}"
-  - git config user.email "${GIT_EMAIL}"
-  - git remote add gh-token "${GH_REF}";
-  - git fetch gh-token && git fetch gh-token gh-pages:gh-pages;
-  - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then echo "Pushing to github"; PYTHONPATH=src/ mkdocs gh-deploy --clean --config-file "${MKDOCS_YML}" --remote-name gh-token; git push gh-token gh-pages; fi;
-  # end build and deploy website
   
 sudo: false

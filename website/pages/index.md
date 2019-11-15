@@ -2,7 +2,7 @@
 
 Processing provider for R scripts plugin for [QGIS](https://www.qgis.org/en/site/). The plugin allows execution of R scripts directly from QGIS on data loaded in QGIS.
 
-## Instalation
+## Installation
 
 The plugin is available QGIS Python Plugins Repository [here](https://plugins.qgis.org/plugins/processing_r/). It can also be installed directly from QGIS via the **Plugins** tool.
 
@@ -20,7 +20,7 @@ It has to be installed separately ([Download and Install R](https://cran.r-proje
 
 The beauty of Processing implementation is that you can add your scripts, simple or complex ones, and they may then be used as any other module, piped into more complex workflows, etc.
 
-Test some of the preinstalled examples, if you have [R](https://www.r-project.org) already installed (remember to activate R modules from the General configuration of Processing - QGIS -> Settings -> Processing -> Providers -> R).
+Test some of the preinstalled examples, if you have [R](https://www.r-project.org) already installed.
 
 ## Settings for the plugin
 

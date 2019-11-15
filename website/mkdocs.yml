@@ -1,5 +1,5 @@
 site_name: Processing R Provider
-site_url: https://jancaha.github.io/qgis-processing-r/
+site_url: https://north-road.github.io/qgis-processing-r/
 site_description: Plugin for QGIS for processing using R language
 site_author: Jan Caha
 
@@ -23,6 +23,8 @@ nav:
         - Example with table output: ex_table_output.md
         - Example with tool console log: ex_console_output.md
         - Example of graphs output: ex_plot.md
+    - Changelog: changelog.md
+    - Github: https://github.com/north-road/qgis-processing-r
 
 plugins:
     - search

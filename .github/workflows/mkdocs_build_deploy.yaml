@@ -1,0 +1,36 @@
+name: github pages
+
+on:
+  push:
+    paths: website/**
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+        architecture: 'x64'
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install mkdocs
+        python3 -m pip install MarkdownHighlight
+        python3 -m pip install https://codeload.github.com/mkdocs/mkdocs-bootstrap/zip/master
+
+    - name: Build
+      run: |
+        mkdocs build --config-file ./website/mkdocs.yml
+        touch website/docs/.nojekyll
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v2.5.1
+      env:
+        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: ./website/docs
