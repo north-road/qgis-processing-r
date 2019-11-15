@@ -262,6 +262,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         value, _ = self.split_tokens(line)
         description = RUtils.create_descriptive_name(value)
 
+        if " " in value:
+            self.error = self.tr('This script has a syntax error in variable name.\n'
+                                 'Whitespaces are not allowed in variable names. \n'
+                                 'Problem with line: {0}').format(line)
+
         output = create_output_from_string(line)
         if output is not None:
             output.setName(value)
