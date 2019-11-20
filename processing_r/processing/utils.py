@@ -167,6 +167,34 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return name.replace('_', ' ')
 
     @staticmethod
+    def is_valid_r_variable(variable: str) -> bool:
+        """
+        Check if given string is valid R variable name.
+        :param variable: string
+        :return: bool
+        """
+
+        # only letters a-z, A-Z, numbers, dot and underscore
+        x = re.search("[a-zA-Z0-9\._]+", variable)
+
+        result = True
+
+        if (variable == x.group()):
+            # cannot start with number or underscore
+            x = re.search("^[0-9|_]", variable)
+            if (x):
+                result = False
+
+            # cannot start with dot followed by number
+            x = re.search("\.[0-9]", variable)
+            if (x):
+                result = False
+        else:
+            result = False
+
+        return result
+
+    @staticmethod
     def strip_special_characters(name):
         """
         Strips non-alphanumeric characters from a name

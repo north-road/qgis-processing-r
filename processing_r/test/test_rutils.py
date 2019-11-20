@@ -168,6 +168,18 @@ class RUtilsTest(unittest.TestCase):
         ProcessingConfig.setSettingValue(RUtils.R_FOLDER, None)
         self.assertIsNone(RUtils.check_r_is_installed())
 
+    def test_is_valid_r_variable(self):
+        """
+        Test for strings to check if they are valid R variables.
+        """
+        self.assertFalse(RUtils.is_valid_r_variable("var_name%"))
+        self.assertFalse(RUtils.is_valid_r_variable("2var_name"))
+        self.assertFalse(RUtils.is_valid_r_variable(".2var_name"))
+        self.assertFalse(RUtils.is_valid_r_variable("_var_name"))
+        self.assertTrue(RUtils.is_valid_r_variable("var_name2."))
+        self.assertTrue(RUtils.is_valid_r_variable(".var_name"))
+        self.assertTrue(RUtils.is_valid_r_variable("var.name"))
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(RUtilsTest)
