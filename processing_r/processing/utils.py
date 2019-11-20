@@ -180,13 +180,8 @@ class RUtils:  # pylint: disable=too-many-public-methods
         result = True
 
         if variable == x.group():
-            # cannot start with number or underscore
-            x = re.search("^[0-9|_]", variable)
-            if x:
-                result = False
-
-            # cannot start with dot followed by number
-            x = re.search("\\.[0-9]", variable)
+            # cannot start with number or underscore, or start with dot followed by number
+            x = re.search("^[0-9|_]|^\\.[0-9]", variable)
             if x:
                 result = False
         else:
