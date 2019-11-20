@@ -262,6 +262,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         value, _ = self.split_tokens(line)
         description = RUtils.create_descriptive_name(value)
 
+        if not RUtils.is_valid_r_variable(value):
+            self.error = self.tr('This script has a syntax error in variable name.\n'
+                                 '"{1}" is not a valid variable name in R.'
+                                 'Problem with line: {0}').format(line, value)
+
         output = create_output_from_string(line)
         if output is not None:
             output.setName(value)
