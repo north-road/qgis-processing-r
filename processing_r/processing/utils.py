@@ -175,19 +175,19 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
 
         # only letters a-z, A-Z, numbers, dot and underscore
-        x = re.search("[a-zA-Z0-9\._]+", variable)
+        x = re.search("[a-zA-Z0-9\\._]+", variable)
 
         result = True
 
-        if (variable == x.group()):
+        if variable == x.group():
             # cannot start with number or underscore
             x = re.search("^[0-9|_]", variable)
-            if (x):
+            if x:
                 result = False
 
             # cannot start with dot followed by number
-            x = re.search("\.[0-9]", variable)
-            if (x):
+            x = re.search("\\.[0-9]", variable)
+            if x:
                 result = False
         else:
             result = False
