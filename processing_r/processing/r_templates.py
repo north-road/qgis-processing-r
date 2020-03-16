@@ -49,10 +49,10 @@ class RTemplates:
         return self._github_dependencies
 
     @github_dependencies.setter
-    def github_dependencies(self, dependencies: List[str]):
+    def github_dependencies(self, dependencies: str):
         """
         Setter for class variable github_dependencies.
-        :param use: List[str]
+        :param dependencies: str
         """
         dependencies = dependencies.strip().replace(" ", "").split(",")
         self._github_dependencies = dependencies
