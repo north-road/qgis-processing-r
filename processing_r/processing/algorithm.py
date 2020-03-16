@@ -244,6 +244,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self._name = self._display_name = value
             self._name = RUtils.strip_special_characters(self._name.lower())
             return
+        if type_.lower.strip() == 'github_install':
+            self.r_templates.install_github = True
+            self.r_templates.github_dependencies = value
 
         self.process_parameter_line(line)
 
@@ -467,6 +470,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         for p in packages:
             commands.append(self.r_templates.check_package_availability(p))
             commands.append(self.r_templates.load_package(p))
+
+        if self.r_templates.install_github:
+            commands.extend(self.r_templates.github_dependencies)
 
         return commands
 

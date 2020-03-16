@@ -31,6 +31,47 @@ class RTemplates:
         Variable defining that rasters will be read through package `raster` if `TRUE` or through `rgdal` and `sp` if
         `FALSE`.
         """
+        self._install_github = False
+        """
+        Variable defining that there are dependencies from github.
+        """
+        self._github_dependencies = []
+        """
+        Variable that stores dependencies from github to be installed.
+        """
+
+    @property
+    def github_dependencies(self):
+        """
+        Getter for class variable github_dependencies.
+        :return: bool
+        """
+        return self._github_dependencies
+
+    @github_dependencies.setter
+    def github_dependencies(self, dependencies: List[str]):
+        """
+        Setter for class variable github_dependencies.
+        :param use: List[str]
+        """
+        dependencies = dependencies.strip().replace(" ", "").split(",")
+        self._github_dependencies = dependencies
+
+    @property
+    def install_github(self):
+        """
+        Getter for class variable install_github.
+        :return: bool
+        """
+        return self._install_github
+
+    @install_github.setter
+    def install_github(self, use: bool):
+        """
+        Setter for class variable install_github.
+        :param use: bool
+        """
+        self._install_github = use
 
     @property
     def use_sf(self):
@@ -82,6 +123,9 @@ class RTemplates:
             packages.append("raster")
         else:
             packages.append("rgdal")
+
+        if self.install_github:
+            packages.append("remotes")
 
         return packages
 
@@ -354,6 +398,14 @@ class RTemplates:
         :return: string. R code to write table data to disc.
         """
         return 'write.csv({0}, "{1}")'.format(variable, path)
+
+    def install_packages_github(self) -> List[str]:
+        install_commands = []
+
+        for github_dependency in self.github_dependencies:
+            install_commands.append('remotes::install_github("{0}")'.format(github_dependency))
+
+        return install_commands
 
     def check_package_availability(self, package_name: str) -> str:
         """

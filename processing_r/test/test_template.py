@@ -29,6 +29,17 @@ test_data_path = os.path.join(
 class TemplateTest(unittest.TestCase):
     """Test template generation."""
 
+    def testGithubInstall(self):
+        """
+        Test github install code generation.
+        """
+        templates = RTemplates()
+        templates.install_github = True
+        templates.github_dependencies = "user_1/repo_1, user_2/repo_2"
+        self.assertListEqual(templates.install_github(),
+                             ['remotes::install_github("user_1/repo_1")', 'remotes::install_github("user_2/repo_2")'])
+
+
     def testString(self):  # pylint: disable=too-many-locals,too-many-statements
         """
         Test string variable
