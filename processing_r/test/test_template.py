@@ -36,9 +36,10 @@ class TemplateTest(unittest.TestCase):
         templates = RTemplates()
         templates.install_github = True
         templates.github_dependencies = "user_1/repo_1, user_2/repo_2"
-        self.assertListEqual(templates.install_github(),
-                             ['remotes::install_github("user_1/repo_1")', 'remotes::install_github("user_2/repo_2")'])
-
+        self.assertEqual(templates.install_package_github(templates.github_dependencies[0]),
+                         'remotes::install_github("user_1/repo_1")')
+        self.assertEqual(templates.install_package_github(templates.github_dependencies[1]),
+                         'remotes::install_github("user_2/repo_2")')
 
     def testString(self):  # pylint: disable=too-many-locals,too-many-statements
         """
