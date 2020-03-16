@@ -465,8 +465,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             path_to_use = str(RUtils.r_library_folder()).replace('\\', '/')
             commands.append(self.r_templates.change_libPath(path_to_use))
 
-        packages = RUtils.get_required_packages(self.script)
-        packages.extend(self.r_templates.get_necessary_packages())
+        packages = self.r_templates.get_necessary_packages()
 
         for p in packages:
             commands.append(self.r_templates.check_package_availability(p))
@@ -475,6 +474,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if self.r_templates.install_github:
             for dependency in self.r_templates.github_dependencies:
                 commands.append(self.r_templates.install_package_github(dependency))
+
+        packages_script = RUtils.get_required_packages(self.script)
+
+        for p in packages_script:
+            commands.append(self.r_templates.check_package_availability(p))
+            commands.append(self.r_templates.load_package(p))
 
         return commands
 
