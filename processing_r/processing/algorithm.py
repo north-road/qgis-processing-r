@@ -205,7 +205,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             except StopIteration:
                 break
 
-    def process_metadata_line(self, line):
+    def process_metadata_line(self, line): # pylint: disable=too-many-return-statements
         """
         Processes a "metadata" (##) line
         """

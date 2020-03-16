@@ -15,7 +15,7 @@ __copyright__ = 'Copyright 2018, North Road'
 from typing import List
 
 
-class RTemplates:
+class RTemplates:  # pylint: disable=too-many-public-methods
     """
     Class for generating R code
     """
@@ -400,6 +400,12 @@ class RTemplates:
         return 'write.csv({0}, "{1}")'.format(variable, path)
 
     def install_package_github(self, repo: str) -> str:
+        """
+        Function that produces R code to install
+
+        :param repo: string. Name of the repo to be installed.
+        :return: string. R code to install package from a repo.
+        """
         return 'remotes::install_github("{0}")'.format(repo)
 
     def check_package_availability(self, package_name: str) -> str:
