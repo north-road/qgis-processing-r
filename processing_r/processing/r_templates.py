@@ -399,13 +399,8 @@ class RTemplates:
         """
         return 'write.csv({0}, "{1}")'.format(variable, path)
 
-    def install_packages_github(self) -> List[str]:
-        install_commands = []
-
-        for github_dependency in self.github_dependencies:
-            install_commands.append('remotes::install_github("{0}")'.format(github_dependency))
-
-        return install_commands
+    def install_package_github(self, repo: str) -> str:
+        return 'remotes::install_github("{0}")'.format(repo)
 
     def check_package_availability(self, package_name: str) -> str:
         """

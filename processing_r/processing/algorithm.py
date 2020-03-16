@@ -473,7 +473,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             commands.append(self.r_templates.load_package(p))
 
         if self.r_templates.install_github:
-            commands.extend(self.r_templates.github_dependencies)
+            for dependency in self.r_templates.github_dependencies:
+                commands.append(self.r_templates.install_package_github(dependency))
 
         return commands
 
