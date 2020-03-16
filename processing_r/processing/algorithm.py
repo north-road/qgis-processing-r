@@ -247,6 +247,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if type_.lower.strip() == 'github_install':
             self.r_templates.install_github = True
             self.r_templates.github_dependencies = value
+            return
 
         self.process_parameter_line(line)
 
