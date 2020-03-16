@@ -82,7 +82,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self.show_plots = False
         self.pass_file_names = False
         self.show_console_output = False
+        self.save_output_values = False
         self.plots_filename = ''
+        self.output_values_filename = ''
         self.results = {}
         if self.script is not None:
             self.load_from_string()
@@ -273,6 +275,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             output.setDescription(description)
             if issubclass(output.__class__, QgsProcessingOutputDefinition):
                 self.addOutput(output)
+                self.save_output_values = True
             else:
                 # destination type parameter
                 self.addParameter(output)
@@ -334,7 +337,56 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     f.write(RUtils.html_formatted_console_output(output))
                 self.results[RAlgorithm.R_CONSOLE_OUTPUT] = html_filename
 
+        if self.save_output_values and self.output_values_filename:
+            with open(self.output_values_filename, 'r') as f:
+                lines = [line.strip() for line in f]
+            # get output values stored into the file
+            outputs = self.parse_output_values(iter(lines))
+            # merge output values into results
+            for k, v in outputs.items():
+                if k not in self.results:
+                    self.results[k] = v
+
         return self.results
+
+    def parse_output_values(self, lines):
+        """
+        Parse the lines from an output values file and returns a dict of output values
+
+        The lines are:
+        ##output1_name
+        output1_value
+        ##output2_name
+        output2_value
+        """
+        outputs = {}
+        if not self.save_output_values:
+            return outputs
+
+        output = None
+        ender = 0
+        line = next(lines).strip('\n').strip('\r')
+        while ender < 10:
+            if line.startswith('##'):
+                name = line.replace('#', '')
+                output = self.outputDefinition(name)
+            else:
+                if line == '':
+                    ender += 1
+                else:
+                    ender = 0
+                if not output:
+                    continue
+                if output.name() in outputs:
+                    outputs[output.name()] += '\n\r' + line
+                else:
+                    outputs[output.name()] = line
+            try:
+                line = next(lines).strip('\n').strip('\r')
+            except StopIteration:
+                break
+
+        return outputs
 
     def build_r_script(self, parameters, context, feedback):
         """
@@ -371,6 +423,20 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     commands.append(self.r_templates.write_vector_output(out.name(), dest, filename,
                                                                          QgsVectorFileWriter.driverForExtension(ext)))
                 self.results[out.name()] = dest
+
+        if self.save_output_values:
+            for out in self.outputDefinitions():
+                name = out.name()
+                # write values only if output is not already in results
+                if name in (self.R_CONSOLE_OUTPUT, self.RPLOTS):
+                    continue
+                if name in self.results:
+                    continue
+                # create file path for output values only if it is necessary
+                if not self.output_values_filename:
+                    self.output_values_filename = QgsProcessingUtils.generateTempFilename('processing_values.txt')
+                # write output name and value with cat
+                commands.extend(self.r_templates.write_cat_output(name, self.output_values_filename))
 
         if self.show_plots:
             commands.append(self.r_templates.dev_off())

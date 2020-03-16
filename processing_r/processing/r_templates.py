@@ -355,6 +355,25 @@ class RTemplates:
         """
         return 'write.csv({0}, "{1}")'.format(variable, path)
 
+    def write_cat_output(self, variable: str, path: str) -> list:
+        """
+        Functions that produces R code to write variable.
+
+        Values are stred into the file like:
+        ##output1_name
+        output1_value
+        ##output2_name
+        output2_value
+
+        :param variable: string. Name of the variable to write.
+        :param path: string. Path to write the data to.
+        :return: list. R code to write varaible to disc.
+        """
+        commands = []
+        commands.append('cat("##{0}", file="{1}", sep="\n", append=TRUE)'.format(variable, path))
+        commands.append('cat({0}, file="{1}", sep="\n", append=TRUE)'.format(variable, path))
+        return commands
+
     def check_package_availability(self, package_name: str) -> str:
         """
         Function that produces R code to check availability and install missing R packages.
