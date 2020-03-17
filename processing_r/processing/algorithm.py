@@ -370,7 +370,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 else:
                     commands.append(self.r_templates.write_vector_output(out.name(), dest, filename,
                                                                          QgsVectorFileWriter.driverForExtension(ext)))
-                    self.results[out.name()] = dest
+                self.results[out.name()] = dest
 
         if self.show_plots:
             commands.append(self.r_templates.dev_off())
