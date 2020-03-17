@@ -12,7 +12,7 @@ The script loads necessary packages by itself. Combination of _sp_ and _rgdal_ o
 
 ### Script behaviour
 
-Several metadata lines define the general behaviour of the script. 
+Several metadata lines define the general behaviour of the script.
 
 `##output_plots_to_html` (older version of this metadata keyword is `##showplots`) defines that there will be graphical output from the script that will be presented as an HTML page with images.
 
@@ -24,7 +24,7 @@ Several metadata lines define the general behaviour of the script.
 
 ### Inputs
 
-The inputs to R script are specified as: `variable_name=variable_type [default_value/from_variable]`. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification _variable_name_ is the name of the variable used in R script, _variable_type_ is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field). 
+The inputs to R script are specified as: `variable_name=variable_type [default_value/from_variable]`. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification _variable_name_ is the name of the variable used in R script, _variable_type_ is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).
 
 The _default_value_ is applicable to number, string and boolean inputs.
 
@@ -47,6 +47,12 @@ So the inputs can look like this:
 `##New_layer=output vector` specifies that the variable `New_layer` will be imported to QGIS as a vector layer.
 
 `##New_raster=output raster` specifies that variable `New_raster` will be imported to QGIS as a raster layer.
+
+`##New_table=output table` specifies that the variable `New_table` will be imported to QGIS as a vector layer without geometry (CSV file).
+
+`##New_string=output string` specifies that a variable `New_string` will be set in the script.
+
+`##New_number=output number` specifies that a variable `New_number` will be set in the script.
 
 ## Printing from R to tool log
 
