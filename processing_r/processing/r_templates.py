@@ -470,12 +470,12 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         commands = list()
 
         # Just use main mirror
-        commands.append(self.r_templates.set_option_repos(RUtils.package_repo()))
+        commands.append(self.set_option_repos(RUtils.package_repo()))
 
         # Try to install packages if needed
         if RUtils.use_user_library():
             path_to_use = str(RUtils.r_library_folder()).replace('\\', '/')
-            commands.append(self.r_templates.change_libPath(path_to_use))
+            commands.append(self.change_libPath(path_to_use))
 
         packages = self.get_necessary_packages()
 
