@@ -400,7 +400,6 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         return 'write.csv({0}, "{1}")'.format(variable, path)
 
-
     def install_package_github(self, repo: str) -> str:
         """
         Function that produces R code to install
@@ -428,7 +427,6 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         commands.append('cat("##{0}", file="{1}", sep="\n", append=TRUE)'.format(variable, path))
         commands.append('cat({0}, file="{1}", sep="\n", append=TRUE)'.format(variable, path))
         return commands
-
 
     def check_package_availability(self, package_name: str) -> str:
         """
