@@ -455,33 +455,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Builds the set of script startup commands for the algorithm
         """
-        commands = list()
-
-        # Just use main mirror
-        commands.append(self.r_templates.set_option_repos(RUtils.package_repo()))
-
-        # Try to install packages if needed
-        if RUtils.use_user_library():
-            path_to_use = str(RUtils.r_library_folder()).replace('\\', '/')
-            commands.append(self.r_templates.change_libPath(path_to_use))
-
-        packages = self.r_templates.get_necessary_packages()
-
-        for p in packages:
-            commands.append(self.r_templates.check_package_availability(p))
-            commands.append(self.r_templates.load_package(p))
-
-        if self.r_templates.install_github:
-            for dependency in self.r_templates.github_dependencies:
-                commands.append(self.r_templates.install_package_github(dependency))
-
-        packages_script = RUtils.get_required_packages(self.script)
-
-        for p in packages_script:
-            commands.append(self.r_templates.check_package_availability(p))
-            commands.append(self.r_templates.load_package(p))
-
-        return commands
+        return self.r_templates.build_script_header_commands(self.script)
 
     def build_raster_layer_import_command(self, variable_name, layer):
         """

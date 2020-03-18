@@ -13,6 +13,7 @@ __date__ = '17/10/2019'
 __copyright__ = 'Copyright 2018, North Road'
 
 from typing import List
+from processing_r.processing.utils import RUtils
 
 
 class RTemplates:  # pylint: disable=too-many-public-methods
@@ -456,3 +457,40 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code to set repos to given value.
         """
         return self.set_option("repos", value)
+
+    def build_script_header_commands(self, script) -> List[str]:
+        """
+        Builds the set of script startup commands for the algorithm, based on necessary packages,
+        github_install parameter and script analysis.
+
+        :param script: variable self.script from RAlgorithm
+        :return: list of str (commands)
+        """
+
+        commands = list()
+
+        # Just use main mirror
+        commands.append(self.r_templates.set_option_repos(RUtils.package_repo()))
+
+        # Try to install packages if needed
+        if RUtils.use_user_library():
+            path_to_use = str(RUtils.r_library_folder()).replace('\\', '/')
+            commands.append(self.r_templates.change_libPath(path_to_use))
+
+        packages = self.get_necessary_packages()
+
+        for p in packages:
+            commands.append(self.check_package_availability(p))
+            commands.append(self.load_package(p))
+
+        if self.install_github:
+            for dependency in self.github_dependencies:
+                commands.append(self.install_package_github(dependency))
+
+        packages_script = RUtils.get_required_packages(script)
+
+        for p in packages_script:
+            commands.append(self.check_package_availability(p))
+            commands.append(self.load_package(p))
+
+        return commands
