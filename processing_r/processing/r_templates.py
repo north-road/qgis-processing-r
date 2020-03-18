@@ -13,9 +13,10 @@ __date__ = '17/10/2019'
 __copyright__ = 'Copyright 2018, North Road'
 
 from typing import List
+from processing_r.processing.utils import RUtils
 
 
-class RTemplates:
+class RTemplates:  # pylint: disable=too-many-public-methods
     """
     Class for generating R code
     """
@@ -31,6 +32,47 @@ class RTemplates:
         Variable defining that rasters will be read through package `raster` if `TRUE` or through `rgdal` and `sp` if
         `FALSE`.
         """
+        self._install_github = False
+        """
+        Variable defining that there are dependencies from github.
+        """
+        self._github_dependencies = []
+        """
+        Variable that stores dependencies from github to be installed.
+        """
+
+    @property
+    def github_dependencies(self):
+        """
+        Getter for class variable github_dependencies.
+        :return: bool
+        """
+        return self._github_dependencies
+
+    @github_dependencies.setter
+    def github_dependencies(self, dependencies: str):
+        """
+        Setter for class variable github_dependencies.
+        :param dependencies: str
+        """
+        dependencies = dependencies.strip().replace(" ", "").split(",")
+        self._github_dependencies = dependencies
+
+    @property
+    def install_github(self):
+        """
+        Getter for class variable install_github.
+        :return: bool
+        """
+        return self._install_github
+
+    @install_github.setter
+    def install_github(self, use: bool):
+        """
+        Setter for class variable install_github.
+        :param use: bool
+        """
+        self._install_github = use
 
     @property
     def use_sf(self):
@@ -82,6 +124,9 @@ class RTemplates:
             packages.append("raster")
         else:
             packages.append("rgdal")
+
+        if self.install_github:
+            packages.append("remotes")
 
         return packages
 
@@ -355,6 +400,15 @@ class RTemplates:
         """
         return 'write.csv({0}, "{1}")'.format(variable, path)
 
+    def install_package_github(self, repo: str) -> str:
+        """
+        Function that produces R code to install
+
+        :param repo: string. Name of the repo to be installed.
+        :return: string. R code to install package from a repo.
+        """
+        return 'remotes::install_github("{0}")'.format(repo)
+
     def write_cat_output(self, variable: str, path: str) -> list:
         """
         Functions that produces R code to write variable.
@@ -422,3 +476,40 @@ class RTemplates:
         :return: string. R code to set repos to given value.
         """
         return self.set_option("repos", value)
+
+    def build_script_header_commands(self, script) -> List[str]:
+        """
+        Builds the set of script startup commands for the algorithm, based on necessary packages,
+        github_install parameter and script analysis.
+
+        :param script: variable self.script from RAlgorithm
+        :return: list of str (commands)
+        """
+
+        commands = list()
+
+        # Just use main mirror
+        commands.append(self.set_option_repos(RUtils.package_repo()))
+
+        # Try to install packages if needed
+        if RUtils.use_user_library():
+            path_to_use = str(RUtils.r_library_folder()).replace('\\', '/')
+            commands.append(self.change_libPath(path_to_use))
+
+        packages = self.get_necessary_packages()
+
+        for p in packages:
+            commands.append(self.check_package_availability(p))
+            commands.append(self.load_package(p))
+
+        if self.install_github:
+            for dependency in self.github_dependencies:
+                commands.append(self.install_package_github(dependency))
+
+        packages_script = RUtils.get_required_packages(script)
+
+        for p in packages_script:
+            commands.append(self.check_package_availability(p))
+            commands.append(self.load_package(p))
+
+        return commands
