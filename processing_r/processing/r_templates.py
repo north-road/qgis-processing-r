@@ -40,6 +40,11 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         Variable that stores dependencies from github to be installed.
         """
+        self._enums_literals = []
+        """
+        Variable that stores names of literal enums in a list for further processing. The fuction is_literal_enums
+        depends directly on this variable.
+        """
 
     @property
     def github_dependencies(self):
@@ -513,3 +518,30 @@ class RTemplates:  # pylint: disable=too-many-public-methods
             commands.append(self.load_package(p))
 
         return commands
+
+# set of functions related to enum creation
+    def add_literal_enum(self, enum_name: str):
+        """
+        Functions that registers enum as literal.
+        :param enum_name: string. Name of the variable.
+        :return:
+        """
+        self._enums_literals.append(enum_name)
+
+    def set_variable_enum_value(self, enum_name: str, number: int, enum_values: list) -> str:
+        """
+        Produces R code that creates string variable with selected enum option.
+        :param enum_name: string. Name of the variable.
+        :param number: integer. Number of selected option from the list (enum_values).
+        :param enum_values: list. List of options for the given enum.
+        :return: string. R code representing the value from enum as string.
+        """
+        return self.set_variable_string(enum_name, enum_values[number])
+
+    def is_literal_enum(self, enum_name: str) -> bool:
+        """
+        Function to check if the given enum is listed as literal.
+        :param enum_name: string. Name of the enum variable.
+        :return: boolean.
+        """
+        return enum_name in self._enums_literals
