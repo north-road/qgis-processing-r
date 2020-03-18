@@ -329,6 +329,25 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.gpkg", "lines", driver="GPKG")',
                                   'write.csv(OutputCSV, "/home/test/tab.csv")'])
 
+    def testMultiOutputs(self):
+        """
+        Test writing vector outputs
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_multiout.rsx'))
+        alg.initAlgorithm()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+        script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
+                                           context, feedback)
+
+        self.assertIn('writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")', script)
+        self.assertIn('write.csv(OutputCSV, "/home/test/tab.csv")', script)
+        self.assertTrue(script[2].startswith('cat("##OutputNum", file='), script[2])
+        self.assertTrue(script[3].startswith('cat(OutputNum, file='), script[3])
+        self.assertTrue(script[4].startswith('cat("##OutputStr", file='), script[4])
+        self.assertTrue(script[5].startswith('cat(OutputStr, file='), script[5])
+
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
         """
         Test algorithm help

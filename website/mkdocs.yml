@@ -21,6 +21,7 @@ nav:
         - Example with vector output: ex_vector_output.md
         - Example with raster output: ex_raster_output.md
         - Example with table output: ex_table_output.md
+        - Example with number and string outputs: ex_number_string_output.md
         - Example with tool console log: ex_console_output.md
         - Example of graphs output: ex_plot.md
     - Changelog: changelog.md
