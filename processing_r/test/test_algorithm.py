@@ -369,7 +369,11 @@ class AlgorithmTest(unittest.TestCase):
         """
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_dont_load_any_packages.rsx'))
         alg.initAlgorithm()
-        script = alg.build_r_script()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        script = alg.build_r_script({}, context, feedback)
         self.assertNotIn('library("sf")', script)
         self.assertNotIn('library("raster")', script)
         self.assertNotIn('library("rgdal")', script)
