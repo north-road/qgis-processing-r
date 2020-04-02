@@ -367,7 +367,7 @@ class AlgorithmTest(unittest.TestCase):
         """
         Test dont_load_any_packages keyword
         """
-        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_dont_load_any_packages.rsx.rsx'))
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_dont_load_any_packages.rsx'))
         alg.initAlgorithm()
         script = alg.build_r_script()
         self.assertNotIn('library("sf")', script)
