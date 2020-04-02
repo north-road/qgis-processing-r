@@ -379,6 +379,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertNotIn('library("rgdal")', script)
         self.assertNotIn('library("sp")', script)
 
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
     runner = unittest.TextTestRunner(verbosity=2)
