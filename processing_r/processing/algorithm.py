@@ -238,6 +238,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.pass_file_names = True
             return
 
+        if line.lower().strip().startswith('dont_load_any_packages'):
+            self.r_templates.auto_load_packages = False
+            return
+
         value, type_ = self.split_tokens(line)
         if type_.lower().strip() == 'group':
             self._group = value
