@@ -22,6 +22,8 @@ Several metadata lines define the general behaviour of the script.
 
 `##pass_filenames` (legacy alias `##passfilenames`) specifies that data are not passed directly. Instead only their file names are passed.
 
+`##dont_load_any_packages` specifies that no packages, besides what is directly specified in script, should be loaded. This means that neither of **sf**, **raster**, **sp** or **rgdal** packages is loaded automatically. If spatial data (either raster or vector) should be passed to this script, the metadata `##pass_filenames` should be used as well. 
+
 `##user1/repo1,user2/repo2=github_install` allows instalation of **R packages** from GitHub using [remotes](https://CRAN.R-project.org/package=remotes). Multiple repos can be specified and divided by coma, white spaces around are stripped. The formats for repository specification are listed on [remotes website](https://remotes.r-lib.org/#usage).
 
 ### Inputs
@@ -40,7 +42,15 @@ So the inputs can look like this:
 
 `##X=Field Layer` specifies that variable `X` will be field name taken from `Layer`.
 
-## Outputs
+#### Enum
+
+The basic enum syntax is `##var_enum=enum a;b;c` to select from values `a`, `b` or `c`. The value of `var_enum` in this case will be integer indicated position of the selected item in a list. So for example, if `a` is selected the value of `var_enum` will be `0`. 
+
+The approach described above works well for a wide range of applications but for **R** it is often not ideal. That is a reason why a new type of enum is available in script syntax.
+
+The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is the keyword `literal` (or more precisely `enum literal`) which specifies that the value from the select box to `var_enum_string` should be passed as a string. So if `b` is selected, then the value of `var_enum_string` will be `"a"`.
+
+### Outputs
 
 The outputs of R script are specified as `##variable_name=output output_type`. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification _variable_name_ specifies variable from the script that will be exported back to QGIS, _output_type_ is one of the allowed types that can be returned from R script (layer, raster, folder, HTML, number, string, table).
 
@@ -56,7 +66,7 @@ So the inputs can look like this:
 
 `##New_number=output number` specifies that a variable `New_number` will be set in the script.
 
-## Printing from R to tool log
+### Printing from R to tool log
 
 If any output of any line in R script should be outputted to tool log, it needs to be preceded by `>`. So, for example, the following code will print the number of rows in `Layer`.
 
