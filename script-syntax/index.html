@@ -116,14 +116,6 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-level="2"><a href="#outputs" class="nav-link">Outputs</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-level="2"><a href="#printing-from-r-to-tool-log" class="nav-link">Printing from R to tool log</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
               </ul>
             </li>
         </ul>
@@ -143,6 +135,7 @@
 <p><code>##load_raster_using_rgdal</code> (legacy alias <code>##dontuserasterpackage</code>) specifies that raster data should not be pased to R using <a href="https://CRAN.R-project.org/package=raster">raster</a> package as <strong>RasterLayer</strong> or <strong>RasterBrick</strong> object. Raster data are instead read using <a href="https://CRAN.R-project.org/package=rgdal">rgdal</a> into object <strong>SpatialGridDataFrame</strong> from <a href="https://CRAN.R-project.org/package=sp">sp</a>.</p>
 <p><code>##load_vector_using_rgdal</code> specifies that vector data should not be pased to R using <a href="https://CRAN.R-project.org/package=sf">sf</a> package as <strong>sf</strong> <strong>data.frame</strong>. Instead data are passed as <strong>Spatial?DataFrame</strong> (where <strong>?</strong> is the type of vector object) from <a href="https://CRAN.R-project.org/package=sp">sp</a> package.</p>
 <p><code>##pass_filenames</code> (legacy alias <code>##passfilenames</code>) specifies that data are not passed directly. Instead only their file names are passed.</p>
+<p><code>##dont_load_any_packages</code> specifies that no packages, besides what is directly specified in script, should be loaded. This means that neither of <strong>sf</strong>, <strong>raster</strong>, <strong>sp</strong> or <strong>rgdal</strong> packages is loaded automatically. If spatial data (either raster or vector) should be passed to this script, the metadata <code>##pass_filenames</code> should be used as well. </p>
 <p><code>##user1/repo1,user2/repo2=github_install</code> allows instalation of <strong>R packages</strong> from GitHub using <a href="https://CRAN.R-project.org/package=remotes">remotes</a>. Multiple repos can be specified and divided by coma, white spaces around are stripped. The formats for repository specification are listed on <a href="https://remotes.r-lib.org/#usage">remotes website</a>.</p>
 <h3 id="inputs">Inputs</h3>
 <p>The inputs to R script are specified as: <code>variable_name=variable_type [default_value/from_variable]</code>. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification <em>variable_name</em> is the name of the variable used in R script, <em>variable_type</em> is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).</p>
@@ -152,7 +145,11 @@
 <p><code>##Layer=vector</code> specifies that there will be variable <code>Layer</code> that will be a vector.</p>
 <p><code>##Size=number 10</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>10</code>.</p>
 <p><code>##X=Field Layer</code> specifies that variable <code>X</code> will be field name taken from <code>Layer</code>.</p>
-<h2 id="outputs">Outputs</h2>
+<h4 id="enum">Enum</h4>
+<p>The basic enum syntax is <code>##var_enum=enum a;b;c</code> to select from values <code>a</code>, <code>b</code> or <code>c</code>. The value of <code>var_enum</code> in this case will be integer indicated position of the selected item in a list. So for example, if <code>a</code> is selected the value of <code>var_enum</code> will be <code>0</code>. </p>
+<p>The approach described above works well for a wide range of applications but for <strong>R</strong> it is often not ideal. That is a reason why a new type of enum is available in script syntax.</p>
+<p>The syntax is <code>##var_enum_string=enum literal a;b;c</code>. The important part here is the keyword <code>literal</code> (or more precisely <code>enum literal</code>) which specifies that the value from the select box to <code>var_enum_string</code> should be passed as a string. So if <code>b</code> is selected, then the value of <code>var_enum_string</code> will be <code>"a"</code>.</p>
+<h3 id="outputs">Outputs</h3>
 <p>The outputs of R script are specified as <code>##variable_name=output output_type</code>. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification <em>variable_name</em> specifies variable from the script that will be exported back to QGIS, <em>output_type</em> is one of the allowed types that can be returned from R script (layer, raster, folder, HTML, number, string, table).</p>
 <p>So the inputs can look like this:</p>
 <p><code>##New_layer=output vector</code> specifies that the variable <code>New_layer</code> will be imported to QGIS as a vector layer.</p>
@@ -160,7 +157,7 @@
 <p><code>##New_table=output table</code> specifies that the variable <code>New_table</code> will be imported to QGIS as a vector layer without geometry (CSV file).</p>
 <p><code>##New_string=output string</code> specifies that a variable <code>New_string</code> will be set in the script.</p>
 <p><code>##New_number=output number</code> specifies that a variable <code>New_number</code> will be set in the script.</p>
-<h2 id="printing-from-r-to-tool-log">Printing from R to tool log</h2>
+<h3 id="printing-from-r-to-tool-log">Printing from R to tool log</h3>
 <p>If any output of any line in R script should be outputted to tool log, it needs to be preceded by <code>&gt;</code>. So, for example, the following code will print the number of rows in <code>Layer</code>.</p>
 <pre><code>&gt;nrow(Layer)
 </code></pre></div>
