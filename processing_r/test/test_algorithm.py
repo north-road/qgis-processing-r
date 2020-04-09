@@ -378,6 +378,22 @@ class AlgorithmTest(unittest.TestCase):
         alg.initAlgorithm()
         self.assertFalse(alg.shortHelpString())
 
+    def testAlgDontLoadAnyPackages(self):
+        """
+        Test dont_load_any_packages keyword
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_dont_load_any_packages.rsx'))
+        alg.initAlgorithm()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        script = alg.build_r_script({}, context, feedback)
+        self.assertNotIn('library("sf")', script)
+        self.assertNotIn('library("raster")', script)
+        self.assertNotIn('library("rgdal")', script)
+        self.assertNotIn('library("sp")', script)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)

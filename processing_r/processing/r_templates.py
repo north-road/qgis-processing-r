@@ -45,6 +45,26 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Variable that stores names of literal enums in a list for further processing. The fuction is_literal_enums
         depends directly on this variable.
         """
+        self._auto_load_packages = True
+        """
+        Variable that stores if only file names, not data are passed to the script.
+        """
+
+    @property
+    def auto_load_packages(self):
+        """
+        Getter for class variable pass_filenames.
+        :return: bool
+        """
+        return self._auto_load_packages
+
+    @auto_load_packages.setter
+    def auto_load_packages(self, value: bool):
+        """
+        Setter for class variable pass_filenames.
+        :param value: bool
+        """
+        self._auto_load_packages = value
 
     @property
     def github_dependencies(self):
@@ -119,16 +139,17 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         packages = []
 
-        if self.use_sf:
-            packages.append("sf")
-        else:
-            packages.append("rgdal")
-            packages.append("sp")
+        if self.auto_load_packages:
+            if self.use_sf:
+                packages.append("sf")
+            else:
+                packages.append("rgdal")
+                packages.append("sp")
 
-        if self.use_raster:
-            packages.append("raster")
-        else:
-            packages.append("rgdal")
+            if self.use_raster:
+                packages.append("raster")
+            else:
+                packages.append("rgdal")
 
         if self.install_github:
             packages.append("remotes")
