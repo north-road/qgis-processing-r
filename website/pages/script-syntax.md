@@ -42,7 +42,12 @@ So the inputs can look like this:
 
 `##X=Field Layer` specifies that variable `X` will be field name taken from `Layer`.
 
-## Outputs
+#### Enum
+
+
+
+
+### Outputs
 
 The outputs of R script are specified as `##variable_name=output output_type`. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification _variable_name_ specifies variable from the script that will be exported back to QGIS, _output_type_ is one of the allowed types that can be returned from R script (layer, raster, folder, HTML, number, string, table).
 
@@ -58,7 +63,7 @@ So the inputs can look like this:
 
 `##New_number=output number` specifies that a variable `New_number` will be set in the script.
 
-## Printing from R to tool log
+### Printing from R to tool log
 
 If any output of any line in R script should be outputted to tool log, it needs to be preceded by `>`. So, for example, the following code will print the number of rows in `Layer`.
 
