@@ -348,6 +348,21 @@ class AlgorithmTest(unittest.TestCase):
         self.assertTrue(script[4].startswith('cat("##OutputStr", file='), script[4])
         self.assertTrue(script[5].startswith('cat(OutputStr, file='), script[5])
 
+    def testEnums(self):
+        """
+        Test for both enum types
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_enums.rsx'))
+        alg.initAlgorithm()
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        script = alg.build_import_commands({'enum_normal': 0}, context, feedback)
+        self.assertIn('enum_normal <- 0', script)
+        script = alg.build_import_commands({'enum_string': 0}, context, feedback)
+        self.assertIn('enum_string <- "enum_a"', script)
+
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
         """
         Test algorithm help

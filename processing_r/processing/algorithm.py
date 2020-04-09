@@ -255,6 +255,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.r_templates.github_dependencies = value
             return
 
+        # process enum with values and preparing its template
+        if "=enum literal" in RUtils.upgrade_parameter_line(line):
+            self.r_templates.add_literal_enum(value)
+
         self.process_parameter_line(line)
 
     @staticmethod
@@ -289,6 +293,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 self.addParameter(output)
         else:
             line = RUtils.upgrade_parameter_line(line)
+
+            # this is necessary to remove the otherwise unknown keyword
+            line = line.replace("enum literal", "enum")
 
             # this is annoying, but required to work around a bug in early 3.8.0 versions
             try:
@@ -604,7 +611,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterEnum):
                 value = self.parameterAsEnum(parameters, param.name(), context)
-                commands.append(self.r_templates.set_variable_directly(param.name(), value))
+                if self.r_templates.is_literal_enum(param.name()):
+                    enum_values = self.parameterDefinition(param.name()).options()
+                    commands.append(self.r_templates.set_variable_enum_value(param.name(), value, enum_values))
+                else:
+                    commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterBoolean):
                 value = self.parameterAsBool(parameters, param.name(), context)
                 value = 'TRUE' if value else 'FALSE'
