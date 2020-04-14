@@ -122,7 +122,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
         """
         Provider plugin version
         """
-        return "2.0.0"
+        return "2.1.0"
 
     def id(self):
         """

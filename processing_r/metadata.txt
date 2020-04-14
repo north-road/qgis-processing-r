@@ -10,7 +10,7 @@
 name=Processing R Provider
 qgisMinimumVersion=3.4
 description=A Processing provider for connecting to the R statistics framework
-version=2.0.0
+version=2.1.0
 author=North Road
 email=nyall@north-road.com
 
@@ -23,7 +23,8 @@ repository=https://github.com/north-road/qgis-processing-r
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=2.0.0 Many fixes, algorithms have support for choice between sf/raster or rgdal for loading inputs
+changelog=2.1.0 Add support for literal enums, skipping package loading, additional output types (e.g. strings and numbers). Check https://north-road.github.io/qgis-processing-r for details!
+    2.0.0 Many fixes, algorithms have support for choice between sf/raster or rgdal for loading inputs
     1.0.7 Fix 3.4 compatibility
     1.0.6 Workaround API break in QGIS, which breaks existing scripts
     1.0.5 Allow use of R development versions
@@ -34,7 +35,7 @@ changelog=2.0.0 Many fixes, algorithms have support for choice between sf/raster
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=https://github.com/north-road/qgis-processing-r
+homepage=https://north-road.github.io/qgis-processing-r
 category=Plugins
 icon=icon.png
 # experimental flag
