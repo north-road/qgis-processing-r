@@ -27,6 +27,7 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingOutputNumber,
                        QgsProcessingOutputString,
                        QgsProcessingOutputFolder,
+                       QgsProcessingOutputFile,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingParameterFolderDestination,
@@ -61,6 +62,7 @@ def create_output_from_string(s: str):
 OUTPUT_FACTORY = {
     'layer': QgsProcessingOutputMapLayer,
     'folder': QgsProcessingOutputFolder,
+    'file': QgsProcessingOutputFile,
     'html': QgsProcessingOutputHtml,
     'number': QgsProcessingOutputNumber,
     'string': QgsProcessingOutputString,
@@ -122,7 +124,15 @@ def create_output_from_token(name: str, description: str, token: str):  # pylint
             out = QgsProcessingParameterFolderDestination(name, description)
         elif output_type.startswith('html'):
             out = QgsProcessingParameterFileDestination(name, description, 'HTML Files (*.html)')
+        elif output_type.startswith('file'):
+            ext = token.strip()[len('file') + 1:]
+            if ext:
+                out = QgsProcessingParameterFileDestination(name, description, '%s Files (*.%s)' % (ext.upper(), ext))
+            else:
+                out = QgsProcessingParameterFileDestination(name, description)
     if not out and output_type in OUTPUT_FACTORY:
         return OUTPUT_FACTORY[output_type](name, description)
+    if not out and output_type.startswith('file'):
+        return OUTPUT_FACTORY['file'](name, description)
 
     return out
