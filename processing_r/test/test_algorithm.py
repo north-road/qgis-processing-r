@@ -135,6 +135,15 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(html_output.type(), 'outputHtml')
         html_dest_param = alg.parameterDefinition('param_html_dest')
         self.assertEqual(html_dest_param.type(), 'fileDestination')
+        file_output = alg.outputDefinition('out_file')
+        self.assertEqual(file_output.type(), 'outputFile')
+        file_dest_param = alg.parameterDefinition('param_file_dest')
+        self.assertEqual(file_dest_param.type(), 'fileDestination')
+        csv_output = alg.outputDefinition('out_csv')
+        self.assertEqual(csv_output.type(), 'outputFile')
+        csv_dest_param = alg.parameterDefinition('param_csv_dest')
+        self.assertEqual(csv_dest_param.type(), 'fileDestination')
+        self.assertEqual(csv_dest_param.defaultFileExtension(), 'csv')
 
     def testBadAlgorithm(self):
         """
@@ -173,6 +182,14 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('in_number <- 5.0', script)
         script = alg.build_import_commands({'in_number': 5.5}, context, feedback)
         self.assertIn('in_number <- 5.5', script)
+
+        # file destination
+        script = alg.build_import_commands({'param_html_dest': '/tmp/processing/test_algorithm_2_r/dest.html'}, context, feedback)
+        self.assertIn('param_html_dest <- "/tmp/processing/test_algorithm_2_r/dest.html"', script)
+        script = alg.build_import_commands({'param_file_dest': '/tmp/processing/test_algorithm_2_r/dest.file'}, context, feedback)
+        self.assertIn('param_file_dest <- "/tmp/processing/test_algorithm_2_r/dest.file"', script)
+        script = alg.build_import_commands({'param_csv_dest': '/tmp/processing/test_algorithm_2_r/dest.csv'}, context, feedback)
+        self.assertIn('param_csv_dest <- "/tmp/processing/test_algorithm_2_r/dest.csv"', script)
 
     def testReadOgr(self):
         """

@@ -31,6 +31,10 @@
 ##out_folder=output folder noprompt
 ##param_html_dest=output html
 ##out_html=output html noprompt
+##param_file_dest=output file
+##out_file=output file noprompt
+##param_csv_dest=output file csv
+##out_csv=output file csv noprompt
 
 library(sp)
 i <- 1

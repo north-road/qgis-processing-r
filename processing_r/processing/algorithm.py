@@ -645,7 +645,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     layer_idx += 1
                 s += ')'
                 commands.append(s)
-            # TODO folder, file/html output paths should be set here
+
+        # TODO folder, file/html output paths should be set here
+        for param in self.destinationParameterDefinitions():
+            if isinstance(param, QgsProcessingParameterFileDestination):
+                filename = self.parameterAsFileOutput(parameters, param.name(), context)
+                commands.append(self.r_templates.set_variable_string(param.name(),
+                                                                     filename))
 
         if self.show_plots:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
