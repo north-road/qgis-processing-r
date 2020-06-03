@@ -6,9 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <meta name="author" content="Jan Caha">
-        <link rel="canonical" href="https://north-road.github.io/qgis-processing-r/ex_number_string_output/">
+        <link rel="canonical" href="https://north-road.github.io/qgis-processing-r/ex_file_output/">
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Example with number and string outputs - Processing R Provider</title>
+        <title>Example with file output - Processing R Provider</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -56,11 +56,11 @@
 </li>
                                     
 <li>
-    <a href="../ex_file_output/" class="dropdown-item">Example with file output</a>
+    <a href="./" class="dropdown-item active">Example with file output</a>
 </li>
                                     
 <li>
-    <a href="./" class="dropdown-item active">Example with number and string outputs</a>
+    <a href="../ex_number_string_output/" class="dropdown-item">Example with number and string outputs</a>
 </li>
                                     
 <li>
@@ -87,12 +87,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../ex_file_output/" class="nav-link">
+                                <a rel="prev" href="../ex_table_output/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../ex_console_output/" class="nav-link">
+                                <a rel="next" href="../ex_number_string_output/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -114,7 +114,7 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#example-with-number-and-string-outputs" class="nav-link">Example with number and string outputs</a>
+            <li class="nav-item" data-level="1"><a href="#example-with-table-output" class="nav-link">Example with table output</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-level="2"><a href="#script" class="nav-link">Script</a>
               <ul class="nav flex-column">
@@ -131,36 +131,45 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="example-with-number-and-string-outputs">Example with number and string outputs</h1>
-<p>This script takes input vector data and one of its fields. The result is the minimum and maximum for a given field of the layer.</p>
+<h1 id="example-with-table-output">Example with table output</h1>
+<p>This script takes input vector data and one of its fields. The result is a table with summary statistics for a given field of the layer.</p>
 <h2 id="script">Script</h2>
 <pre><code>##Basic statistics=group
-##Min_Max=name
+##Statistic table=name
 ##Layer=vector
 ##Field=Field Layer
-##Min=output number
-##Max=output number
-##Summary=output string
-
-Min &lt;- min(Layer[[Field]])
-Max &lt;- max(Layer[[Field]])
-Summary &lt;- paste(Min, &quot;to&quot;, Max, sep = &quot; &quot;)
+##Stat_file=Output file csv
+##Stat=Output table noprompt
+Summary_statistics &lt;- data.frame(rbind(
+        sum(Layer[[Field]]),
+        length(Layer[[Field]]),
+        length(unique(Layer[[Field]])),
+        min(Layer[[Field]]),
+        max(Layer[[Field]]),
+        max(Layer[[Field]])-min(Layer[[Field]]),
+        mean(Layer[[Field]]),
+        median(Layer[[Field]]),
+        sd(Layer[[Field]])),
+        row.names=c(&quot;Sum:&quot;,&quot;Count:&quot;,&quot;Unique values:&quot;,&quot;Minimum value:&quot;,&quot;Maximum value:&quot;,&quot;Range:&quot;,&quot;Mean value:&quot;,&quot;Median value:&quot;,&quot;Standard deviation:&quot;))
+colnames(Summary_statistics) &lt;- c(Field)
+write.csv2(Summary_statistics, Stat_file, row.names = FALSE, na =&quot;&quot;)
+Stat &lt;- Stat_file
 </code></pre>
 
 <h2 id="script-lines-description">Script lines description</h2>
 <ol>
 <li><strong>Basic statistics</strong> is the group of the algorithm.</li>
-<li><strong>Min_Max</strong> is the name of the algorithm.</li>
+<li><strong>Statistic table</strong> is the name of the algorithm.</li>
 <li><strong>Layer</strong> is the input vector layer.</li>
 <li><strong>Field</strong> is the name of a field from <em>Layer</em>.</li>
-<li><strong>Min</strong> is the name of the minimum output that will be created and returned to QGIS.</li>
-<li><strong>Max</strong> is the name of the maximum output that will be created and returned to QGIS.</li>
-<li><strong>Summary</strong> is the name of the string output that will be created and returned to QGIS.</li>
-<li>Calculate minimum</li>
-<li>Calculate maximum</li>
-<li>Create the string</li>
+<li><strong>Stat_file</strong> is the name of output that will be selected by user to store result.</li>
+<li><strong>Stat</strong> is the name of output that will be created and returned to QGIS.</li>
+<li>Create data.frame with calculated statistics and assign correct row names.</li>
+<li>Give the data.frame correct colname, the name of the field.</li>
+<li>Write the created data.frame to output file (<strong>Stat_file</strong>) with a controlled formatting.</li>
+<li>Assign the output file path to table output (<strong>Stat</strong>) to be presented in QGIS</li>
 </ol>
-<p>The outputs will be presented in QGIS as a dictionnary.</p></div>
+<p>The output will be presented in QGIS as a table with a controlled formatting.</p></div>
             </div>
         </div>
 
