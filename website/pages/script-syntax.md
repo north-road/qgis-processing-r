@@ -22,7 +22,7 @@ Several metadata lines define the general behaviour of the script.
 
 `##pass_filenames` (legacy alias `##passfilenames`) specifies that data are not passed directly. Instead only their file names are passed.
 
-`##dont_load_any_packages` specifies that no packages, besides what is directly specified in script, should be loaded. This means that neither of **sf**, **raster**, **sp** or **rgdal** packages is loaded automatically. If spatial data (either raster or vector) should be passed to this script, the metadata `##pass_filenames` should be used as well. 
+`##dont_load_any_packages` specifies that no packages, besides what is directly specified in script, should be loaded. This means that neither of **sf**, **raster**, **sp** or **rgdal** packages is loaded automatically. If spatial data (either raster or vector) should be passed to this script, the metadata `##pass_filenames` should be used as well.
 
 `##user1/repo1,user2/repo2=github_install` allows instalation of **R packages** from GitHub using [remotes](https://CRAN.R-project.org/package=remotes). Multiple repos can be specified and divided by coma, white spaces around are stripped. The formats for repository specification are listed on [remotes website](https://remotes.r-lib.org/#usage).
 
@@ -44,7 +44,7 @@ So the inputs can look like this:
 
 #### Enum
 
-The basic enum syntax is `##var_enum=enum a;b;c` to select from values `a`, `b` or `c`. The value of `var_enum` in this case will be integer indicated position of the selected item in a list. So for example, if `a` is selected the value of `var_enum` will be `0`. 
+The basic enum syntax is `##var_enum=enum a;b;c` to select from values `a`, `b` or `c`. The value of `var_enum` in this case will be integer indicated position of the selected item in a list. So for example, if `a` is selected the value of `var_enum` will be `0`.
 
 The approach described above works well for a wide range of applications but for **R** it is often not ideal. That is a reason why a new type of enum is available in script syntax.
 
@@ -52,9 +52,17 @@ The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is
 
 ### Outputs
 
-The outputs of R script are specified as `##variable_name=output output_type`. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification _variable_name_ specifies variable from the script that will be exported back to QGIS, _output_type_ is one of the allowed types that can be returned from R script (layer, raster, folder, HTML, number, string, table).
+The outputs of R script are specified as `##variable_name=output output_type`. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification _variable_name_ specifies variable from the script that will be exported back to QGIS, _output_type_ is one of the allowed types that can be returned from R script (layer, raster, folder, file, HTML, number, string, table).
 
-So the inputs can look like this:
+So the outputs can look like this:
+
+`##New_string=output string` specifies that a variable `New_string` will be set in the script.
+
+`##New_number=output number` specifies that a variable `New_number` will be set in the script.
+
+#### Layer outputs
+
+For layer outputs, the line definition can end with the `noprompt` keyword. In this case, the `variable_name` has to be defined in the script. Otherwise, the UI will display a widget to let the user defined the output destination.
 
 `##New_layer=output vector` specifies that the variable `New_layer` will be imported to QGIS as a vector layer.
 
@@ -62,9 +70,15 @@ So the inputs can look like this:
 
 `##New_table=output table` specifies that the variable `New_table` will be imported to QGIS as a vector layer without geometry (CSV file).
 
-`##New_string=output string` specifies that a variable `New_string` will be set in the script.
+#### Folder and files outputs
 
-`##New_number=output number` specifies that a variable `New_number` will be set in the script.
+Like layer outputs, the folder and files outputs the line definition can end with the `noprompt` keyword.
+
+`##New_file=output file` specifies that there will be variable `New_file` that will be a file path with `.file` extension
+
+`##New_csv=output file csv` specifies that there will be variable `New_csv` that will be a file path with `.csv` extension
+
+`##New_folder=output folder` specifies that there will be variable `New_folder` that will be a folder path
 
 ### Printing from R to tool log
 
