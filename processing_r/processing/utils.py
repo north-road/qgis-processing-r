@@ -213,7 +213,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Returns True if the given line looks like an error message
         """
-        return any([l in line for l in ['Error ', 'Execution halted']])
+        return any([error in line for error in ['Error ', 'Execution halted']])
 
     @staticmethod
     def get_windows_code_page():
