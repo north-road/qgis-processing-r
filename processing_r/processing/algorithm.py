@@ -39,6 +39,7 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingParameterFileDestination,
+                       QgsProcessingParameterFolderDestination,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
@@ -646,9 +647,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 s += ')'
                 commands.append(s)
 
-        # TODO folder, file/html output paths should be set here
+        # folder, file/html output paths
         for param in self.destinationParameterDefinitions():
-            if isinstance(param, QgsProcessingParameterFileDestination):
+            if isinstance(param, QgsProcessingParameterFolderDestination):
+                folder = self.parameterAsString(parameters, param.name(), context)
+                commands.append(self.r_templates.set_variable_string(param.name(),
+                                                                     folder))
+            elif isinstance(param, QgsProcessingParameterFileDestination):
                 filename = self.parameterAsFileOutput(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_string(param.name(),
                                                                      filename))

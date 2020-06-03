@@ -183,6 +183,9 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands({'in_number': 5.5}, context, feedback)
         self.assertIn('in_number <- 5.5', script)
 
+        # folder destination
+        script = alg.build_import_commands({'param_folder_dest': '/tmp/processing/test_algorithm_2_r/'}, context, feedback)
+
         # file destination
         script = alg.build_import_commands({'param_html_dest': '/tmp/processing/test_algorithm_2_r/dest.html'}, context, feedback)
         self.assertIn('param_html_dest <- "/tmp/processing/test_algorithm_2_r/dest.html"', script)
