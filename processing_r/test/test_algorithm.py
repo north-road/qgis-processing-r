@@ -358,15 +358,19 @@ class AlgorithmTest(unittest.TestCase):
 
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
-        script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
+        script = alg.build_export_commands({'Output': '/home/test/lines.shp',
+                                            'OutputCSV': '/home/test/tab.csv',
+                                            'OutputFile': '/home/test/file.csv'},
                                            context, feedback)
 
         self.assertIn('writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")', script)
         self.assertIn('write.csv(OutputCSV, "/home/test/tab.csv")', script)
-        self.assertTrue(script[2].startswith('cat("##OutputNum", file='), script[2])
-        self.assertTrue(script[3].startswith('cat(OutputNum, file='), script[3])
-        self.assertTrue(script[4].startswith('cat("##OutputStr", file='), script[4])
-        self.assertTrue(script[5].startswith('cat(OutputStr, file='), script[5])
+        self.assertTrue(script[2].startswith('cat("##OutputFile", file='), script[2])
+        self.assertTrue(script[3].startswith('cat(OutputFile, file='), script[3])
+        self.assertTrue(script[4].startswith('cat("##OutputNum", file='), script[4])
+        self.assertTrue(script[5].startswith('cat(OutputNum, file='), script[5])
+        self.assertTrue(script[6].startswith('cat("##OutputStr", file='), script[6])
+        self.assertTrue(script[7].startswith('cat(OutputStr, file='), script[7])
 
     def testEnums(self):
         """
