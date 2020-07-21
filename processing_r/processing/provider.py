@@ -41,6 +41,8 @@ class RAlgorithmProvider(QgsProcessingProvider):
     Processing provider for executing R scripts
     """
 
+    VERSION = '2.2.1'
+
     def __init__(self):
         super().__init__()
         self.algs = []
@@ -49,6 +51,8 @@ class RAlgorithmProvider(QgsProcessingProvider):
         self.actions.append(create_script_action)
         self.contextMenuActions = [EditScriptAction(),
                                    DeleteScriptAction()]
+
+        self.r_version = None
 
     def load(self):
         """
@@ -86,6 +90,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
         ProviderContextMenuActions.registerProviderContextMenuActions(self.contextMenuActions)
         ProcessingConfig.readSettings()
         self.refreshAlgorithms()
+        self.r_version = RUtils.get_r_version()
         return True
 
     def unload(self):
@@ -122,7 +127,10 @@ class RAlgorithmProvider(QgsProcessingProvider):
         """
         Provider plugin version
         """
-        return "2.2.0"
+        if not self.r_version:
+            return "QGIS R Provider version {}".format(self.VERSION)
+
+        return "QGIS R Provider version {}, {}".format(self.VERSION, self.r_version)
 
     def id(self):
         """
