@@ -359,6 +359,30 @@ class RUtils:  # pylint: disable=too-many-public-methods
         return html
 
     @staticmethod
+    def get_r_version() -> Optional[str]:
+        """
+        Returns the current installed R version, or None if R is not found
+        """
+        if RUtils.is_windows() and not RUtils.r_binary_folder():
+            return None
+
+        command = [RUtils.path_to_r_executable(), '--version']
+        try:
+            with subprocess.Popen(command,
+                                  stdout=subprocess.PIPE,
+                                  stdin=subprocess.DEVNULL,
+                                  stderr=subprocess.STDOUT,
+                                  universal_newlines=True,
+                                  **RUtils.get_process_keywords()) as proc:
+                for line in proc.stdout:
+                    if ('R version' in line) or ('R Under development' in line):
+                        return line
+        except FileNotFoundError:
+            pass
+
+        return None
+
+    @staticmethod
     def get_required_packages(code):
         """
         Returns a list of the required packages
