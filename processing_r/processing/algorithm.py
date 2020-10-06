@@ -19,6 +19,7 @@
 
 import os
 import json
+from pathlib import Path
 
 from qgis.core import (Qgis,
                        QgsProcessing,
@@ -651,11 +652,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         for param in self.destinationParameterDefinitions():
             if isinstance(param, QgsProcessingParameterFolderDestination):
                 folder = self.parameterAsString(parameters, param.name(), context)
+                Path(folder).mkdir(parents=True, exist_ok=True)
                 commands.append(self.r_templates.set_variable_string(param.name(),
                                                                      QDir.fromNativeSeparators(folder)))
                 self.save_output_values = True
             elif isinstance(param, QgsProcessingParameterFileDestination):
                 filename = self.parameterAsFileOutput(parameters, param.name(), context)
+                Path(filename).parent.mkdir(parents=True, exist_ok=True)
                 commands.append(self.r_templates.set_variable_string(param.name(),
                                                                      QDir.fromNativeSeparators(filename)))
                 self.save_output_values = True
