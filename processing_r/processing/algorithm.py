@@ -652,12 +652,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             if isinstance(param, QgsProcessingParameterFolderDestination):
                 folder = self.parameterAsString(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                     folder))
+                                                                     QDir.fromNativeSeparators(folder)))
                 self.save_output_values = True
             elif isinstance(param, QgsProcessingParameterFileDestination):
                 filename = self.parameterAsFileOutput(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                     filename))
+                                                                     QDir.fromNativeSeparators(filename)))
                 self.save_output_values = True
 
         if self.show_plots:
