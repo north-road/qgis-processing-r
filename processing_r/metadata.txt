@@ -10,7 +10,7 @@
 name=Processing R Provider
 qgisMinimumVersion=3.4
 description=A Processing provider for connecting to the R statistics framework
-version=2.2.1
+version=2.2.2
 author=North Road
 email=nyall@north-road.com
 
