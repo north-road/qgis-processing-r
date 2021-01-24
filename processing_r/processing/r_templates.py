@@ -13,6 +13,10 @@ __date__ = '17/10/2019'
 __copyright__ = 'Copyright 2018, North Road'
 
 from typing import List
+
+from qgis.core import (QgsCoordinateReferenceSystem,
+                       QgsPointXY)
+
 from processing_r.processing.utils import RUtils
 
 
@@ -566,3 +570,34 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: boolean.
         """
         return enum_name in self._enums_literals
+
+    def set_point(self,
+                  variable: str,
+                  point: QgsPointXY,
+                  crs: QgsCoordinateReferenceSystem) -> list:
+        """
+        Produces R code that creates a variable from point input.
+
+        :param variable: string. Name of the variable.
+        :param point: QgsPointXY. Point to extract x and y coordinates from.
+        :param crs: QgsCoordinateReferenceSystem. Coordinate reference system for the point.
+        :return: string. R code that constructs the point.
+        """
+
+        commands = []
+
+        if self.use_sf:
+
+            commands.append('point_crs <- st_crs(\'{}\')'.format(crs.toWkt()))
+            commands.append('{0} <- st_sfc(st_point(c({1},{2})), crs = point_crs)'.format(variable,
+                                                                                          point.x(),
+                                                                                          point.y()))
+
+        else:
+
+            commands.append('xy_df <- cbind(c({}), c({}))'.format(point.x(),
+                                                                  point.y()))
+            commands.append('point_crs <- CRS(\'{}\')'.format(crs.toProj4()))
+            commands.append('{} <- SpatialPoints(xy_df, proj4string = point_crs))'.format(variable))
+
+        return commands

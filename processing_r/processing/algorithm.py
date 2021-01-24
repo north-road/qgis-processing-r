@@ -41,9 +41,12 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterFileDestination,
                        QgsProcessingParameterFolderDestination,
                        QgsProcessingParameterFeatureSource,
+                       QgsProcessingParameterPoint,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
+                       QgsPointXY,
+                       QgsCoordinateReferenceSystem,
                        QgsProcessingUtils)
 from qgis.PyQt.QtCore import (
     QCoreApplication,
@@ -621,6 +624,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 value = self.parameterAsBool(parameters, param.name(), context)
                 value = 'TRUE' if value else 'FALSE'
                 commands.append(self.r_templates.set_variable_directly(param.name(), value))
+            elif isinstance(param, QgsProcessingParameterPoint):
+                point: QgsPointXY = self.parameterAsPoint(parameters, param.name(), context)
+                crs: QgsCoordinateReferenceSystem = self.parameterAsPointCrs(parameters, param.name(), context)
+                commands.extend(self.r_templates.set_point(param.name(), point, crs))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
                 layer_idx = 0
                 layers = self.parameterAsLayerList(parameters, param.name(), context)
