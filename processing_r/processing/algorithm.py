@@ -91,6 +91,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self.plots_filename = ''
         self.output_values_filename = ''
         self.results = {}
+        self.descriptions = None
         if self.script is not None:
             self.load_from_string()
         if self.description_file is not None:
@@ -173,6 +174,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         with open(self.description_file, 'r') as f:
             lines = [line.strip() for line in f]
         self.parse_script(iter(lines))
+
+        help_file = self.description_file + '.help'
+        if os.path.exists(help_file):
+            with open(help_file) as f:
+                self.descriptions = json.load(f)
 
     def parse_script(self, lines):
         """
@@ -307,6 +313,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 param = getParameterFromString(line, context="")
             except TypeError:
                 param = getParameterFromString(line)
+
+            # set help parameter
+            if Qgis.QGIS_VERSION_INT >= 31600:
+                if self.descriptions is not None:
+                    param.setHelp(self.descriptions.get(param.name()))
 
             if param is not None:
                 self.addParameter(param)
@@ -689,18 +700,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Returns the algorithms helper string
         """
-        if self.description_file is None:
+        if self.descriptions is None:
             return ''
 
-        help_file = self.description_file + '.help'
-        print(help_file)
-        if os.path.exists(help_file):
-            with open(help_file) as f:
-                descriptions = json.load(f)
-
-            return QgsProcessingUtils.formatHelpMapAsHtml(descriptions, self)
-
-        return ''
+        return QgsProcessingUtils.formatHelpMapAsHtml(self.descriptions, self)
 
     def tr(self, string, context=''):
         """
