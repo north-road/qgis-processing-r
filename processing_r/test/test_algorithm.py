@@ -397,6 +397,11 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('Me2', alg.shortHelpString())
         self.assertIn('Test help.', alg.shortHelpString())
 
+        # param help
+        if Qgis.QGIS_VERSION_INT >= 31600:
+            polyg_param = alg.parameterDefinition('polyg')
+            self.assertEqual(polyg_param.help(), 'A polygon layer')
+
         # no help file
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
         alg.initAlgorithm()
