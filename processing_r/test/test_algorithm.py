@@ -418,6 +418,27 @@ class AlgorithmTest(unittest.TestCase):
         self.assertNotIn('library("rgdal")', script)
         self.assertNotIn('library("sp")', script)
 
+    def testAlgPointInput(self):
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_input_point.rsx'))
+        alg.initAlgorithm()
+
+        script = alg.build_r_script({'point': '20.219926,49.138354 [EPSG:4326]'}, context, feedback)
+
+        self.assertIn('library("sf")', script)
+        self.assertIn('point <- st_sfc(st_point(c(20.219926,49.138354)), crs = point_crs)', script)
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_input_point_sp.rsx'))
+        alg.initAlgorithm()
+        script = alg.build_r_script({'point': '20.219926,49.138354 [EPSG:4326]'}, context, feedback)
+
+        self.assertIn('library("sp")', script)
+        self.assertIn('xy_df <- cbind(c(20.219926), c(49.138354))', script)
+        self.assertIn('point <- SpatialPoints(xy_df, proj4string = point_crs))', script)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
