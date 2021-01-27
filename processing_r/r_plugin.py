@@ -19,7 +19,7 @@ from qgis.PyQt.QtCore import (QTranslator,
 from qgis.core import QgsApplication
 from qgis.gui import QgisInterface
 from processing_r.processing.provider import RAlgorithmProvider
-VERSION = '1.0.7'
+VERSION = '2.3.0'
 
 
 class RProviderPlugin:

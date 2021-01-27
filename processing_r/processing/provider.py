@@ -41,7 +41,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
     Processing provider for executing R scripts
     """
 
-    VERSION = '2.2.1'
+    VERSION = '2.3.0'
 
     def __init__(self):
         super().__init__()
