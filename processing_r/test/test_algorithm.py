@@ -424,6 +424,9 @@ class AlgorithmTest(unittest.TestCase):
         self.assertNotIn('library("sp")', script)
 
     def testAlgPointInput(self):
+        """
+        Test Point parameter
+        """
 
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
