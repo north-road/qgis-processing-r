@@ -405,7 +405,7 @@ class AlgorithmTest(unittest.TestCase):
         # no help file
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
         alg.initAlgorithm()
-        self.assertFalse(alg.shortHelpString())
+        self.assertEqual(alg.shortHelpString(), "")
 
     def testAlgDontLoadAnyPackages(self):
         """
