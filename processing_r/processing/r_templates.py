@@ -598,6 +598,6 @@ class RTemplates:  # pylint: disable=too-many-public-methods
             commands.append('xy_df <- cbind(c({}), c({}))'.format(point.x(),
                                                                   point.y()))
             commands.append('point_crs <- CRS(\'{}\')'.format(crs.toProj4()))
-            commands.append('{} <- SpatialPoints(xy_df, proj4string = point_crs))'.format(variable))
+            commands.append('{} <- SpatialPoints(xy_df, proj4string = point_crs)'.format(variable))
 
         return commands
