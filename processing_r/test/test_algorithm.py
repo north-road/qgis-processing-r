@@ -445,7 +445,7 @@ class AlgorithmTest(unittest.TestCase):
 
         self.assertIn('library("sp")', script)
         self.assertIn('xy_df <- cbind(c(20.219926), c(49.138354))', script)
-        self.assertIn('point <- SpatialPoints(xy_df, proj4string = point_crs))', script)
+        self.assertIn('point <- SpatialPoints(xy_df, proj4string = point_crs)', script)
 
 
 if __name__ == "__main__":
