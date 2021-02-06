@@ -1,0 +1,82 @@
+name: Test plugin
+
+on:
+  push:
+    paths:
+    - "processing_r/**"
+    - ".github/workflows/test_plugin.yaml"
+
+env:
+  # plugin name/directory where the code for the plugin is stored
+  PLUGIN_NAME: processing_r
+  # python notation to test running inside plugin
+  TESTS_RUN_FUNCTION: processing_r.test_suite.test_package
+  # Docker settings
+  DOCKER_IMAGE: qgis/qgis
+
+
+jobs:
+
+  Test-plugin-Processing-R:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        docker_tags: [ release-3_10, release-3_14, release-3_16, latest]
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Docker pull and create qgis-testing-environment
+        run: |
+          docker pull "$DOCKER_IMAGE":${{ matrix.docker_tags }}
+          docker run -d --name qgis-testing-environment -v "$GITHUB_WORKSPACE":/tests_directory -e DISPLAY=:99 "$DOCKER_IMAGE":${{ matrix.docker_tags }}
+
+      - name: Docker set up QGIS
+        run: |
+          docker exec qgis-testing-environment sh -c "qgis_setup.sh $PLUGIN_NAME"
+          docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/$PLUGIN_NAME"
+          docker exec qgis-testing-environment sh -c "ln -s /tests_directory/$PLUGIN_NAME /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/$PLUGIN_NAME"
+          docker exec qgis-testing-environment sh -c "pip3 install -r /tests_directory/REQUIREMENTS_TESTING.txt"
+          docker exec qgis-testing-environment sh -c "apt-get update"
+          docker exec qgis-testing-environment sh -c "apt-get install -y r-base"
+
+      - name: Docker run plugin tests
+        run: |
+          docker exec qgis-testing-environment sh -c "qgis_testrunner.sh $TESTS_RUN_FUNCTION"
+
+      - uses: JasonEtco/create-an-issue@v2
+        if: ${{ failure() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW: build-package
+          DOCKER_TAG: ${{ matrix.docker_tags }}
+        with:
+          filename: .github/workflow-fail-template.md
+
+  Check-code-quality:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+          architecture: 'x64'
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install packages
+        run: |
+          pip install -r REQUIREMENTS_TESTING.txt
+          pip install pylint pycodestyle
+
+      - name: Pylint
+        run: make pylint
+
+      - name: Pycodestyle
+        run: make pycodestyle
