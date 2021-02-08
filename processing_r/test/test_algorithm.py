@@ -398,7 +398,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('Test help.', alg.shortHelpString())
 
         # param help
-        if Qgis.QGIS_VERSION_INT >= 31600:
+        if Qgis.QGIS_VERSION_INT >= 31604:
             polyg_param = alg.parameterDefinition('polyg')
             self.assertEqual(polyg_param.help(), 'A polygon layer')
 
