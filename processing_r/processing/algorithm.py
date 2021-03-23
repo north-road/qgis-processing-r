@@ -171,14 +171,15 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self._display_name = self._name
         self._name = filename[:filename.rfind('.')]
         self._display_name = self._name.replace('_', ' ')
-        with open(self.description_file, 'r') as f:
-            lines = [line.strip() for line in f]
-        self.parse_script(iter(lines))
 
         help_file = self.description_file + '.help'
         if os.path.exists(help_file):
             with open(help_file) as f:
                 self.descriptions = json.load(f)
+
+        with open(self.description_file, 'r') as f:
+            lines = [line.strip() for line in f]
+        self.parse_script(iter(lines))
 
     def parse_script(self, lines):
         """
