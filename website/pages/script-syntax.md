@@ -6,7 +6,14 @@ The script loads necessary packages by itself. Combination of _sp_ and _rgdal_ o
 
 ## Metadata
 
+The R script's file name is used to define the script name and id in the R processing provider. You can override these
+default metadata with these lines.
+
 `##script_name=name` _script_name_ is the name of the script; under this name, it will be listed in processing toolbox.
+It is also used to define the script id in the R processing provider.
+
+`##script_title=display_name` _script_title_ is the title of the script; under this title, it will be listed in processing toolbox.
+It overrides the _name_ if it is defined after.
 
 `##group_name=group` _group_name_ is the name of the group of the script, which allows sorting of scripts into groups in processing toolbox.
 
