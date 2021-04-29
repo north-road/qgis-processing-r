@@ -35,7 +35,7 @@ __copyright__ = (
     'Copyright 2018, North Road')
 
 
-def _run_tests(test_suite, package_name, with_coverage=False):
+def _run_tests(test_suite, package_name, with_coverage=False):  # pylint: disable=consider-using-with
     """Core function to test a test suite."""
     count = test_suite.countTestCases()
     print('########')
