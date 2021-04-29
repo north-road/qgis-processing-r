@@ -198,8 +198,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 try:
                     self.process_metadata_line(line)
                 except Exception:  # pylint: disable=broad-except
-                    self.error = self.tr('This script has a syntax error.\n'
-                                         'Problem with line: {0}').format(line)
+                    self.add_error_message(
+                        self.tr('This script has a syntax error.\n'
+                                'Excepton with line: {0}').format(line)
+                    )
             elif line.startswith('>'):
                 self.commands.append(line[1:])
                 if not self.show_console_output:
@@ -281,6 +283,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Attempts to split a line into tokens
         """
+        if "|" in line and line.startswith("QgsProcessing"):
+            tokens = line.split("|")
+            return tokens[1], line
+
         tokens = line.split('=')
         return tokens[0], tokens[1]
 

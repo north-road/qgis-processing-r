@@ -62,23 +62,72 @@ The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is
 
 #### QGIS definitions used in description files
 
-The inputs to R script are specified as: `QgsProcessingParameter|name|description|defaultValue|other_parameters_separated_by_pipe`.
+
+The inputs to R script are specified as: `QgsProcessingParameter|name|description|other_parameters_separated_by_pipe`.
 The _other_ parameter_ separated_ by_ pipe_ can contain the `QgsProcessingParameter` specific parameters.
-This metdata line is based on the QGIS definitions used in description file used by GRASS7, SAGA and others providers.
+This metadata line is based on the QGIS definitions used in description file used by GRASS7, SAGA and others providers.
 
 So the inputs can look like this:
 
-`##QgsProcessingParameterFeatureSource|INPUT|Points|0|None|False` specifies that there will be varaible `INPUT` that will be a vector.
+`##QgsProcessingParameterFeatureSource|INPUT|Vector layer` specifies that there will be variable `INPUT` that will be a vector.
 
-`##QgsProcessingParameterField|FIELDS|Attributes|None|INPUT|-1|False|False` specifies taht there will be varaible `FIELDS` that will be a field index.
+`##QgsProcessingParameterField|FIELDS|Attributes|None|INPUT|-1|False|False` specifies that there will be variable `FIELDS` that will be a field index.
 
-`##QgsProcessingParameterRasterLayer|INPUT|Grid|None|False` specifies that there will be varaible `INPUT` that will be a raster.
+`##QgsProcessingParameterRasterLayer|INPUT|Grid` specifies that there will be variable `INPUT` that will be a raster.
 
-`##QgsProcessingParameterNumber|SIZE|Aggregation Size|QgsProcessingParameterNumber.Integer|3|False|None|None` specifies that there will be variable `Size` that will be numeric, and a default value for `Size` will be `3`.
+`##QgsProcessingParameterNumber|SIZE|Aggregation Size|QgsProcessingParameterNumber.Integer|10` specifies that there will be variable `Size` that will be numeric, and a default value for `Size` will be `10`.
 
 `##QgsProcessingParameterEnum|METHOD|Method|[0] Sum;[1] Min;[2] Max` specifies that there will be variable `METHOD` that will be a value provided under `[]`.
 
 `##QgsProcessingParameterVectorDestination|OUTPUT|Result` specifies that there will be variable `OUTPUT` that will be the destination file.
+
+
+##### Feature source
+
+QgsProcessingParameterFeatureSource|name|description|geometry type|default value|optional
+* _name_ is mandatory
+* _description_ is mandatory
+* _geometry type_ is optional and the default value is `-1` for any geometry, the available values are `0` for point, `1` for line, `2` for polygon, `5` for table
+* _default value_ is optional and the default value is `None`
+* _optional_ is optional and the default value is `False`
+
+`##QgsProcessingParameterFeatureSource|INPUT|Points|0` specifies that there will be variable `INPUT` that will be a vector point layer.
+
+`##QgsProcessingParameterFeatureSource|INPUT|Lines|1` specifies that there will be variable `INPUT` that will be a vector line layer.
+
+`##QgsProcessingParameterFeatureSource|INPUT|Polygons|2` specifies that there will be variable `INPUT` that will be a vector polygon layer.
+
+`##QgsProcessingParameterFeatureSource|INPUT|Table|5` specifies that there will be variable `INPUT` that will be a vector layer to provide table.
+
+`##QgsProcessingParameterFeatureSource|INPUT|Optional layer|-1|None|True` specifies that there will be variable `INPUT` that will be an optional vector layer.
+
+##### Raster layer
+
+QgsProcessingParameterRasterLayer|name|description|default value|optional
+* _name_ is mandatory
+* _description_ is mandatory
+* _default value_ is optional and the default value is `None`
+* _optional_ is optional and the default value is `False`
+
+##### File or folder parameter
+
+QgsProcessingParameterFile|name|description|behavior|extension|default value|optional|file filter
+* _name_ is mandatory
+* _description_ is mandatory
+* _behavior_ is optional and the default value is `0` for file, `1` is for folder input parameter
+* _extension_ is optional and specifies a file extension associated with the parameter (e.g. `html`). Use _file filter_ for a more flexible approach which allows for multiple file extensions. if _file filter_ is specified it takes precedence and _extension_ is emptied.
+* _default value_ is optional and the default value is `None`
+* _optional_ is optional and the default value is `False`
+* _file filter_ is optional and specifies the available file extensions associted sith the parameter (e.g. `PNG Files (*.png);; JPG Files (*.jpg *.jpeg)`)
+
+`##QgsProcessingParameterFile|in_file|Input file` specifies that there will be variable `in_file` that will be any file.
+
+`##QgsProcessingParameterFile|in_folder|Input folder|1` specifies that there will be variable `in_folder` that will be a folder.
+
+`##QgsProcessingParameterFile|in_gpkg|Input gpkg|0|gpkg` specifies that there will be variable `in_gpkg` that will be gpkg file.
+
+`##QgsProcessingParameterFile|in_img|Input img|0|png|None|False|PNG Files (*.png);; JPG Files (*.jpg *.jpeg)`  specifies that there will be variable `in_img` that will be an image PNG or JPG.
+
 
 ### Outputs
 

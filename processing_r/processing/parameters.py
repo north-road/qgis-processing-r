@@ -26,9 +26,7 @@ def create_parameter_from_string(s: str):
     """
     Tries to create an algorithm parameter from a line string
     """
-    if "|" in s and s.startswith("##QgsProcessingParameter"):
-        s = s[2:]
-    else:
+    if not ("|" in s and s.startswith("QgsProcessingParameter")):
         s = RUtils.upgrade_parameter_line(s)
 
         # this is necessary to remove the otherwise unknown keyword
