@@ -5,6 +5,7 @@ on:
     paths:
     - "processing_r/**"
     - ".github/workflows/test_plugin.yaml"
+  pull_request
 
 env:
   # plugin name/directory where the code for the plugin is stored
