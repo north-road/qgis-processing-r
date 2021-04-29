@@ -35,7 +35,7 @@ __copyright__ = (
     'Copyright 2018, North Road')
 
 
-def _run_tests(test_suite, package_name, with_coverage=False):  # pylint: disable=consider-using-with
+def _run_tests(test_suite, package_name, with_coverage=False):
     """Core function to test a test suite."""
     count = test_suite.countTestCases()
     print('########')
@@ -55,13 +55,15 @@ def _run_tests(test_suite, package_name, with_coverage=False):  # pylint: disabl
     if with_coverage:
         cov.stop()
         cov.save()
-        report = tempfile.NamedTemporaryFile(delete=False)
-        cov.report(file=report)
-        # Produce HTML reports in the `htmlcov` folder and open index.html
-        # cov.html_report()
-        report.close()
-        with open(report.name, 'r') as fin:
-            print(fin.read())
+
+        with tempfile.NamedTemporaryFile(delete=False) as report:
+            cov.report(file=report)
+            # Produce HTML reports in the `htmlcov` folder and open index.html
+            # cov.html_report()
+            report.close()
+
+            with open(report.name, 'r') as fin:
+                print(fin.read())
 
 
 def test_package(package='processing_r'):
