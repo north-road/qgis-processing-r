@@ -207,10 +207,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             if line.startswith('##'):
                 try:
                     self.process_metadata_line(line)
-                except Exception:  # pylint: disable=broad-except
+                except Exception as e:  # pylint: disable=broad-except
                     self.add_error_message(
                         self.tr('This script has a syntax error.\n'
-                                'Problem with line: {0}').format(line)
+                                'Exception {1} with line: {0}').format(line, e)
                     )
             elif line.startswith('>'):
                 self.commands.append(line[1:])
