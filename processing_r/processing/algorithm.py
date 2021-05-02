@@ -54,7 +54,7 @@ from qgis.PyQt.QtCore import (
     QDir,
     QUrl
 )
-from processing.core.parameters import getParameterFromString
+from processing_r.processing.parameters import create_parameter_from_string
 from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
 from processing_r.gui.gui_utils import GuiUtils
@@ -262,6 +262,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self._name = self._display_name = value
             self._name = RUtils.strip_special_characters(self._name.lower())
             return
+        if type_.lower().strip() == 'display_name':
+            self._display_name = value
+            return
         if type_.lower().strip() == 'github_install':
             self.r_templates.install_github = True
             self.r_templates.github_dependencies = value
@@ -304,23 +307,14 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 # destination type parameter
                 self.addParameter(output)
         else:
-            line = RUtils.upgrade_parameter_line(line)
-
-            # this is necessary to remove the otherwise unknown keyword
-            line = line.replace("enum literal", "enum")
-
-            # this is annoying, but required to work around a bug in early 3.8.0 versions
-            try:
-                param = getParameterFromString(line, context="")
-            except TypeError:
-                param = getParameterFromString(line)
-
-            # set help parameter
-            if Qgis.QGIS_VERSION_INT >= 31600:
-                if self.descriptions is not None:
-                    param.setHelp(self.descriptions.get(param.name()))
+            param = create_parameter_from_string(line)
 
             if param is not None:
+                # set help parameter
+                if Qgis.QGIS_VERSION_INT >= 31600:
+                    if self.descriptions is not None:
+                        param.setHelp(self.descriptions.get(param.name()))
+
                 self.addParameter(param)
             else:
                 self.error = self.tr('This script has a syntax error.\n'
