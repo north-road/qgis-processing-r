@@ -131,7 +131,12 @@
 <p>The R scripts for the plugin use extension <strong>.rsx</strong>. These are classic R scripts with several metadata lines (starting with <code>##</code>) that define the interaction between QGIS and R. Metadata amongst other things specify how UI of the tool will look like.</p>
 <p>The script loads necessary packages by itself. Combination of <em>sp</em> and <em>rgdal</em> or <em>sf</em> for vector data and <em>sp</em> and <em>rgdal</em> or <em>raster</em> for raster data. Any other packages need to be directly loaded using <code>library()</code> command in the script body.</p>
 <h2 id="metadata">Metadata</h2>
-<p><code>##script_name=name</code> <em>script_name</em> is the name of the script; under this name, it will be listed in processing toolbox.</p>
+<p>The R script's file name is used to define the script name and id in the R processing provider. You can override these
+default metadata with these lines.</p>
+<p><code>##script_name=name</code> <em>script_name</em> is the name of the script; under this name, it will be listed in processing toolbox.
+It is also used to define the script id in the R processing provider.</p>
+<p><code>##script_title=display_name</code> <em>script_title</em> is the title of the script; under this title, it will be listed in processing toolbox.
+It overrides the <em>name</em> if it is defined after.</p>
 <p><code>##group_name=group</code> <em>group_name</em> is the name of the group of the script, which allows sorting of scripts into groups in processing toolbox.</p>
 <h3 id="script-behaviour">Script behaviour</h3>
 <p>Several metadata lines define the general behaviour of the script.</p>
@@ -142,17 +147,30 @@
 <p><code>##dont_load_any_packages</code> specifies that no packages, besides what is directly specified in script, should be loaded. This means that neither of <strong>sf</strong>, <strong>raster</strong>, <strong>sp</strong> or <strong>rgdal</strong> packages is loaded automatically. If spatial data (either raster or vector) should be passed to this script, the metadata <code>##pass_filenames</code> should be used as well.</p>
 <p><code>##user1/repo1,user2/repo2=github_install</code> allows instalation of <strong>R packages</strong> from GitHub using <a href="https://CRAN.R-project.org/package=remotes">remotes</a>. Multiple repos can be specified and divided by coma, white spaces around are stripped. The formats for repository specification are listed on <a href="https://remotes.r-lib.org/#usage">remotes website</a>.</p>
 <h3 id="inputs">Inputs</h3>
-<p>The inputs to R script are specified as: <code>variable_name=variable_type [default_value/from_variable]</code>. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification <em>variable_name</em> is the name of the variable used in R script, <em>variable_type</em> is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).</p>
+<h4 id="qgis-script-code-description">QGIS Script code description</h4>
+<p>The inputs to R script are specified as: <code>variable_name=variable_type [default_value/from_variable]</code>. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification <em>variable_name</em> is the name of the variable used in R script, <em>variable_type</em> is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).
+This metadata line is based on the QGIS parameter <code>asScriptCode</code> / <code>fromScriptCode</code> string definition.</p>
 <p>The <em>default_value</em> is applicable to number, string and boolean inputs.</p>
 <p>The <em>from</em> variable_ applies to Field and must point to <em>variable_name</em> of vector input.</p>
 <p>So the inputs can look like this:</p>
 <p><code>##Layer=vector</code> specifies that there will be variable <code>Layer</code> that will be a vector.</p>
 <p><code>##Size=number 10</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>10</code>.</p>
 <p><code>##X=Field Layer</code> specifies that variable <code>X</code> will be field name taken from <code>Layer</code>.</p>
-<h4 id="enum">Enum</h4>
+<h5 id="enum">Enum</h5>
 <p>The basic enum syntax is <code>##var_enum=enum a;b;c</code> to select from values <code>a</code>, <code>b</code> or <code>c</code>. The value of <code>var_enum</code> in this case will be integer indicated position of the selected item in a list. So for example, if <code>a</code> is selected the value of <code>var_enum</code> will be <code>0</code>.</p>
 <p>The approach described above works well for a wide range of applications but for <strong>R</strong> it is often not ideal. That is a reason why a new type of enum is available in script syntax.</p>
 <p>The syntax is <code>##var_enum_string=enum literal a;b;c</code>. The important part here is the keyword <code>literal</code> (or more precisely <code>enum literal</code>) which specifies that the value from the select box to <code>var_enum_string</code> should be passed as a string. So if <code>b</code> is selected, then the value of <code>var_enum_string</code> will be <code>"a"</code>.</p>
+<h4 id="qgis-definitions-used-in-description-files">QGIS definitions used in description files</h4>
+<p>The inputs to R script are specified as: <code>QgsProcessingParameter|name|description|defaultValue|other_parameters_separated_by_pipe</code>.
+The <em>other</em> parameter_ separated_ by_ pipe_ can contain the <code>QgsProcessingParameter</code> specific parameters.
+This metdata line is based on the QGIS definitions used in description file used by GRASS7, SAGA and others providers.</p>
+<p>So the inputs can look like this:</p>
+<p><code>##QgsProcessingParameterFeatureSource|INPUT|Points|0|None|False</code> specifies that there will be varaible <code>INPUT</code> that will be a vector.</p>
+<p><code>##QgsProcessingParameterField|FIELDS|Attributes|None|INPUT|-1|False|False</code> specifies taht there will be varaible <code>FIELDS</code> that will be a field index.</p>
+<p><code>##QgsProcessingParameterRasterLayer|INPUT|Grid|None|False</code> specifies that there will be varaible <code>INPUT</code> that will be a raster.</p>
+<p><code>##QgsProcessingParameterNumber|SIZE|Aggregation Size|QgsProcessingParameterNumber.Integer|3|False|None|None</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>3</code>.</p>
+<p><code>##QgsProcessingParameterEnum|METHOD|Method|[0] Sum;[1] Min;[2] Max</code> specifies that there will be variable <code>METHOD</code> that will be a value provided under <code>[]</code>.</p>
+<p><code>##QgsProcessingParameterVectorDestination|OUTPUT|Result</code> specifies that there will be variable <code>OUTPUT</code> that will be the destination file.</p>
 <h3 id="outputs">Outputs</h3>
 <p>The outputs of R script are specified as <code>##variable_name=output output_type</code>. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification <em>variable_name</em> specifies variable from the script that will be exported back to QGIS, <em>output_type</em> is one of the allowed types that can be returned from R script (layer, raster, folder, file, HTML, number, string, table).</p>
 <p>So the outputs can look like this:</p>
