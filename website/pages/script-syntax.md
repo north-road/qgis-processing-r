@@ -35,7 +35,7 @@ Several metadata lines define the general behaviour of the script.
 
 ### Inputs
 
-#### QGIS Script code description
+#### Simple specification
 
 The inputs to R script are specified as: `variable_name=variable_type [default_value/from_variable]`. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification _variable_name_ is the name of the variable used in R script, _variable_type_ is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).
 This metadata line is based on the QGIS parameter `asScriptCode` / `fromScriptCode` string definition.
@@ -60,7 +60,7 @@ The approach described above works well for a wide range of applications but for
 
 The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is the keyword `literal` (or more precisely `enum literal`) which specifies that the value from the select box to `var_enum_string` should be passed as a string. So if `b` is selected, then the value of `var_enum_string` will be `"a"`.
 
-#### QGIS definitions used in description files
+#### Advanced specification
 
 
 The inputs to R script are specified as: `QgsProcessingParameter|name|description|other_parameters_separated_by_pipe`.
