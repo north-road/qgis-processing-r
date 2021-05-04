@@ -145,6 +145,14 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(csv_dest_param.type(), 'fileDestination')
         self.assertEqual(csv_dest_param.defaultFileExtension(), 'csv')
 
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_3.rsx'))
+        alg.initAlgorithm()
+        self.assertFalse(alg.error)
+        self.assertEqual(alg.name(), 'thealgid')
+        self.assertEqual(alg.displayName(), 'the algo title')
+        self.assertEqual(alg.group(), 'my group')
+        self.assertEqual(alg.groupId(), 'my group')
+
     def testBadAlgorithm(self):
         """
         Test a bad script

@@ -6,7 +6,14 @@ The script loads necessary packages by itself. Combination of _sp_ and _rgdal_ o
 
 ## Metadata
 
+The R script's file name is used to define the script name and id in the R processing provider. You can override these
+default metadata with these lines.
+
 `##script_name=name` _script_name_ is the name of the script; under this name, it will be listed in processing toolbox.
+It is also used to define the script id in the R processing provider.
+
+`##script_title=display_name` _script_title_ is the title of the script; under this title, it will be listed in processing toolbox.
+It overrides the _name_ if it is defined after.
 
 `##group_name=group` _group_name_ is the name of the group of the script, which allows sorting of scripts into groups in processing toolbox.
 
@@ -28,7 +35,10 @@ Several metadata lines define the general behaviour of the script.
 
 ### Inputs
 
+#### QGIS Script code description
+
 The inputs to R script are specified as: `variable_name=variable_type [default_value/from_variable]`. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification _variable_name_ is the name of the variable used in R script, _variable_type_ is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).
+This metadata line is based on the QGIS parameter `asScriptCode` / `fromScriptCode` string definition.
 
 The _default_value_ is applicable to number, string and boolean inputs.
 
@@ -42,13 +52,33 @@ So the inputs can look like this:
 
 `##X=Field Layer` specifies that variable `X` will be field name taken from `Layer`.
 
-#### Enum
+##### Enum
 
 The basic enum syntax is `##var_enum=enum a;b;c` to select from values `a`, `b` or `c`. The value of `var_enum` in this case will be integer indicated position of the selected item in a list. So for example, if `a` is selected the value of `var_enum` will be `0`.
 
 The approach described above works well for a wide range of applications but for **R** it is often not ideal. That is a reason why a new type of enum is available in script syntax.
 
 The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is the keyword `literal` (or more precisely `enum literal`) which specifies that the value from the select box to `var_enum_string` should be passed as a string. So if `b` is selected, then the value of `var_enum_string` will be `"a"`.
+
+#### QGIS definitions used in description files
+
+The inputs to R script are specified as: `QgsProcessingParameter|name|description|defaultValue|other_parameters_separated_by_pipe`.
+The _other_ parameter_ separated_ by_ pipe_ can contain the `QgsProcessingParameter` specific parameters.
+This metdata line is based on the QGIS definitions used in description file used by GRASS7, SAGA and others providers.
+
+So the inputs can look like this:
+
+`##QgsProcessingParameterFeatureSource|INPUT|Points|0|None|False` specifies that there will be varaible `INPUT` that will be a vector.
+
+`##QgsProcessingParameterField|FIELDS|Attributes|None|INPUT|-1|False|False` specifies taht there will be varaible `FIELDS` that will be a field index.
+
+`##QgsProcessingParameterRasterLayer|INPUT|Grid|None|False` specifies that there will be varaible `INPUT` that will be a raster.
+
+`##QgsProcessingParameterNumber|SIZE|Aggregation Size|QgsProcessingParameterNumber.Integer|3|False|None|None` specifies that there will be variable `Size` that will be numeric, and a default value for `Size` will be `3`.
+
+`##QgsProcessingParameterEnum|METHOD|Method|[0] Sum;[1] Min;[2] Max` specifies that there will be variable `METHOD` that will be a value provided under `[]`.
+
+`##QgsProcessingParameterVectorDestination|OUTPUT|Result` specifies that there will be variable `OUTPUT` that will be the destination file.
 
 ### Outputs
 
