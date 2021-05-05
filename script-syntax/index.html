@@ -147,7 +147,7 @@ It overrides the <em>name</em> if it is defined after.</p>
 <p><code>##dont_load_any_packages</code> specifies that no packages, besides what is directly specified in script, should be loaded. This means that neither of <strong>sf</strong>, <strong>raster</strong>, <strong>sp</strong> or <strong>rgdal</strong> packages is loaded automatically. If spatial data (either raster or vector) should be passed to this script, the metadata <code>##pass_filenames</code> should be used as well.</p>
 <p><code>##user1/repo1,user2/repo2=github_install</code> allows instalation of <strong>R packages</strong> from GitHub using <a href="https://CRAN.R-project.org/package=remotes">remotes</a>. Multiple repos can be specified and divided by coma, white spaces around are stripped. The formats for repository specification are listed on <a href="https://remotes.r-lib.org/#usage">remotes website</a>.</p>
 <h3 id="inputs">Inputs</h3>
-<h4 id="qgis-script-code-description">QGIS Script code description</h4>
+<h4 id="simple-specification">Simple specification</h4>
 <p>The inputs to R script are specified as: <code>variable_name=variable_type [default_value/from_variable]</code>. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification <em>variable_name</em> is the name of the variable used in R script, <em>variable_type</em> is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).
 This metadata line is based on the QGIS parameter <code>asScriptCode</code> / <code>fromScriptCode</code> string definition.</p>
 <p>The <em>default_value</em> is applicable to number, string and boolean inputs.</p>
@@ -160,17 +160,48 @@ This metadata line is based on the QGIS parameter <code>asScriptCode</code> / <c
 <p>The basic enum syntax is <code>##var_enum=enum a;b;c</code> to select from values <code>a</code>, <code>b</code> or <code>c</code>. The value of <code>var_enum</code> in this case will be integer indicated position of the selected item in a list. So for example, if <code>a</code> is selected the value of <code>var_enum</code> will be <code>0</code>.</p>
 <p>The approach described above works well for a wide range of applications but for <strong>R</strong> it is often not ideal. That is a reason why a new type of enum is available in script syntax.</p>
 <p>The syntax is <code>##var_enum_string=enum literal a;b;c</code>. The important part here is the keyword <code>literal</code> (or more precisely <code>enum literal</code>) which specifies that the value from the select box to <code>var_enum_string</code> should be passed as a string. So if <code>b</code> is selected, then the value of <code>var_enum_string</code> will be <code>"a"</code>.</p>
-<h4 id="qgis-definitions-used-in-description-files">QGIS definitions used in description files</h4>
-<p>The inputs to R script are specified as: <code>QgsProcessingParameter|name|description|defaultValue|other_parameters_separated_by_pipe</code>.
+<h4 id="advanced-specification">Advanced specification</h4>
+<p>The inputs to R script are specified as: <code>QgsProcessingParameter|name|description|other_parameters_separated_by_pipe</code>.
 The <em>other</em> parameter_ separated_ by_ pipe_ can contain the <code>QgsProcessingParameter</code> specific parameters.
-This metdata line is based on the QGIS definitions used in description file used by GRASS7, SAGA and others providers.</p>
+This metadata line is based on the QGIS definitions used in description file used by GRASS7, SAGA and others providers.</p>
 <p>So the inputs can look like this:</p>
-<p><code>##QgsProcessingParameterFeatureSource|INPUT|Points|0|None|False</code> specifies that there will be varaible <code>INPUT</code> that will be a vector.</p>
-<p><code>##QgsProcessingParameterField|FIELDS|Attributes|None|INPUT|-1|False|False</code> specifies taht there will be varaible <code>FIELDS</code> that will be a field index.</p>
-<p><code>##QgsProcessingParameterRasterLayer|INPUT|Grid|None|False</code> specifies that there will be varaible <code>INPUT</code> that will be a raster.</p>
-<p><code>##QgsProcessingParameterNumber|SIZE|Aggregation Size|QgsProcessingParameterNumber.Integer|3|False|None|None</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>3</code>.</p>
+<p><code>##QgsProcessingParameterFeatureSource|INPUT|Vector layer</code> specifies that there will be variable <code>INPUT</code> that will be a vector.</p>
+<p><code>##QgsProcessingParameterField|FIELDS|Attributes|None|INPUT|-1|False|False</code> specifies that there will be variable <code>FIELDS</code> that will be a field index.</p>
+<p><code>##QgsProcessingParameterRasterLayer|INPUT|Grid</code> specifies that there will be variable <code>INPUT</code> that will be a raster.</p>
+<p><code>##QgsProcessingParameterNumber|SIZE|Aggregation Size|QgsProcessingParameterNumber.Integer|10</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>10</code>.</p>
 <p><code>##QgsProcessingParameterEnum|METHOD|Method|[0] Sum;[1] Min;[2] Max</code> specifies that there will be variable <code>METHOD</code> that will be a value provided under <code>[]</code>.</p>
 <p><code>##QgsProcessingParameterVectorDestination|OUTPUT|Result</code> specifies that there will be variable <code>OUTPUT</code> that will be the destination file.</p>
+<h5 id="feature-source">Feature source</h5>
+<p>QgsProcessingParameterFeatureSource|name|description|geometry type|default value|optional
+* <em>name</em> is mandatory
+* <em>description</em> is mandatory
+* <em>geometry type</em> is optional and the default value is <code>-1</code> for any geometry, the available values are <code>0</code> for point, <code>1</code> for line, <code>2</code> for polygon, <code>5</code> for table
+* <em>default value</em> is optional and the default value is <code>None</code>
+* <em>optional</em> is optional and the default value is <code>False</code></p>
+<p><code>##QgsProcessingParameterFeatureSource|INPUT|Points|0</code> specifies that there will be variable <code>INPUT</code> that will be a vector point layer.</p>
+<p><code>##QgsProcessingParameterFeatureSource|INPUT|Lines|1</code> specifies that there will be variable <code>INPUT</code> that will be a vector line layer.</p>
+<p><code>##QgsProcessingParameterFeatureSource|INPUT|Polygons|2</code> specifies that there will be variable <code>INPUT</code> that will be a vector polygon layer.</p>
+<p><code>##QgsProcessingParameterFeatureSource|INPUT|Table|5</code> specifies that there will be variable <code>INPUT</code> that will be a vector layer to provide table.</p>
+<p><code>##QgsProcessingParameterFeatureSource|INPUT|Optional layer|-1|None|True</code> specifies that there will be variable <code>INPUT</code> that will be an optional vector layer.</p>
+<h5 id="raster-layer">Raster layer</h5>
+<p>QgsProcessingParameterRasterLayer|name|description|default value|optional
+* <em>name</em> is mandatory
+* <em>description</em> is mandatory
+* <em>default value</em> is optional and the default value is <code>None</code>
+* <em>optional</em> is optional and the default value is <code>False</code></p>
+<h5 id="file-or-folder-parameter">File or folder parameter</h5>
+<p>QgsProcessingParameterFile|name|description|behavior|extension|default value|optional|file filter
+* <em>name</em> is mandatory
+* <em>description</em> is mandatory
+* <em>behavior</em> is optional and the default value is <code>0</code> for file, <code>1</code> is for folder input parameter
+* <em>extension</em> is optional and specifies a file extension associated with the parameter (e.g. <code>html</code>). Use <em>file filter</em> for a more flexible approach which allows for multiple file extensions. if <em>file filter</em> is specified it takes precedence and <em>extension</em> is emptied.
+* <em>default value</em> is optional and the default value is <code>None</code>
+* <em>optional</em> is optional and the default value is <code>False</code>
+* <em>file filter</em> is optional and specifies the available file extensions associted sith the parameter (e.g. <code>PNG Files (*.png);; JPG Files (*.jpg *.jpeg)</code>)</p>
+<p><code>##QgsProcessingParameterFile|in_file|Input file</code> specifies that there will be variable <code>in_file</code> that will be any file.</p>
+<p><code>##QgsProcessingParameterFile|in_folder|Input folder|1</code> specifies that there will be variable <code>in_folder</code> that will be a folder.</p>
+<p><code>##QgsProcessingParameterFile|in_gpkg|Input gpkg|0|gpkg</code> specifies that there will be variable <code>in_gpkg</code> that will be gpkg file.</p>
+<p><code>##QgsProcessingParameterFile|in_img|Input img|0|png|None|False|PNG Files (*.png);; JPG Files (*.jpg *.jpeg)</code>  specifies that there will be variable <code>in_img</code> that will be an image PNG or JPG.</p>
 <h3 id="outputs">Outputs</h3>
 <p>The outputs of R script are specified as <code>##variable_name=output output_type</code>. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification <em>variable_name</em> specifies variable from the script that will be exported back to QGIS, <em>output_type</em> is one of the allowed types that can be returned from R script (layer, raster, folder, file, HTML, number, string, table).</p>
 <p>So the outputs can look like this:</p>
