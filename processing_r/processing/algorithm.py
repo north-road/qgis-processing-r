@@ -154,6 +154,16 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         return self._group
 
+    def add_error_message(self, message):
+        """
+        Add error message to algorithme errors
+        """
+        if not self.error:
+            self.error = message
+        else:
+            self.error += '\n'
+            self.error += message
+
     def load_from_string(self):
         """
         Load the algorithm from a string
@@ -197,9 +207,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             if line.startswith('##'):
                 try:
                     self.process_metadata_line(line)
-                except Exception:  # pylint: disable=broad-except
-                    self.error = self.tr('This script has a syntax error.\n'
-                                         'Problem with line: {0}').format(line)
+                except Exception as e:  # pylint: disable=broad-except
+                    self.add_error_message(
+                        self.tr('This script has a syntax error.\n'
+                                'Exception {1} with line: {0}').format(line, e)
+                    )
             elif line.startswith('>'):
                 self.commands.append(line[1:])
                 if not self.show_console_output:
@@ -281,6 +293,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Attempts to split a line into tokens
         """
+        if "|" in line and line.startswith("QgsProcessing"):
+            tokens = line.split("|")
+            return tokens[1], line
+
         tokens = line.split('=')
         return tokens[0], tokens[1]
 
@@ -292,9 +308,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         description = RUtils.create_descriptive_name(value)
 
         if not RUtils.is_valid_r_variable(value):
-            self.error = self.tr('This script has a syntax error in variable name.\n'
-                                 '"{1}" is not a valid variable name in R.'
-                                 'Problem with line: {0}').format(line, value)
+            self.add_error_message(
+                self.tr('This script has a syntax error in variable name.\n'
+                        '"{1}" is not a valid variable name in R.'
+                        'Problem with line: {0}').format(line, value)
+            )
 
         output = create_output_from_string(line)
         if output is not None:
@@ -317,8 +335,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
                 self.addParameter(param)
             else:
-                self.error = self.tr('This script has a syntax error.\n'
-                                     'Problem with line: {0}').format(line)
+                self.add_error_message(
+                    self.tr('This script has a syntax error.\n'
+                            'Problem with line: {0}').format(line)
+                )
 
     def canExecute(self):
         """

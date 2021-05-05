@@ -18,6 +18,7 @@ import unittest
 import os
 from qgis.core import (Qgis,
                        QgsProcessingParameterNumber,
+                       QgsProcessingParameterFile,
                        QgsProcessing,
                        QgsProcessingContext,
                        QgsProcessingFeedback,
@@ -145,6 +146,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(csv_dest_param.type(), 'fileDestination')
         self.assertEqual(csv_dest_param.defaultFileExtension(), 'csv')
 
+        # test display_name
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_3.rsx'))
         alg.initAlgorithm()
         self.assertFalse(alg.error)
@@ -152,6 +154,87 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.displayName(), 'the algo title')
         self.assertEqual(alg.group(), 'my group')
         self.assertEqual(alg.groupId(), 'my group')
+
+        # test that inputs are defined as parameter description
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_4.rsx'))
+        alg.initAlgorithm()
+        self.assertFalse(alg.error)
+        self.assertEqual(alg.name(), 'mytest')
+        self.assertEqual(alg.displayName(), 'my test')
+        self.assertEqual(alg.group(), 'my group')
+        self.assertEqual(alg.groupId(), 'my group')
+
+        raster_param = alg.parameterDefinition('in_raster')
+        self.assertEqual(raster_param.type(), 'raster')
+        vector_param = alg.parameterDefinition('in_vector')
+        self.assertEqual(vector_param.type(), 'source')
+        field_param = alg.parameterDefinition('in_field')
+        self.assertEqual(field_param.type(), 'field')
+        self.assertEqual(field_param.parentLayerParameterName(), 'in_vector')
+        extent_param = alg.parameterDefinition('in_extent')
+        self.assertEqual(extent_param.type(), 'extent')
+        crs_param = alg.parameterDefinition('in_crs')
+        self.assertEqual(crs_param.type(), 'crs')
+        string_param = alg.parameterDefinition('in_string')
+        self.assertEqual(string_param.type(), 'string')
+        number_param = alg.parameterDefinition('in_number')
+        self.assertEqual(number_param.type(), 'number')
+        self.assertEqual(number_param.dataType(), QgsProcessingParameterNumber.Integer)
+        enum_param = alg.parameterDefinition('in_enum')
+        self.assertEqual(enum_param.type(), 'enum')
+        bool_param = alg.parameterDefinition('in_bool')
+        self.assertEqual(bool_param.type(), 'boolean')
+
+        file_param = alg.parameterDefinition('in_file')
+        self.assertEqual(file_param.type(), 'file')
+        self.assertEqual(file_param.behavior(), QgsProcessingParameterFile.File)
+        folder_param = alg.parameterDefinition('in_folder')
+        self.assertEqual(folder_param.type(), 'file')
+        self.assertEqual(folder_param.behavior(), QgsProcessingParameterFile.Folder)
+        gpkg_param = alg.parameterDefinition('in_gpkg')
+        self.assertEqual(gpkg_param.type(), 'file')
+        self.assertEqual(gpkg_param.behavior(), QgsProcessingParameterFile.File)
+        self.assertEqual(gpkg_param.extension(), 'gpkg')
+        img_param = alg.parameterDefinition('in_img')
+        self.assertEqual(img_param.type(), 'file')
+        self.assertEqual(img_param.behavior(), QgsProcessingParameterFile.File)
+        self.assertEqual(img_param.extension(), '')
+        self.assertEqual(img_param.fileFilter(), 'PNG Files (*.png);; JPG Files (*.jpg *.jpeg)')
+
+        vector_dest_param = alg.parameterDefinition('param_vector_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorAnyGeometry)
+        vector_dest_param = alg.parameterDefinition('param_vector_point_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorPoint)
+        vector_dest_param = alg.parameterDefinition('param_vector_line_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorLine)
+        vector_dest_param = alg.parameterDefinition('param_vector_polygon_dest')
+        self.assertEqual(vector_dest_param.type(), 'vectorDestination')
+        self.assertEqual(vector_dest_param.dataType(), QgsProcessing.TypeVectorPolygon)
+        table_dest_param = alg.parameterDefinition('param_table_dest')
+        self.assertEqual(table_dest_param.type(), 'vectorDestination')
+        self.assertEqual(table_dest_param.dataType(), QgsProcessing.TypeVector)
+        raster_dest_param = alg.parameterDefinition('param_raster_dest')
+        self.assertEqual(raster_dest_param.type(), 'rasterDestination')
+
+        folder_dest_param = alg.parameterDefinition('param_folder_dest')
+        self.assertEqual(folder_dest_param.type(), 'folderDestination')
+        file_dest_param = alg.parameterDefinition('param_file_dest')
+        self.assertEqual(file_dest_param.type(), 'fileDestination')
+        html_dest_param = alg.parameterDefinition('param_html_dest')
+        self.assertEqual(html_dest_param.type(), 'fileDestination')
+        self.assertEqual(html_dest_param.fileFilter(), 'HTML Files (*.html)')
+        self.assertEqual(html_dest_param.defaultFileExtension(), 'html')
+        csv_dest_param = alg.parameterDefinition('param_csv_dest')
+        self.assertEqual(csv_dest_param.type(), 'fileDestination')
+        self.assertEqual(csv_dest_param.fileFilter(), 'CSV Files (*.csv)')
+        self.assertEqual(csv_dest_param.defaultFileExtension(), 'csv')
+        img_dest_param = alg.parameterDefinition('param_img_dest')
+        self.assertEqual(img_dest_param.type(), 'fileDestination')
+        self.assertEqual(img_dest_param.fileFilter(), 'PNG Files (*.png);; JPG Files (*.jpg *.jpeg)')
+        self.assertEqual(img_dest_param.defaultFileExtension(), 'png')
 
     def testBadAlgorithm(self):
         """
