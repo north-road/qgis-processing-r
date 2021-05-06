@@ -30,19 +30,24 @@ import codecs
 import inspect
 import traceback
 import warnings
+from functools import partial
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QCursor
 from qgis.PyQt.QtWidgets import (QMessageBox,
-                                 QFileDialog)
+                                 QFileDialog,
+                                 QMenu,
+                                 QAction,
+                                 QToolButton)
 
 from qgis.gui import QgsGui, QgsErrorDialog
 from qgis.core import (QgsApplication,
                        QgsSettings,
                        QgsError,
                        QgsProcessingAlgorithm,
-                       QgsProcessingFeatureBasedAlgorithm)
+                       QgsProcessingFeatureBasedAlgorithm,
+                       QgsProcessingParameterType)
 from qgis.utils import iface, OverrideCursor
 # from qgis.processing import alg as algfactory
 
@@ -52,6 +57,7 @@ from processing.script import ScriptUtils
 from processing_r.processing.utils import RUtils
 from processing_r.processing.algorithm import RAlgorithm
 from processing_r.gui.gui_utils import GuiUtils
+from processing_r.gui.script_editor.parameter_definition_dialog import create_new_parameter
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 
@@ -133,6 +139,32 @@ class ScriptEditorDialog(BASE, WIDGET):
             self._loadFile(filePath)
 
         self.setHasChanged(False)
+
+        # new code - not in QGIS master
+        self.new_parameter_menu = QMenu()
+        sorted_parameter_types = sorted(QgsApplication.instance().processingRegistry().parameterTypes(), key=lambda pt: pt.name())
+        for param in sorted_parameter_types:
+            if param.flags() & QgsProcessingParameterType.ExposeToModeler:
+                new_parameter_action = QAction(param.name(), parent=self.new_parameter_menu)
+                new_parameter_action.triggered.connect(partial(self.add_parameter,param.id()))
+                self.new_parameter_menu.addAction(new_parameter_action)
+
+        self.add_parameter_button = QToolButton()
+        self.add_parameter_button.setText(self.tr('Add Input Parameter'))
+        self.add_parameter_button.setPopupMode(QToolButton.InstantPopup)
+        self.add_parameter_button.setMenu(self.new_parameter_menu)
+        self.toolBar.addWidget(self.add_parameter_button)
+
+    def add_parameter(self, parameter_type):
+        """
+        Allows users to create a new parameter of a given type
+        """
+        param = create_new_parameter(parameter_type, script_contents=self.editor.text())
+        if param is None:
+            return
+
+        definition = param.asScriptCode() + '\n'
+        self.editor.insert(definition)
 
     def update_dialog_title(self):
         """
