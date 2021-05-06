@@ -1,5 +1,7 @@
 # Changelog
 
+- 3.0.0 Added support for `QgsProcessingParameter*` strings, that can be used to define script parameters. Better handling of errors in R scripts. New script parameter `##script_title`, that can be used to define string under which the script is listed in QGIS Toolbox.
+
 - 2.3.0 Introduces support for QgsProcessingParameterPoint as an input variable, set parameter help strings under QGIS 3.16 or later
 
 - 2.2.2 Make sure that FolderDestination and FileDestination folders exist, otherwise that would have to be handled by R script
