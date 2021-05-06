@@ -2,11 +2,14 @@ name: github pages
 
 on:
   push:
-    paths: website/**
+    paths: processing_r/metadata.txt
 
 jobs:
+
   build-deploy:
+
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v1
 
