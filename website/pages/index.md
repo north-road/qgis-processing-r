@@ -12,6 +12,10 @@ make zip
 ```
 in the main directory. The produced zip file can then be installed in QGIS from **Plugins** tool in the **Install from zip** window.
 
+## Contributors
+
+[List of project contributors on GitHub.](https://github.com/north-road/qgis-processing-r/graphs/contributors)
+
 ## R
 
 [R](https://www.r-project.org) is a free and open-source software environment for statistical computing and graphics.
