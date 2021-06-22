@@ -1,3 +1,4 @@
+##Example scripts=group
 ##Min_Max=name
 ##Layer=vector
 ##Field=Field Layer
