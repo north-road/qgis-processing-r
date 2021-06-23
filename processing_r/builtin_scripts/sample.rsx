@@ -1,3 +1,4 @@
+##Example scripts=group
 ##Scatterplot=name
 ##output_plots_to_html
 ##Layer=vector
