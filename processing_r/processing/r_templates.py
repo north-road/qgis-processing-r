@@ -19,6 +19,7 @@ from qgis.core import (QgsCoordinateReferenceSystem,
 
 from processing_r.processing.utils import RUtils
 
+from PyQt5.QtGui import QColor
 
 class RTemplates:  # pylint: disable=too-many-public-methods
     """
@@ -599,5 +600,43 @@ class RTemplates:  # pylint: disable=too-many-public-methods
                                                                   point.y()))
             commands.append('point_crs <- CRS(\'{}\')'.format(crs.toProj4()))
             commands.append('{} <- SpatialPoints(xy_df, proj4string = point_crs)'.format(variable))
+
+        return commands
+
+    def set_range(self,
+                  variable: str,
+                  range: list) -> list:
+        """
+        Produces R code that creates a variable from range input.
+
+        :param variable: string. Name of the variable.
+        :param range: QgsDoubleRange. list of values min-max.
+        :return: string. R code that constructs the vector.
+        """
+
+        commands = []
+        commands.append('{0} <- c(min = {1}, max = {2})'.format( variable,
+                                                                 range[0],
+                                                                 range[1]))
+
+        return commands
+
+    def set_color(self,
+                  variable: str,
+                  color: QColor) -> list:
+        """
+        Produces R code that creates a variable from range input.
+
+        :param variable: string. Name of the variable.
+        :param range: QColor. Red, green, blue and alpha values.
+        :return: string. R code that constructs the color hex string.
+        """
+
+        commands = []
+        commands.append('{0} <- rgb({1}, {2}, {3}, {4}, maxColorValue = 255)'.format( variable,
+                                                                 color.red(),
+                                                                 color.green(),
+                                                                 color.blue(),
+                                                                 color.alpha()))
 
         return commands
