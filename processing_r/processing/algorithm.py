@@ -43,6 +43,8 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterFolderDestination,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterPoint,
+                       QgsProcessingParameterRange,
+                       QgsProcessingParameterColor,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
@@ -655,6 +657,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 point: QgsPointXY = self.parameterAsPoint(parameters, param.name(), context)
                 crs: QgsCoordinateReferenceSystem = self.parameterAsPointCrs(parameters, param.name(), context)
                 commands.extend(self.r_templates.set_point(param.name(), point, crs))
+            elif isinstance(param, QgsProcessingParameterRange):
+                range: list = self.parameterAsRange(parameters, param.name(), context)
+                commands.extend(self.r_templates.set_range(param.name(), range))
+            elif isinstance(param, QgsProcessingParameterColor):
+                color: QColor = self.parameterAsColor(parameters, param.name(), context)
+                commands.extend(self.r_templates.set_color(param.name(), color))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
                 layer_idx = 0
                 layers = self.parameterAsLayerList(parameters, param.name(), context)
