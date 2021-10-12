@@ -56,6 +56,7 @@ from qgis.PyQt.QtCore import (
     QDir,
     QUrl
 )
+from PyQt5.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
 from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
@@ -658,8 +659,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 crs: QgsCoordinateReferenceSystem = self.parameterAsPointCrs(parameters, param.name(), context)
                 commands.extend(self.r_templates.set_point(param.name(), point, crs))
             elif isinstance(param, QgsProcessingParameterRange):
-                range: list = self.parameterAsRange(parameters, param.name(), context)
-                commands.extend(self.r_templates.set_range(param.name(), range))
+                rgn: list = self.parameterAsRange(parameters, param.name(), context)
+                commands.extend(self.r_templates.set_range(param.name(), rgn))
             elif isinstance(param, QgsProcessingParameterColor):
                 color: QColor = self.parameterAsColor(parameters, param.name(), context)
                 commands.extend(self.r_templates.set_color(param.name(), color))
