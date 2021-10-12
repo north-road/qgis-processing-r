@@ -17,9 +17,9 @@ from typing import List
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsPointXY)
 
-from processing_r.processing.utils import RUtils
-
 from PyQt5.QtGui import QColor
+
+from processing_r.processing.utils import RUtils
 
 class RTemplates:  # pylint: disable=too-many-public-methods
     """
@@ -605,19 +605,19 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
     def set_range(self,
                   variable: str,
-                  range: list) -> list:
+                  rgn: list) -> list:
         """
         Produces R code that creates a variable from range input.
 
         :param variable: string. Name of the variable.
-        :param range: QgsDoubleRange. list of values min-max.
+        :param rgn: QgsDoubleRange. list of values min-max.
         :return: string. R code that constructs the vector.
         """
 
         commands = []
         commands.append('{0} <- c(min = {1}, max = {2})'.format( variable,
-                                                                 range[0],
-                                                                 range[1]))
+                                                                 rgn[0],
+                                                                 rgn[1]))
 
         return commands
 
@@ -628,7 +628,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Produces R code that creates a variable from range input.
 
         :param variable: string. Name of the variable.
-        :param range: QColor. Red, green, blue and alpha values.
+        :param color: QColor. Red, green, blue and alpha values.
         :return: string. R code that constructs the color hex string.
         """
 
