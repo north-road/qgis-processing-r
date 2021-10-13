@@ -62,7 +62,7 @@ def _run_tests(test_suite, package_name, with_coverage=False):
             # cov.html_report()
             report.close()
 
-            with open(report.name, 'r') as fin:
+            with open(report.name, 'r', encoding='utf8') as fin:
                 print(fin.read())
 
 

@@ -184,7 +184,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         help_file = self.description_file + '.help'
         if os.path.exists(help_file):
-            with open(help_file) as f:
+            with open(help_file, encoding='utf8') as f:
                 self.descriptions = json.load(f)
 
         with open(self.description_file, 'r', encoding='utf8') as f:
@@ -196,7 +196,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         Parse the lines from an R script, initializing parameters and outputs as encountered
         """
         self.script = ''
-        self.commands = list()
+        self.commands = []
         self.error = None
         self.show_plots = False
         self.show_console_output = False
@@ -590,7 +590,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Builds the set of input commands for the algorithm
         """
-        commands = list()
+        commands = []
 
         for param in self.parameterDefinitions():
             if param.isDestination():
