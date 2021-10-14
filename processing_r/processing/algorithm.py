@@ -56,7 +56,7 @@ from qgis.PyQt.QtCore import (
     QDir,
     QUrl
 )
-from PyQt5.QtGui import QColor
+from qgis.PyQt.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
 from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
