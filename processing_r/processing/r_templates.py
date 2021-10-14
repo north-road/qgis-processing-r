@@ -17,6 +17,8 @@ from typing import List
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsPointXY)
 
+from qgis.PyQt.QtCore import QDateTime, Qt
+
 from qgis.PyQt.QtGui import QColor
 
 from processing_r.processing.utils import RUtils
@@ -213,7 +215,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         if self.use_sf:
             code = self.__set_variable_vector_sf(variable, path, layer)
         else:
-            code = self. __set_variable_vector_rgdal(variable, path, layer)
+            code = self.__set_variable_vector_rgdal(variable, path, layer)
 
         return code
 
@@ -467,7 +469,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param package_name: string. Name of the package to check.
         :return: string. R code to check the package and install it if missing.
         """
-        command = 'tryCatch(find.package("{0}"), error = function(e) install.packages("{0}", dependencies=TRUE))'\
+        command = 'tryCatch(find.package("{0}"), error = function(e) install.packages("{0}", dependencies=TRUE))' \
             .format(package_name)
 
         return command
@@ -546,7 +548,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         return commands
 
-# set of functions related to enum creation
+    # set of functions related to enum creation
     def add_literal_enum(self, enum_name: str):
         """
         Functions that registers enum as literal.
@@ -637,5 +639,21 @@ class RTemplates:  # pylint: disable=too-many-public-methods
                                                                                      color.green(),
                                                                                      color.blue(),
                                                                                      color.alpha()))
+
+        return commands
+
+    def set_datetime(self,
+                     variable: str,
+                     datetime: QDateTime) -> list:
+        """
+        Produces R code that creates a variable from datetime input.
+
+        :param variable: string. Name of the variable.
+        :param datetime: QDateTime. Red, green, blue and alpha values.
+        :return: string. R code that constructs the color hex string.
+        """
+        dtt = datetime.toString(format=Qt.ISODate)
+        commands = []
+        commands.append('{0} <- as.POSIXct("{1}", format = "%Y-%m-%dT%H:%M:%S")'.format(variable, dtt))
 
         return commands
