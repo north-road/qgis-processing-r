@@ -17,9 +17,10 @@ from typing import List
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsPointXY)
 
-from gis.PyQt.QtGui import QColor
+from qgis.PyQt.QtGui import QColor
 
 from processing_r.processing.utils import RUtils
+
 
 class RTemplates:  # pylint: disable=too-many-public-methods
     """
