@@ -24,6 +24,7 @@ from qgis.core import (Qgis,
                        QgsProcessingFeedback,
                        QgsVectorLayer,
                        QgsProcessingAlgorithm)
+from qgis.PyQt.QtGui import QColor
 from processing_r.processing.algorithm import RAlgorithm
 from .utilities import get_qgis_app
 
@@ -537,6 +538,38 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('library("sp")', script)
         self.assertIn('xy_df <- cbind(c(20.219926), c(49.138354))', script)
         self.assertIn('point <- SpatialPoints(xy_df, proj4string = point_crs)', script)
+
+    def testAlgRangeInput(self):
+        """
+        Test color parameter
+        """
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_input_range.rsx'))
+        alg.initAlgorithm()
+
+        script = alg.build_r_script({'range': [0, 1]}, context, feedback)
+        self.assertIn('range <- c(min = 0.0, max = 1.0)', script)
+        script = alg.build_r_script({'range': [5, 10]}, context, feedback)
+        self.assertIn('range <- c(min = 5.0, max = 10.0)', script)
+
+    def testAlgColorInput(self):
+        """
+        Test color parameter
+        """
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_input_color.rsx'))
+        alg.initAlgorithm()
+
+        script = alg.build_r_script({'color': QColor(0, 255, 0)}, context, feedback)
+        self.assertIn('color <- rgb(0, 255, 0, 255, maxColorValue = 255)', script)
+        script = alg.build_r_script({'color': QColor(255, 0, 0)}, context, feedback)
+        self.assertIn('color <- "#FF0000FF"', script)
 
 
 if __name__ == "__main__":
