@@ -45,6 +45,7 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterPoint,
                        QgsProcessingParameterRange,
                        QgsProcessingParameterColor,
+                       QgsProcessingParameterDateTime,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
@@ -54,7 +55,8 @@ from qgis.core import (Qgis,
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QDir,
-    QUrl
+    QUrl,
+    QDateTime
 )
 from qgis.PyQt.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
@@ -664,6 +666,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             elif isinstance(param, QgsProcessingParameterColor):
                 color: QColor = self.parameterAsColor(parameters, param.name(), context)
                 commands.extend(self.r_templates.set_color(param.name(), color))
+            elif isinstance(param, QgsProcessingParameterDateTime):
+                datetime: QDateTime = self.parameterAsDateTime(parameters, param.name(), context)
+                commands.extend(self.r_templates.set_datetime(param.name(), datetime))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
                 layer_idx = 0
                 layers = self.parameterAsLayerList(parameters, param.name(), context)

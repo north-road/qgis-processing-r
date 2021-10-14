@@ -24,6 +24,7 @@ from qgis.core import (Qgis,
                        QgsProcessingFeedback,
                        QgsVectorLayer,
                        QgsProcessingAlgorithm)
+from qgis.PyQt.QtCore import (QDateTime, QDate, QTime)
 from qgis.PyQt.QtGui import QColor
 from processing_r.processing.algorithm import RAlgorithm
 from .utilities import get_qgis_app
@@ -541,7 +542,7 @@ class AlgorithmTest(unittest.TestCase):
 
     def testAlgRangeInput(self):
         """
-        Test color parameter
+        Test range parameter
         """
 
         context = QgsProcessingContext()
@@ -572,6 +573,22 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('color <- rgb(0, 255, 0, 255, maxColorValue = 255)', script)
         script = alg.build_r_script({'color': QColor(255, 0, 0)}, context, feedback)
         self.assertIn('color <- rgb(255, 0, 0, 255, maxColorValue = 255)', script)
+
+    def testAlgDateTimeInput(self):
+        """
+        Test datetime parameter
+        """
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_input_datetime.rsx'))
+        alg.initAlgorithm()
+
+        script = alg.build_r_script({'datetime': QDateTime(QDate(2021, 10, 1), QTime(16, 57, 0))}, context, feedback)
+        self.assertIn('datetime <- as.POSIXct("2021-10-01T16:57:00", format = "%Y-%m-%dT%H:%M:%S")', script)
+        script = alg.build_r_script({'datetime': QDateTime(QDate(2021, 10, 14), QTime(14, 48, 52))}, context, feedback)
+        self.assertIn('datetime <- as.POSIXct("2021-10-14T14:48:52", format = "%Y-%m-%dT%H:%M:%S")', script)
 
 
 if __name__ == "__main__":
