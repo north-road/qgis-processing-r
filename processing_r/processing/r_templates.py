@@ -17,7 +17,7 @@ from typing import List
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsPointXY)
 
-from PyQt5.QtGui import QColor
+from gis.PyQt.QtGui import QColor
 
 from processing_r.processing.utils import RUtils
 
@@ -615,9 +615,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
 
         commands = []
-        commands.append('{0} <- c(min = {1}, max = {2})'.format( variable,
-                                                                 rgn[0],
-                                                                 rgn[1]))
+        commands.append('{0} <- c(min = {1}, max = {2})'.format(variable, rgn[0], rgn[1]))
 
         return commands
 
@@ -625,7 +623,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
                   variable: str,
                   color: QColor) -> list:
         """
-        Produces R code that creates a variable from range input.
+        Produces R code that creates a variable from color input.
 
         :param variable: string. Name of the variable.
         :param color: QColor. Red, green, blue and alpha values.
@@ -633,10 +631,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
 
         commands = []
-        commands.append('{0} <- rgb({1}, {2}, {3}, {4}, maxColorValue = 255)'.format( variable,
-                                                                 color.red(),
-                                                                 color.green(),
-                                                                 color.blue(),
-                                                                 color.alpha()))
+        commands.append('{0} <- rgb({1}, {2}, {3}, {4}, maxColorValue = 255)'.format(variable,
+                                                                                     color.red(),
+                                                                                     color.green(),
+                                                                                     color.blue(),
+                                                                                     color.alpha()))
 
         return commands
