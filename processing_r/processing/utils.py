@@ -203,7 +203,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         Returns the path to the temporary script file.
         """
         script_file = QgsProcessingUtils.generateTempFilename('processing_script.r')
-        with open(script_file, 'w') as f:
+        with open(script_file, 'w', encoding='utf8') as f:
             for command in commands:
                 f.write(command + '\n')
         return script_file
@@ -269,7 +269,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
 
         feedback.pushInfo(RUtils.tr('R execution console output'))
 
-        console_results = list()
+        console_results = []
 
         with subprocess.Popen(command,
                               stdout=subprocess.PIPE,

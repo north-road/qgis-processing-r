@@ -517,7 +517,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: list of str (commands)
         """
 
-        commands = list()
+        commands = []
 
         # Just use main mirror
         commands.append(self.set_option_repos(RUtils.package_repo()))

@@ -82,7 +82,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self._group = ''
         self.description_file = os.path.realpath(description_file) if description_file else None
         self.error = None
-        self.commands = list()
+        self.commands = []
         self.is_user_script = False
         if description_file:
             self.is_user_script = not description_file.startswith(RUtils.builtin_scripts_folder())
@@ -187,10 +187,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         help_file = self.description_file + '.help'
         if os.path.exists(help_file):
-            with open(help_file) as f:
+            with open(help_file, encoding='utf8') as f:
                 self.descriptions = json.load(f)
 
-        with open(self.description_file, 'r') as f:
+        with open(self.description_file, 'r', encoding='utf8') as f:
             lines = [line.strip() for line in f]
         self.parse_script(iter(lines))
 
@@ -199,7 +199,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         Parse the lines from an R script, initializing parameters and outputs as encountered
         """
         self.script = ''
-        self.commands = list()
+        self.commands = []
         self.error = None
         self.show_plots = False
         self.show_console_output = False
@@ -376,18 +376,18 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if self.show_plots:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
             if html_filename:
-                with open(html_filename, 'w') as f:
+                with open(html_filename, 'w', encoding='utf8') as f:
                     f.write('<html><img src="{}"/></html>'.format(QUrl.fromLocalFile(self.plots_filename).toString()))
                 self.results[RAlgorithm.RPLOTS] = html_filename
         if self.show_console_output:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.R_CONSOLE_OUTPUT, context)
             if html_filename:
-                with open(html_filename, 'w') as f:
+                with open(html_filename, 'w', encoding='utf8') as f:
                     f.write(RUtils.html_formatted_console_output(output))
                 self.results[RAlgorithm.R_CONSOLE_OUTPUT] = html_filename
 
         if self.save_output_values and self.output_values_filename:
-            with open(self.output_values_filename, 'r') as f:
+            with open(self.output_values_filename, 'r', encoding='utf8') as f:
                 lines = [line.strip() for line in f]
             # get output values stored into the file
             outputs = self.parse_output_values(iter(lines))
@@ -593,7 +593,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Builds the set of input commands for the algorithm
         """
-        commands = list()
+        commands = []
 
         for param in self.parameterDefinitions():
             if param.isDestination():
