@@ -40,7 +40,7 @@ Several metadata lines define the general behaviour of the script.
 The inputs to R script are specified as: `variable_name=variable_type [default_value/from_variable]`. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification _variable_name_ is the name of the variable used in R script, _variable_type_ is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).
 This metadata line is based on the QGIS parameter `asScriptCode` / `fromScriptCode` string definition.
 
-The _default_value_ is applicable to number, string and boolean inputs.
+The _default_value_ is applicable to number, string, boolean, range, color folder and file inputs.
 
 The _from_ variable_ applies to Field and must point to _variable_name_ of vector input.
 
@@ -48,9 +48,19 @@ So the inputs can look like this:
 
 `##Layer=vector` specifies that there will be variable `Layer` that will be a vector.
 
+`##X=Field Layer` specifies that variable `X` will be field name taken from `Layer`.
+
 `##Size=number 10` specifies that there will be variable `Size` that will be numeric, and a default value for `Size` will be `10`.
 
-`##X=Field Layer` specifies that variable `X` will be field name taken from `Layer`.
+`##Extent=extent` specifies that there will be variable `Extent` that will be numeric of length `4` (_xmin_, _xmax_, _ymin_ and _ymax_ values).
+
+`##CRS=crs` specifies that there will be variable `CRS` that will be `EPSG:____` string.
+
+`##Range=range 0,1` specifies that the `Range` variable will be a two numeric values vector with names (min/max values). The parameter accepts default values, e.g. `0,1`. A range widget will be displayed for setting the values.
+
+`##Color=color #FF0000` specifies that the `Color` variable will be a text string of the chosen color in hexadecimal format. This parameter will display a color selection widget. The parameter accepts default values, for example `#FF0000`. It does not accept transparency values.
+
+`##Date_Time=datetime` specifies that the `Date_Time` variable will be a `POSIXct` vector of length `1` of the date and time choosing from the `datetime` widget . The parameter does not accept default values, instead, the current date and time will set by default.
 
 ##### Enum
 
@@ -61,7 +71,6 @@ The approach described above works well for a wide range of applications but for
 The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is the keyword `literal` (or more precisely `enum literal`) which specifies that the value from the select box to `var_enum_string` should be passed as a string. So if `b` is selected, then the value of `var_enum_string` will be `"a"`.
 
 #### Advanced specification
-
 
 The inputs to R script are specified as: `QgsProcessingParameter|name|description|other_parameters_separated_by_pipe`.
 The _other_ parameter_ separated_ by_ pipe_ can contain the `QgsProcessingParameter` specific parameters.
