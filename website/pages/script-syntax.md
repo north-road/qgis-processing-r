@@ -58,7 +58,7 @@ So the inputs can look like this:
 
 `##Range=range 0,1` specifies that the `Range` variable will be a two numeric values vector with names (min/max values). The parameter accepts default values, e.g. `0,1`. A range widget will be displayed for setting the values.
 
-`##Color=color #FF0000` specifies that the `Color` variable will be a text string of the chosen color in hexadecimal format. This parameter will display a color selection widget. The parameter accepts default values, for example `#FF0000`. It does not accept transparency values.
+`##Color=color withopacity #FF0000CC` specifies that the `Color` variable will be a text string of the chosen color in hexadecimal format. This parameter will display a color selection widget. The parameter accepts default values, for example `#FF0000`. The opacity value depends on the `withopacity` option.
 
 `##Date_Time=datetime` specifies that the `Date_Time` variable will be a `POSIXct` vector of length `1` of the date and time choosing from the `datetime` widget . The parameter does not accept default values, instead, the current date and time will set by default.
 
