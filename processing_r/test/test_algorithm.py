@@ -373,9 +373,9 @@ class AlgorithmTest(unittest.TestCase):
             feedback)
         self.assertEqual(script, ['tempvar0 <- brick("{}")'.format(os.path.join(test_data_path, 'dem.tif')),
                                   'tempvar1 <- brick("{}")'.format(os.path.join(test_data_path, 'dem2.tif')),
-                                  'Layer = c(tempvar0,tempvar1)'])
+                                  'Layer = list(tempvar0,tempvar1)'])
         script = alg.build_import_commands({'Layer': []}, context, feedback)
-        self.assertEqual(script, ['Layer = c()'])
+        self.assertEqual(script, ['Layer = list()'])
 
     def testMultiVectorIn(self):
         """
@@ -394,9 +394,9 @@ class AlgorithmTest(unittest.TestCase):
             feedback)
         self.assertEqual(script, ['tempvar0 <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
                                   'tempvar1 <- readOGR("{}")'.format(os.path.join(test_data_path, 'points.gml')),
-                                  'Layer = c(tempvar0,tempvar1)'])
+                                  'Layer = list(tempvar0,tempvar1)'])
         script = alg.build_import_commands({'Layer': []}, context, feedback)
-        self.assertEqual(script, ['Layer = c()'])
+        self.assertEqual(script, ['Layer = list()'])
 
     def testMultiFieldIn(self):
         """
