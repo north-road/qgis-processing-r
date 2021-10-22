@@ -625,7 +625,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 crs = self.parameterAsCrs(parameters, param.name(), context)
                 if crs.isValid():
                     commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                         crs.authid()))
+                                                                         crs.toWkt()))
                 else:
                     commands.append(self.r_templates.set_variable_null(param.name()))
             elif isinstance(param, QgsProcessingParameterFile):
