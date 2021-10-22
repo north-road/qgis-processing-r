@@ -685,7 +685,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
                 s = ''
                 s += param.name()
-                s += ' = c('
+                s += ' = list('
                 layer_idx = 0
                 for _ in layers:
                     if layer_idx != 0:
