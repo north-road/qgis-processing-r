@@ -624,8 +624,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             elif isinstance(param, QgsProcessingParameterCrs):
                 crs = self.parameterAsCrs(parameters, param.name(), context)
                 if crs.isValid():
-                    commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                         crs.toWkt()))
+                    if crs.authid().lower().startswith("user:") or crs.authid() == "":
+                        commands.append(self.r_templates.set_variable_string(param.name(),
+                                                                             crs.toWkt(QgsCoordinateReferenceSystem.WKT2_2019_SIMPLIFIED)))
+                    else:
+                        commands.append(self.r_templates.set_variable_string(param.name(), crs.authid()))
                 else:
                     commands.append(self.r_templates.set_variable_null(param.name()))
             elif isinstance(param, QgsProcessingParameterFile):
