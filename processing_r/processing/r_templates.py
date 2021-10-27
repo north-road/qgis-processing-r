@@ -432,7 +432,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param path: string. Path to write the data to.
         :return: string. R code to write table data to disc.
         """
-        return 'write.csv({0}, "{1}")'.format(variable, path)
+        return 'write.csv({0}, "{1}", row.names = FALSE)'.format(variable, path)
 
     def install_package_github(self, repo: str) -> str:
         """
