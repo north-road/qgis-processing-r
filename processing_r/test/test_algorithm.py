@@ -436,11 +436,11 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
         self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")',
-                                  'write.csv(OutputCSV, "/home/test/tab.csv")'])
+                                  'write.csv(OutputCSV, "/home/test/tab.csv", row.names = FALSE)'])
         script = alg.build_export_commands({'Output': '/home/test/lines.gpkg', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
         self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.gpkg", "lines", driver="GPKG")',
-                                  'write.csv(OutputCSV, "/home/test/tab.csv")'])
+                                  'write.csv(OutputCSV, "/home/test/tab.csv", row.names = FALSE)'])
 
     def testMultiOutputs(self):
         """
@@ -457,7 +457,7 @@ class AlgorithmTest(unittest.TestCase):
                                            context, feedback)
 
         self.assertIn('writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")', script)
-        self.assertIn('write.csv(OutputCSV, "/home/test/tab.csv")', script)
+        self.assertIn('write.csv(OutputCSV, "/home/test/tab.csv", row.names = FALSE)', script)
         self.assertTrue(script[2].startswith('cat("##OutputFile", file='), script[2])
         self.assertTrue(script[3].startswith('cat(OutputFile, file='), script[3])
         self.assertTrue(script[4].startswith('cat("##OutputNum", file='), script[4])
