@@ -12,11 +12,11 @@
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
 
         <script src="../js/jquery-1.10.2.min.js" defer></script>
         <script src="../js/bootstrap.min.js" defer></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
         <script>hljs.initHighlightingOnLoad();</script> 
     </head>
 
@@ -150,12 +150,17 @@ It overrides the <em>name</em> if it is defined after.</p>
 <h4 id="simple-specification">Simple specification</h4>
 <p>The inputs to R script are specified as: <code>variable_name=variable_type [default_value/from_variable]</code>. This metadata line also specifies how tool UI will look in QGIS, as inputs are one section of the tool UI. In this specification <em>variable_name</em> is the name of the variable used in R script, <em>variable_type</em> is a type of input variable from possible input types (vector, raster, table, number, string, boolean, Field).
 This metadata line is based on the QGIS parameter <code>asScriptCode</code> / <code>fromScriptCode</code> string definition.</p>
-<p>The <em>default_value</em> is applicable to number, string and boolean inputs.</p>
+<p>The <em>default_value</em> is applicable to number, string, boolean, range, color folder and file inputs.</p>
 <p>The <em>from</em> variable_ applies to Field and must point to <em>variable_name</em> of vector input.</p>
 <p>So the inputs can look like this:</p>
 <p><code>##Layer=vector</code> specifies that there will be variable <code>Layer</code> that will be a vector.</p>
-<p><code>##Size=number 10</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>10</code>.</p>
 <p><code>##X=Field Layer</code> specifies that variable <code>X</code> will be field name taken from <code>Layer</code>.</p>
+<p><code>##Size=number 10</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>10</code>.</p>
+<p><code>##Extent=extent</code> specifies that there will be variable <code>Extent</code> that will be numeric of length <code>4</code> (<em>xmin</em>, <em>xmax</em>, <em>ymin</em> and <em>ymax</em> values).</p>
+<p><code>##CRS=crs</code> specifies that there will be variable <code>CRS</code> that will be <code>EPSG:____</code> string.</p>
+<p><code>##Range=range 0,1</code> specifies that the <code>Range</code> variable will be a two numeric values vector with names (min/max values). The parameter accepts default values, e.g. <code>0,1</code>. A range widget will be displayed for setting the values.</p>
+<p><code>##Color=color withopacity #FF0000CC</code> specifies that the <code>Color</code> variable will be a text string of the chosen color in hexadecimal format. This parameter will display a color selection widget. The parameter accepts default values, for example <code>#FF0000</code>. The opacity value depends on the <code>withopacity</code> option.</p>
+<p><code>##Date_Time=datetime</code> specifies that the <code>Date_Time</code> variable will be a <code>POSIXct</code> vector of length <code>1</code> of the date and time choosing from the <code>datetime</code> widget . The parameter does not accept default values, instead, the current date and time will set by default.</p>
 <h5 id="enum">Enum</h5>
 <p>The basic enum syntax is <code>##var_enum=enum a;b;c</code> to select from values <code>a</code>, <code>b</code> or <code>c</code>. The value of <code>var_enum</code> in this case will be integer indicated position of the selected item in a list. So for example, if <code>a</code> is selected the value of <code>var_enum</code> will be <code>0</code>.</p>
 <p>The approach described above works well for a wide range of applications but for <strong>R</strong> it is often not ideal. That is a reason why a new type of enum is available in script syntax.</p>
@@ -244,16 +249,13 @@ This metadata line is based on the QGIS definitions used in description file use
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             </div>
             <div class="modal-body">
-                <p>
-                    From here you can search these documents. Enter
-                    your search terms below.
-                </p>
+                <p>From here you can search these documents. Enter your search terms below.</p>
                 <form>
                     <div class="form-group">
                         <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
-                <div id="mkdocs-search-results"></div>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
             </div>
             <div class="modal-footer">
             </div>
