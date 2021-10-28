@@ -10,7 +10,7 @@
 name=Processing R Provider
 qgisMinimumVersion=3.4
 description=A Processing provider for connecting to the R statistics framework
-version=3.0.0
+version=3.1.0
 author=North Road
 email=nyall@north-road.com
 
@@ -23,7 +23,8 @@ repository=https://github.com/north-road/qgis-processing-r
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=3.0.0 Added support for `QgsProcessingParameter*` strings, that can be used to define script parameters. Better handling of errors in R scripts. New script parameter `##script_title`, that can be used to define string under which the script is listed in QGIS Toolbox.
+changelog=3.1.0 Support "range", "color", "datetime" input parameter types. Fixed list creation from multiple input layer parameters. Fix conversion of custom coordinate reference systems.
+    3.0.0 Added support for `QgsProcessingParameter*` strings, that can be used to define script parameters. Better handling of errors in R scripts. New script parameter `##script_title`, that can be used to define string under which the script is listed in QGIS Toolbox.
     2.3.0 Introduces support for QgsProcessingParameterPoint as an input variable, set parameter help strings under QGIS 3.16 or later
     2.2.2 Make sure that FolderDestination and FileDestination folders exist, otherwise that would have to be handled by R script causes issue if writing to temp directory which does not exist2.2.1 Fix file based outputs, R version number reporting
     2.2.1 Fix file based outputs, R version number reporting
