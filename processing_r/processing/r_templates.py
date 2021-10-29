@@ -318,6 +318,16 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         return "{0} <- NULL".format(variable)
 
+    def set_variable_geom(self, variable: str, geom_wkt_value: str) -> str:
+        """
+        Create sfg from WKT.
+
+        :param variable: string. Name of the variable.
+        :param geom_wkt_value: string. WKT of geometry.
+        :return: string. R code to creating variable of classes sfg.
+        """
+        return '{0} <- sf::st_as_sfc("{1}")[[1]]'.format(variable, geom_wkt_value)
+
     def create_png(self, path: str) -> str:
         """
         Funtion that produces R code to write PNG file at given location.
