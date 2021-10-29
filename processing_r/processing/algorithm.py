@@ -46,12 +46,18 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterRange,
                        QgsProcessingParameterColor,
                        QgsProcessingParameterDateTime,
+                       QgsProcessingParameterExpression,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
                        QgsPointXY,
                        QgsCoordinateReferenceSystem,
-                       QgsProcessingUtils)
+                       QgsProcessingUtils,
+                       QgsExpressionContext,
+                       QgsProcessingContext,
+                       QgsExpression,
+                       QgsGeometry)
+
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QDir,
@@ -61,7 +67,7 @@ from qgis.PyQt.QtCore import (
 from qgis.PyQt.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
 from processing_r.processing.outputs import create_output_from_string
-from processing_r.processing.utils import RUtils
+from processing_r.processing.utils import RUtils, log
 from processing_r.gui.gui_utils import GuiUtils
 from processing_r.processing.r_templates import RTemplates
 
@@ -101,6 +107,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.load_from_string()
         if self.description_file is not None:
             self.load_from_file()
+
+        self.alg_context = QgsExpressionContext()
 
     def createInstance(self):
         """
@@ -358,11 +366,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return True, ''
 
-    def processAlgorithm(self, parameters, context, feedback):
+    def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback):
         """
         Executes the algorithm
         """
         self.results = {}
+
+        self.alg_context = self.createExpressionContext(parameters, context)
 
         if RUtils.is_windows():
             path = RUtils.r_binary_folder()
@@ -698,6 +708,26 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 s += ')'
                 commands.append(s)
 
+            elif isinstance(param, QgsProcessingParameterExpression):
+
+                exp_text = self.parameterAsExpression(parameters, param.name(), context)
+
+                exp = QgsExpression(exp_text)
+
+                if not exp.prepare(self.alg_context):
+                    raise QgsProcessingException(
+                        self.tr(f'Expression with name `{param.name()}` and value `{exp_text}` is malformed. '
+                                f'Error: {exp.parserErrorString()}.'))
+
+                exp_result = exp.evaluate(self.alg_context)
+
+                if exp.hasEvalError():
+                    raise QgsProcessingException(
+                        self.tr(f'Expression with name `{param.name()}` and value `{exp_text}` can not be evaluated. '
+                                f'Error: {exp.evalErrorString()}.'))
+
+                commands.append(self.expression_as_r_command(param, exp_result))
+
         # folder, file/html output paths
         for param in self.destinationParameterDefinitions():
             if isinstance(param, QgsProcessingParameterFolderDestination):
@@ -721,6 +751,24 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             commands.append(self.r_templates.create_png(self.plots_filename))
 
         return commands
+
+    def expression_as_r_command(self, parameter, expression):
+
+        parameter_name = parameter.name()
+
+        if isinstance(expression, str):
+            return self.r_templates.set_variable_string(parameter_name, expression)
+
+        if isinstance(expression, (int, float)):
+            return self.r_templates.set_variable_directly(parameter_name, expression)
+
+        if isinstance(expression, QDateTime):
+            return self.r_templates.set_datetime(parameter_name, expression)
+
+        if isinstance(expression, QgsGeometry):
+            return self.r_templates.set_variable_geom(parameter_name, expression.asWkt())
+
+        return ""
 
     def build_r_commands(self, _, __, ___):
         """
