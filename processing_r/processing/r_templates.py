@@ -57,6 +57,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         Variable that stores if only file names, not data are passed to the script.
         """
+        self.expressions = []
+        """
+        Variable that stores header lines with QGIS expressions
+        """
 
     @property
     def auto_load_packages(self):
