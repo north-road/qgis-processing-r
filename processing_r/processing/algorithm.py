@@ -605,7 +605,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return self.r_templates.set_variable_raster(variable_name, value)
 
-    def build_expressions(self, parameters, context, feedback):
+    def build_expressions(self, parameters, context, feedback):  # pylint: disable=unused-argument
         """
         Builds set of R input data commands based on QGIS Expression variables.
         """
@@ -768,7 +768,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         return commands
 
     def expression_as_r_command(self, parameter, expression):
-
+        """
+        Returns input parameter as R code based on type of parameter.
+        """
         parameter_name = parameter.name()
 
         if isinstance(expression, str):

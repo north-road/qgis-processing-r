@@ -413,7 +413,9 @@ class RUtils:  # pylint: disable=too-many-public-methods
 
 
 def log(message: str) -> None:
-
+    """
+    Simple logging function, most for debuging.
+    """
     QgsMessageLog.logMessage(message,
                              "Processing R Plugin",
                              Qgis.Info)
