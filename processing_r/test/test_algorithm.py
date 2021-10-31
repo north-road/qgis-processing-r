@@ -604,8 +604,8 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_r_script({''}, context, feedback)
 
         self.assertIn('number <- 6', script)
-        self.assertTrue(any(['geometry <- sf::st_as_sfc("Polygon ' in line for line in script]))
-        if Qgis.QGIS_VERSION_INT >= 31800:
+        self.assertTrue(any(['geometry <- sf::st_as_sfc("Polygon ' in line for line in script]))  # pylint: disable=use-a-generator
+        if Qgis.QGIS_VERSION_INT >= 32000:
             self.assertIn(f'qgis_version <- {Qgis.QGIS_VERSION_INT}', script)
 
 
