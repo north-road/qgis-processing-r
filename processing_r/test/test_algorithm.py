@@ -627,6 +627,7 @@ class AlgorithmTest(unittest.TestCase):
         if Qgis.QGIS_VERSION_INT >= 31800:
             self.assertIn(f'qgis_version <- {Qgis.QGIS_VERSION_INT}', script)
 
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
     runner = unittest.TextTestRunner(verbosity=2)
