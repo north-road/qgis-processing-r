@@ -67,7 +67,7 @@ from qgis.PyQt.QtCore import (
 from qgis.PyQt.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
 from processing_r.processing.outputs import create_output_from_string
-from processing_r.processing.utils import RUtils, log
+from processing_r.processing.utils import RUtils
 from processing_r.gui.gui_utils import GuiUtils
 from processing_r.processing.r_templates import RTemplates
 
