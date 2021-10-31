@@ -769,14 +769,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return commands
 
-    def expression_as_r_command(self, parameter, expression):
+    def expression_as_r_command(self, parameter, expression):  # pylint: disable=too-many-return-statements
         """
         Returns input parameter as R code based on type of parameter.
         """
         parameter_name = parameter.name()
-
-        from .utils import log
-        log(f"*** {parameter_name} - {type(parameter).__name__}")
 
         if isinstance(expression, str):
             return self.r_templates.set_variable_string(parameter_name, expression)
