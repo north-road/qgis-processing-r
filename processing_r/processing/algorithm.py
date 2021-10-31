@@ -299,6 +299,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if "=enum literal" in RUtils.upgrade_parameter_line(line):
             self.r_templates.add_literal_enum(value)
 
+        if "=expression" in line:
+            self.r_templates.expressions.append(line)
+            return
+
         self.process_parameter_line(line)
 
     @staticmethod
@@ -455,6 +459,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         commands = []
         commands += self.build_script_header_commands(parameters, context, feedback)
+        commands += self.build_expressions(parameters, context, feedback)
         commands += self.build_import_commands(parameters, context, feedback)
         commands += self.build_r_commands(parameters, context, feedback)
         commands += self.build_export_commands(parameters, context, feedback)
@@ -600,6 +605,36 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return self.r_templates.set_variable_raster(variable_name, value)
 
+    def build_expressions(self, parameters, context, feedback):
+        """
+        Builds set of R input data commands based on QGIS Expression variables.
+        """
+        commands = []
+
+        for line in self.r_templates.expressions:
+
+            param = create_parameter_from_string(line)
+
+            if isinstance(param, QgsProcessingParameterExpression):
+
+                exp = QgsExpression(param.defaultValue())
+
+                if not exp.prepare(self.alg_context):
+                    raise QgsProcessingException(
+                        self.tr(f'Expression with name `{param.name()}` and value `{param.defaultValue()}` is malformed. '
+                                f'Error: {exp.parserErrorString()}.'))
+
+                exp_result = exp.evaluate(self.alg_context)
+
+                if exp.hasEvalError():
+                    raise QgsProcessingException(
+                        self.tr(f'Expression with name `{param.name()}` and value `{param.defaultValue()}` can not be evaluated. '
+                                f'Error: {exp.evalErrorString()}.'))
+
+                commands.append(self.expression_as_r_command(param, exp_result))
+
+        return commands
+
     def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
                               parameters, context, feedback):
         """
@@ -707,26 +742,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     layer_idx += 1
                 s += ')'
                 commands.append(s)
-
-            elif isinstance(param, QgsProcessingParameterExpression):
-
-                exp_text = self.parameterAsExpression(parameters, param.name(), context)
-
-                exp = QgsExpression(exp_text)
-
-                if not exp.prepare(self.alg_context):
-                    raise QgsProcessingException(
-                        self.tr(f'Expression with name `{param.name()}` and value `{exp_text}` is malformed. '
-                                f'Error: {exp.parserErrorString()}.'))
-
-                exp_result = exp.evaluate(self.alg_context)
-
-                if exp.hasEvalError():
-                    raise QgsProcessingException(
-                        self.tr(f'Expression with name `{param.name()}` and value `{exp_text}` can not be evaluated. '
-                                f'Error: {exp.evalErrorString()}.'))
-
-                commands.append(self.expression_as_r_command(param, exp_result))
 
         # folder, file/html output paths
         for param in self.destinationParameterDefinitions():
