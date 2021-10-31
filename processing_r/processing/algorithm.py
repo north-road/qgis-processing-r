@@ -62,7 +62,9 @@ from qgis.PyQt.QtCore import (
     QCoreApplication,
     QDir,
     QUrl,
-    QDateTime
+    QDateTime,
+    QDate,
+    QTime
 )
 from qgis.PyQt.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
@@ -773,6 +775,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         parameter_name = parameter.name()
 
+        from .utils import log
+        log(f"*** {parameter_name} - {type(parameter).__name__}")
+
         if isinstance(expression, str):
             return self.r_templates.set_variable_string(parameter_name, expression)
 
@@ -781,6 +786,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         if isinstance(expression, QDateTime):
             return self.r_templates.set_datetime(parameter_name, expression)
+
+        if isinstance(expression, QDate):
+            return self.r_templates.set_date(parameter_name, expression)
+
+        if isinstance(expression, QTime):
+            return self.r_templates.set_time(parameter_name, expression)
 
         if isinstance(expression, QgsGeometry):
             return self.r_templates.set_variable_geom(parameter_name, expression.asWkt())
