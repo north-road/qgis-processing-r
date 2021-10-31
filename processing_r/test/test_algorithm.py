@@ -604,7 +604,6 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_r_script({''}, context, feedback)
 
         self.assertIn('number <- 6', script)
-        self.assertIn('qgis_version <- 32200', script)
         self.assertIn('geometry <- sf::st_as_sfc("Polygon ((0.00000000000000306 10, '
                       '1.73648177666930459 9.84807753012207954, 3.42020143325668657 9.39692620785908517, '
                       '5.00000000000000533 8.66025403784438375, 6.42787609686539696 7.66044443118977814, '
@@ -625,7 +624,8 @@ class AlgorithmTest(unittest.TestCase):
                       '-5.00000000000000089 8.66025403784438552, -3.42020143325669101 9.39692620785908161, '
                       '-1.73648177666930059 9.84807753012208131, 0.00000000000000306 10))")[[1]]',
                       script)
-
+        if Qgis.QGIS_VERSION_INT >= 31800:
+            self.assertIn(f'qgis_version <- {Qgis.QGIS_VERSION_INT}', script)
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
