@@ -17,7 +17,7 @@ from typing import List
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsPointXY)
 
-from qgis.PyQt.QtCore import QDateTime, Qt
+from qgis.PyQt.QtCore import QDateTime, Qt, QDate, QTime
 
 from qgis.PyQt.QtGui import QColor
 
@@ -39,6 +39,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         Variable defining that rasters will be read through package `raster` if `TRUE` or through `rgdal` and `sp` if
         `FALSE`.
+        """
+        self._use_lubridate = False
+        """
+        Variable specifying whether lubridate package should be used.
         """
         self._install_github = False
         """
@@ -162,6 +166,9 @@ class RTemplates:  # pylint: disable=too-many-public-methods
                 packages.append("raster")
             else:
                 packages.append("rgdal")
+
+        if self._use_lubridate:
+            packages.append("lubridate")
 
         if self.install_github:
             packages.append("remotes")
@@ -671,3 +678,32 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         commands.append('{0} <- as.POSIXct("{1}", format = "%Y-%m-%dT%H:%M:%S")'.format(variable, dtt))
 
         return commands
+
+    def set_date(self,
+                 variable: str,
+                 date: QDate) -> str:
+        """
+        Produces R code that creates a variable from date input.
+
+        :param variable: string. Name of the variable.
+        :param date: QDate.
+        :return: string. R code that constructs the date.
+        """
+        date = date.toString(format=Qt.ISODate)
+
+        return '{0} <- as.POSIXct("{1}", format = "%Y-%m-%d")'.format(variable, date)
+
+    def set_time(self,
+                 variable: str,
+                 time: QTime) -> str:
+        """
+        Produces R code that creates a variable from time input.
+
+        :param variable: string. Name of the variable.
+        :param time: QTime
+        :return: string. R code that constructs the time.
+        """
+
+        self._use_lubridate = True
+
+        return '{0} <- lubridate::hms("{1}")'.format(variable, time.toString(Qt.TextDate))
