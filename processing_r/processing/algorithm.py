@@ -793,6 +793,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if isinstance(expression, QgsGeometry):
             return self.r_templates.set_variable_geom(parameter_name, expression.asWkt())
 
+        if isinstance(expression, list):
+            return self.r_templates.set_variable_list(parameter_name, expression)
+
         return ""
 
     def build_r_commands(self, _, __, ___):
