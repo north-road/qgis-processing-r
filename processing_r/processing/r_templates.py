@@ -293,6 +293,9 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         return '{0} <- {1}'.format(variable, self._r_string(value))
 
     def _r_string(self, value: str) -> str:
+        """
+        Generate R string.
+        """
 
         if '"' in value:
             value = value.replace('"', '\\"')
@@ -345,6 +348,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         return '{0} <- {1}'.format(variable, self._r_geom(geom_wkt_value))
 
     def _r_geom(self, geom_wkt_value: str) -> str:
+        """
+        Generate R string.
+        """
+
         return f'sf::st_as_sfc("{geom_wkt_value}")[[1]]'
 
     def create_png(self, path: str) -> str:
@@ -672,6 +679,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         return commands
 
     def _r_color(self, color: QColor) -> str:
+        """
+        Generate R string.
+        """
+
         return f'rgb({color.red()}, {color.green()}, {color.blue()}, {color.alpha()}, maxColorValue = 255)'
 
     def set_datetime(self,
@@ -691,6 +702,9 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         return commands
 
     def _r_datetime(self, datetime: QDateTime) -> str:
+        """
+        Generate R string.
+        """
 
         datetime = datetime.toString(format=Qt.ISODate)
 
@@ -710,6 +724,9 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         return '{0} <- {1}'.format(variable, self._r_date(date))
 
     def _r_date(self, date: QDate) -> str:
+        """
+        Generate R string.
+        """
 
         date = date.toString(format=Qt.ISODate)
 
@@ -729,6 +746,9 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         return '{0} <- {1}'.format(variable, self._r_time(time))
 
     def _r_time(self, time: QTime) -> str:
+        """
+        Generate R string.
+        """
 
         self._use_lubridate = True
 
@@ -737,7 +757,13 @@ class RTemplates:  # pylint: disable=too-many-public-methods
     def set_variable_list(self,
                           variable: str,
                           values_list: List[Any]) -> Any:
+        """
+        Generate R code for list of values.
 
+        :param variable: string. Name of the variable.
+        :param values_list: List[Any]. List of expression values.
+        :return: string. R code that constructs the list objects.
+        """
         values = []
 
         for value in values_list:
