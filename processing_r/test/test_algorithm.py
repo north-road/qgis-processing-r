@@ -613,7 +613,7 @@ class AlgorithmTest(unittest.TestCase):
                       '"a", '
                       'as.POSIXct("2020-05-04", format = "%Y-%m-%d"), '
                       'lubridate::hms("13:45:30"), '
-                      'as.POSIXct("2017-01-01T00:12:39", format = "%Y-%m-%dT%H:%M:%S"))',
+                      'as.POSIXct("2012-05-04T12:50:00", format = "%Y-%m-%dT%H:%M:%S"))',
                       script)
 
 
