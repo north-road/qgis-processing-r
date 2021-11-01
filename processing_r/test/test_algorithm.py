@@ -607,7 +607,14 @@ class AlgorithmTest(unittest.TestCase):
         self.assertTrue(any(['geometry <- sf::st_as_sfc("Polygon ' in line for line in script]))  # pylint: disable=use-a-generator
         self.assertIn('date_a <- as.POSIXct("2020-05-04", format = "%Y-%m-%d")', script)
         self.assertIn('time_a <- lubridate::hms("13:45:30")', script)
-
+        self.assertIn('array < - list('
+                      '2, '
+                      '10, '
+                      '"a", '
+                      'as.POSIXct("2020-05-04", format="%Y-%m-%d"), '
+                      'lubridate::hms("13:45:30"), '
+                      'as.POSIXct("2017-01-01T00:12:39", format="%Y-%m-%dT%H:%M:%S"))',
+                      script)
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
