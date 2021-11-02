@@ -410,3 +410,12 @@ class RUtils:  # pylint: disable=too-many-public-methods
         if context == '':
             context = 'RUtils'
         return QCoreApplication.translate(context, string)
+
+
+def log(message: str) -> None:
+    """
+    Simple logging function, most for debuging.
+    """
+    QgsMessageLog.logMessage(message,
+                             "Processing R Plugin",
+                             Qgis.Info)

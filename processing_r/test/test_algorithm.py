@@ -590,6 +590,32 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_r_script({'datetime': QDateTime(QDate(2021, 10, 14), QTime(14, 48, 52))}, context, feedback)
         self.assertIn('datetime <- as.POSIXct("2021-10-14T14:48:52", format = "%Y-%m-%dT%H:%M:%S")', script)
 
+    def testAlgExpressions(self):
+        """
+        Test Expression parameter
+        """
+
+        context = QgsProcessingContext()
+        feedback = QgsProcessingFeedback()
+
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_input_expression.rsx'))
+        alg.initAlgorithm()
+
+        script = alg.build_r_script({''}, context, feedback)
+
+        self.assertIn('number <- 6', script)
+        self.assertTrue(any(['geometry <- sf::st_as_sfc("Polygon ' in line for line in script]))  # pylint: disable=use-a-generator
+        self.assertIn('date_a <- as.POSIXct("2020-05-04", format = "%Y-%m-%d")', script)
+        self.assertIn('time_a <- lubridate::hms("13:45:30")', script)
+        self.assertIn('array <- list('
+                      '2, '
+                      '10, '
+                      '"a", '
+                      'as.POSIXct("2020-05-04", format = "%Y-%m-%d"), '
+                      'lubridate::hms("13:45:30"), '
+                      'as.POSIXct("2012-05-04T10:50:00", format = "%Y-%m-%dT%H:%M:%S"))',
+                      script)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)

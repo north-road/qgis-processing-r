@@ -12,12 +12,13 @@ __author__ = '(C) 2019 by Jan Caha'
 __date__ = '17/10/2019'
 __copyright__ = 'Copyright 2018, North Road'
 
-from typing import List
+from typing import List, Any
 
 from qgis.core import (QgsCoordinateReferenceSystem,
-                       QgsPointXY)
+                       QgsPointXY,
+                       QgsGeometry)
 
-from qgis.PyQt.QtCore import QDateTime, Qt
+from qgis.PyQt.QtCore import QDateTime, Qt, QDate, QTime
 
 from qgis.PyQt.QtGui import QColor
 
@@ -40,6 +41,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Variable defining that rasters will be read through package `raster` if `TRUE` or through `rgdal` and `sp` if
         `FALSE`.
         """
+        self._use_lubridate = False
+        """
+        Variable specifying whether lubridate package should be used.
+        """
         self._install_github = False
         """
         Variable defining that there are dependencies from github.
@@ -56,6 +61,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         self._auto_load_packages = True
         """
         Variable that stores if only file names, not data are passed to the script.
+        """
+        self.expressions = []
+        """
+        Variable that stores header lines with QGIS expressions
         """
 
     @property
@@ -158,6 +167,9 @@ class RTemplates:  # pylint: disable=too-many-public-methods
                 packages.append("raster")
             else:
                 packages.append("rgdal")
+
+        if self._use_lubridate:
+            packages.append("lubridate")
 
         if self.install_github:
             packages.append("remotes")
@@ -278,10 +290,17 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code to produce variable with given value.
         """
 
+        return '{0} <- {1}'.format(variable, self._r_string(value))
+
+    def _r_string(self, value: str) -> str:
+        """
+        Generate R string.
+        """
+
         if '"' in value:
             value = value.replace('"', '\\"')
 
-        return '{0} <- "{1}"'.format(variable, value)
+        return '"{}"'.format(value)
 
     def set_variable_string_list(self, variable: str, value: List[str]) -> str:
         """
@@ -317,6 +336,23 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code to produce variable with `NULL` value.
         """
         return "{0} <- NULL".format(variable)
+
+    def set_variable_geom(self, variable: str, geom_wkt_value: str) -> str:
+        """
+        Create sfg from WKT.
+
+        :param variable: string. Name of the variable.
+        :param geom_wkt_value: string. WKT of geometry.
+        :return: string. R code to creating variable of classes sfg.
+        """
+        return '{0} <- {1}'.format(variable, self._r_geom(geom_wkt_value))
+
+    def _r_geom(self, geom_wkt_value: str) -> str:
+        """
+        Generate R string.
+        """
+
+        return 'sf::st_as_sfc("{}")[[1]]'.format(geom_wkt_value)
 
     def create_png(self, path: str) -> str:
         """
@@ -642,6 +678,16 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         return commands
 
+    def _r_color(self, color: QColor) -> str:
+        """
+        Generate R string.
+        """
+
+        return 'rgb({0}, {1}, {2}, {3}, maxColorValue = 255)'.format(color.red(),
+                                                                     color.green(),
+                                                                     color.blue(),
+                                                                     color.alpha())
+
     def set_datetime(self,
                      variable: str,
                      datetime: QDateTime) -> list:
@@ -657,3 +703,100 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         commands.append('{0} <- as.POSIXct("{1}", format = "%Y-%m-%dT%H:%M:%S")'.format(variable, dtt))
 
         return commands
+
+    def _r_datetime(self, datetime: QDateTime) -> str:
+        """
+        Generate R string.
+        """
+
+        datetime = datetime.toString(format=Qt.ISODate)
+
+        return 'as.POSIXct("{}", format = "%Y-%m-%dT%H:%M:%S")'.format(datetime)
+
+    def set_date(self,
+                 variable: str,
+                 date: QDate) -> str:
+        """
+        Produces R code that creates a variable from date input.
+
+        :param variable: string. Name of the variable.
+        :param date: QDate.
+        :return: string. R code that constructs the date.
+        """
+
+        return '{0} <- {1}'.format(variable, self._r_date(date))
+
+    def _r_date(self, date: QDate) -> str:
+        """
+        Generate R string.
+        """
+
+        date = date.toString(format=Qt.ISODate)
+
+        return 'as.POSIXct("{}", format = "%Y-%m-%d")'.format(date)
+
+    def set_time(self,
+                 variable: str,
+                 time: QTime) -> str:
+        """
+        Produces R code that creates a variable from time input.
+
+        :param variable: string. Name of the variable.
+        :param time: QTime
+        :return: string. R code that constructs the time.
+        """
+
+        return '{0} <- {1}'.format(variable, self._r_time(time))
+
+    def _r_time(self, time: QTime) -> str:
+        """
+        Generate R string.
+        """
+
+        self._use_lubridate = True
+
+        return 'lubridate::hms("{}")'.format(time.toString(Qt.TextDate))
+
+    def set_variable_list(self,
+                          variable: str,
+                          values_list: List[Any]) -> Any:
+        """
+        Generate R code for list of values.
+
+        :param variable: string. Name of the variable.
+        :param values_list: List[Any]. List of expression values.
+        :return: string. R code that constructs the list objects.
+        """
+        values = []
+
+        for value in values_list:
+
+            if isinstance(value, str):
+
+                values.append(self._r_string(value))
+
+            elif isinstance(value, (int, float)):
+
+                values.append('{}'.format(value))
+
+            elif isinstance(value, QDateTime):
+
+                values.append(self._r_datetime(value))
+
+            elif isinstance(value, QDate):
+
+                values.append(self._r_date(value))
+
+            elif isinstance(value, QTime):
+
+                values.append(self._r_time(value))
+
+            elif isinstance(value, QgsGeometry):
+
+                values.append(self._r_geom(value.asWkt()))
+
+            elif isinstance(value, QColor):
+
+                values.append(self._r_color(value))
+
+        return '{0} <- list({1})'.format(variable, ", ".join(values))

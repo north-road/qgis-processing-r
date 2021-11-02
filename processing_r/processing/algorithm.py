@@ -46,17 +46,25 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterRange,
                        QgsProcessingParameterColor,
                        QgsProcessingParameterDateTime,
+                       QgsProcessingParameterExpression,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
                        QgsVectorLayer,
                        QgsPointXY,
                        QgsCoordinateReferenceSystem,
-                       QgsProcessingUtils)
+                       QgsProcessingUtils,
+                       QgsExpressionContext,
+                       QgsProcessingContext,
+                       QgsExpression,
+                       QgsGeometry)
+
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QDir,
     QUrl,
-    QDateTime
+    QDateTime,
+    QDate,
+    QTime
 )
 from qgis.PyQt.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
@@ -101,6 +109,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             self.load_from_string()
         if self.description_file is not None:
             self.load_from_file()
+
+        self.alg_context = QgsExpressionContext()
 
     def createInstance(self):
         """
@@ -291,6 +301,10 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if "=enum literal" in RUtils.upgrade_parameter_line(line):
             self.r_templates.add_literal_enum(value)
 
+        if "=expression" in line:
+            self.r_templates.expressions.append(line)
+            return
+
         self.process_parameter_line(line)
 
     @staticmethod
@@ -358,11 +372,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return True, ''
 
-    def processAlgorithm(self, parameters, context, feedback):
+    def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback):
         """
         Executes the algorithm
         """
         self.results = {}
+
+        self.alg_context = self.createExpressionContext(parameters, context)
 
         if RUtils.is_windows():
             path = RUtils.r_binary_folder()
@@ -445,6 +461,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         commands = []
         commands += self.build_script_header_commands(parameters, context, feedback)
+        commands += self.build_expressions(parameters, context, feedback)
         commands += self.build_import_commands(parameters, context, feedback)
         commands += self.build_r_commands(parameters, context, feedback)
         commands += self.build_export_commands(parameters, context, feedback)
@@ -590,6 +607,36 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         return self.r_templates.set_variable_raster(variable_name, value)
 
+    def build_expressions(self, parameters, context, feedback):  # pylint: disable=unused-argument
+        """
+        Builds set of R input data commands based on QGIS Expression variables.
+        """
+        commands = []
+
+        for line in self.r_templates.expressions:
+
+            param = create_parameter_from_string(line)
+
+            if isinstance(param, QgsProcessingParameterExpression):
+
+                exp = QgsExpression(param.defaultValue())
+
+                if not exp.prepare(self.alg_context):
+                    raise QgsProcessingException(
+                        self.tr('Expression with name `{0}` and value `{1}` is malformed. '
+                                'Error: {2}.'.format(param.name(), param.defaultValue(), exp.parserErrorString())))
+
+                exp_result = exp.evaluate(self.alg_context)
+
+                if exp.hasEvalError():
+                    raise QgsProcessingException(
+                        self.tr('Expression with name `{0}` and value `{1}` can not be evaluated. '
+                                'Error: {2}.').format(param.name(), param.defaultValue(), exp.evalErrorString()))
+
+                commands.append(self.expression_as_r_command(param, exp_result))
+
+        return commands
+
     def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
                               parameters, context, feedback):
         """
@@ -721,6 +768,35 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             commands.append(self.r_templates.create_png(self.plots_filename))
 
         return commands
+
+    def expression_as_r_command(self, parameter, expression):  # pylint: disable=too-many-return-statements
+        """
+        Returns input parameter as R code based on type of parameter.
+        """
+        parameter_name = parameter.name()
+
+        if isinstance(expression, str):
+            return self.r_templates.set_variable_string(parameter_name, expression)
+
+        if isinstance(expression, (int, float)):
+            return self.r_templates.set_variable_directly(parameter_name, expression)
+
+        if isinstance(expression, QDateTime):
+            return self.r_templates.set_datetime(parameter_name, expression)
+
+        if isinstance(expression, QDate):
+            return self.r_templates.set_date(parameter_name, expression)
+
+        if isinstance(expression, QTime):
+            return self.r_templates.set_time(parameter_name, expression)
+
+        if isinstance(expression, QgsGeometry):
+            return self.r_templates.set_variable_geom(parameter_name, expression.asWkt())
+
+        if isinstance(expression, list):
+            return self.r_templates.set_variable_list(parameter_name, expression)
+
+        return ""
 
     def build_r_commands(self, _, __, ___):
         """
