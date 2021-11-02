@@ -300,7 +300,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         if '"' in value:
             value = value.replace('"', '\\"')
 
-        return f'"{value}"'
+        return '"{}"'.format(value)
 
     def set_variable_string_list(self, variable: str, value: List[str]) -> str:
         """
@@ -352,7 +352,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Generate R string.
         """
 
-        return f'sf::st_as_sfc("{geom_wkt_value}")[[1]]'
+        return 'sf::st_as_sfc("{}")[[1]]'.format(geom_wkt_value)
 
     def create_png(self, path: str) -> str:
         """
@@ -683,7 +683,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Generate R string.
         """
 
-        return f'rgb({color.red()}, {color.green()}, {color.blue()}, {color.alpha()}, maxColorValue = 255)'
+        return 'rgb({0}, {1}, {2}, {3}, maxColorValue = 255)'.format(color.red(),
+                                                                     color.green(),
+                                                                     color.blue(),
+                                                                     color.alpha())
 
     def set_datetime(self,
                      variable: str,
@@ -708,7 +711,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         datetime = datetime.toString(format=Qt.ISODate)
 
-        return f'as.POSIXct("{datetime}", format = "%Y-%m-%dT%H:%M:%S")'
+        return 'as.POSIXct("{}", format = "%Y-%m-%dT%H:%M:%S")'.format(datetime)
 
     def set_date(self,
                  variable: str,
@@ -730,7 +733,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         date = date.toString(format=Qt.ISODate)
 
-        return f'as.POSIXct("{date}", format = "%Y-%m-%d")'
+        return 'as.POSIXct("{}", format = "%Y-%m-%d")'.format(date)
 
     def set_time(self,
                  variable: str,
@@ -752,7 +755,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         self._use_lubridate = True
 
-        return f'lubridate::hms("{time.toString(Qt.TextDate)}")'
+        return 'lubridate::hms("{}")'.format(time.toString(Qt.TextDate))
 
     def set_variable_list(self,
                           variable: str,

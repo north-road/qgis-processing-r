@@ -623,15 +623,15 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
                 if not exp.prepare(self.alg_context):
                     raise QgsProcessingException(
-                        self.tr(f'Expression with name `{param.name()}` and value `{param.defaultValue()}` is malformed. '
-                                f'Error: {exp.parserErrorString()}.'))
+                        self.tr('Expression with name `{0}` and value `{1}` is malformed. '
+                                'Error: {2}.'.format(param.name(), param.defaultValue(), exp.parserErrorString())))
 
                 exp_result = exp.evaluate(self.alg_context)
 
                 if exp.hasEvalError():
                     raise QgsProcessingException(
-                        self.tr(f'Expression with name `{param.name()}` and value `{param.defaultValue()}` can not be evaluated. '
-                                f'Error: {exp.evalErrorString()}.'))
+                        self.tr('Expression with name `{0}` and value `{1}` can not be evaluated. '
+                                'Error: {2}.').format(param.name(), param.defaultValue(), exp.evalErrorString()))
 
                 commands.append(self.expression_as_r_command(param, exp_result))
 
