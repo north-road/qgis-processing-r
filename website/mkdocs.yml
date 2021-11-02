@@ -25,6 +25,7 @@ nav:
         - Example with number and string outputs: ex_number_string_output.md
         - Example with tool console log: ex_console_output.md
         - Example of graphs output: ex_plot.md
+        - Example of using QGIS expressions: ex_expression.md
     - Changelog: changelog.md
     - Github: https://github.com/north-road/qgis-processing-r
 

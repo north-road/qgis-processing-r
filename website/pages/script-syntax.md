@@ -137,6 +137,19 @@ QgsProcessingParameterFile|name|description|behavior|extension|default value|opt
 
 `##QgsProcessingParameterFile|in_img|Input img|0|png|None|False|PNG Files (*.png);; JPG Files (*.jpg *.jpeg)`  specifies that there will be variable `in_img` that will be an image PNG or JPG.
 
+#### QGIS Expression
+
+A QGIS expression can be used as input for the script. The syntax is `r_variable_name=expression` followed by space and any valid QGIS expression. The expression is evaluated in QGIS before passing the result value script to R. This type of input is hidden from user of the script and can only be modified by editing the R script itself.
+
+The following code:
+
+`##qgis_expression=expression @qgis_version`
+
+creates variable `qgis_expression` that will hold information about QGIS version on which the script was run (i.e. __3.22.0-Białowieża__).
+
+`##example_geometry=expression make_circle( make_point(0, 0), 10)` creates R variable with name `example_geometry` that holds polygon created by the expression.
+
+The variable type for R is determined from type of expression output in QGIS. So far these types are supported - string, integer, float, date, time, datetime, geometry and lists (arrays) of these types.
 
 ### Outputs
 
