@@ -52,7 +52,7 @@ So the inputs can look like this:
 
 `##Raster_Layer=raster` specifies that there will be variable `Layer` that will be a raster.
 
-`##X=Band Layer` specifies that variable `X` will be raster band index taken from `Raster_Layer`.
+`##X=Band Raster_Layer` specifies that variable `X` will be raster band index taken from `Raster_Layer`.
 
 `##Size=number 10` specifies that there will be variable `Size` that will be numeric, and a default value for `Size` will be `10`.
 
