@@ -50,6 +50,10 @@ So the inputs can look like this:
 
 `##X=Field Layer` specifies that variable `X` will be field name taken from `Layer`.
 
+`##Raster_Layer=vector` specifies that there will be variable `Layer` that will be a raster.
+
+`##X=Band Layer` specifies that variable `X` will be raster band index taken from `Raster_Layer`.
+
 `##Size=number 10` specifies that there will be variable `Size` that will be numeric, and a default value for `Size` will be `10`.
 
 `##Extent=extent` specifies that there will be variable `Extent` that will be numeric of length `4` (_xmin_, _xmax_, _ymin_ and _ymax_ values).
@@ -68,7 +72,9 @@ The basic enum syntax is `##var_enum=enum a;b;c` to select from values `a`, `b` 
 
 The approach described above works well for a wide range of applications but for **R** it is often not ideal. That is a reason why a new type of enum is available in script syntax.
 
-The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is the keyword `literal` (or more precisely `enum literal`) which specifies that the value from the select box to `var_enum_string` should be passed as a string. So if `b` is selected, then the value of `var_enum_string` will be `"a"`.
+The syntax is `##var_enum_string=enum literal a;b;c`. The important part here is the keyword `literal` (or more precisely `enum literal`) which specifies that the value from the select box to `var_enum_string` should be passed as a string. So if `b` is selected, then the value of `var_enum_string` will be `"b"`.
+
+Enum also accept multiples choices in both, literal or numeric setups, i.e. `##var_enum_string=enum literal multiple a;b;c` or `##var_enum_string=enum multiple a;b;c`. The variables in R will behave in the same way as non-multiple setup.
 
 #### Advanced specification
 
