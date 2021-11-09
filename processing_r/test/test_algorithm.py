@@ -480,15 +480,18 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands({'enum_string': 0}, context, feedback)
         self.assertIn('enum_string <- "enum_a"', script)
 
-        algmul = RAlgorithm(description_file=os.path.join(test_data_path, 'test_enum_multiple.rsx'))
-        algmul.initAlgorithm()
+    def testEnumsMultiple(self):
+        """
+        Test for both enum multiple types
+        """
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_enum_multiple.rsx'))
+        alg.initAlgorithm()
 
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
 
-        script = algmul.build_import_commands({'enum_normal': [0, 1]}, context, feedback)
+        script = alg.build_import_commands({'enum_normal': [0, 1], 'enum_string': [0, 1]}, context, feedback)
         self.assertIn('enum_normal <- c(0, 1)', script)
-        script = algmul.build_import_commands({'enum_string': [0, 1]}, context, feedback)
         self.assertIn('enum_string <- c("enum_a", "enum_b")', script)
 
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
