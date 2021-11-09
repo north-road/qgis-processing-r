@@ -642,7 +642,7 @@ class AlgorithmTest(unittest.TestCase):
         feedback = QgsProcessingFeedback()
         script = alg.build_import_commands({'Band': 1, 'Layer': os.path.join(test_data_path, 'dem.tif')}, context,
                                            feedback)
-        self.assertIn('Band <- 1.0', script)
+        self.assertIn('Band <- 1', script)
 
 
 if __name__ == "__main__":

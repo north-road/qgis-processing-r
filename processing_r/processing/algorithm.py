@@ -657,7 +657,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 rl = self.parameterAsRasterLayer(parameters, param.name(), context)
                 commands.append(self.build_raster_layer_import_command(param.name(), rl))
             elif isinstance(param, QgsProcessingParameterBand):
-                value = self.parameterAsDouble(parameters, param.name(), context)
+                value = self.parameterAsInt(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterVectorLayer):
                 commands.append(self.load_vector_layer_from_parameter(param.name(), parameters, context, feedback))
