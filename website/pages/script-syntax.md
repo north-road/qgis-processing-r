@@ -50,7 +50,7 @@ So the inputs can look like this:
 
 `##X=Field Layer` specifies that variable `X` will be field name taken from `Layer`.
 
-`##Raster_Layer=vector` specifies that there will be variable `Layer` that will be a raster.
+`##Raster_Layer=raster` specifies that there will be variable `Layer` that will be a raster.
 
 `##X=Band Layer` specifies that variable `X` will be raster band index taken from `Raster_Layer`.
 
