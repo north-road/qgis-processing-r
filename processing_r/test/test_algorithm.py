@@ -492,7 +492,7 @@ class AlgorithmTest(unittest.TestCase):
 
         script = alg.build_import_commands({'enum_normal': [0, 1], 'enum_string': [0, 1]}, context, feedback)
         self.assertIn('enum_normal <- c(0, 1)', script)
-        self.assertIn('enum_string <- c("enum_a", "enum_b")', script)
+        self.assertIn('enum_string <- c("enum_a","enum_b")', script)
 
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
         """
