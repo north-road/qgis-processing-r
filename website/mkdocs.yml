@@ -16,7 +16,9 @@ theme:
 
 nav:
     - Home: index.md
-    - Script syntax: script-syntax.md
+    - Syntax:
+        - Script Syntax: script-syntax.md
+        - Help Syntax: help-syntax.md
     - Examples:
         - Example with vector output: ex_vector_output.md
         - Example with raster output: ex_raster_output.md
