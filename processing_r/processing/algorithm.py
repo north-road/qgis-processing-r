@@ -106,6 +106,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self.output_values_filename = ''
         self.results = {}
         self.descriptions = None
+        self.inline_help = None
         if self.script is not None:
             self.load_from_string()
         if self.description_file is not None:
@@ -205,6 +206,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         with open(self.description_file, 'r', encoding='utf8') as f:
             lines = [line.strip() for line in f]
+            # ordering for inline_help uses
+            tmp = []
+            for subs in ["#'", "##"]:
+                [tmp.append(line) for line in lines if subs in line]
+            [tmp.append(l) for l in lines if l not in tmp]
+            lines = tmp
         self.parse_script(iter(lines))
 
     def parse_script(self, lines):
@@ -227,6 +234,14 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     self.add_error_message(
                         self.tr('This script has a syntax error.\n'
                                 'Exception {1} with line: {0}').format(line, e)
+                    )
+            elif line.startswith("#'"):
+                try:
+                    self.process_help_line(line)
+                except Exception as e:  # pylint: disable=broad-except
+                    self.add_error_message(
+                        self.tr('This script has a syntax error.\n'
+                                'Exception {1} with help line: {0}...').format(line[0:50], e)
                     )
             elif line.startswith('>'):
                 self.commands.append(line[1:])
@@ -308,6 +323,23 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         self.process_parameter_line(line)
 
+    def process_help_line(self, line):  # pylint: disable=too-many-return-statements
+        """
+        Processes a "help" (#') line
+        """
+        line = line.replace("#'", "")
+        key, value = line.split(":", 1)
+        if self.inline_help is None:
+            help_dict = {}
+        else:
+            help_dict = self.inline_help
+        if key.strip() == "":
+            key = list(help_dict.keys())[-1]
+            last_val = help_dict.get(key)
+            value = last_val + " " + value.strip()
+        help_dict[key.strip()] = value.strip()
+        self.inline_help = help_dict
+
     @staticmethod
     def split_tokens(line):
         """
@@ -352,6 +384,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 if Qgis.QGIS_VERSION_INT >= 31600:
                     if self.descriptions is not None:
                         param.setHelp(self.descriptions.get(param.name()))
+                    elif self.inline_help is not None:
+                        param.setHelp(self.inline_help.get(param.name()))
 
                 self.addParameter(param)
             else:
@@ -822,10 +856,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Returns the algorithms helper string
         """
-        if self.descriptions is None:
-            return ''
+        if self.descriptions is not None:
+            return QgsProcessingUtils.formatHelpMapAsHtml(self.descriptions, self)
 
-        return QgsProcessingUtils.formatHelpMapAsHtml(self.descriptions, self)
+        if self.inline_help is not None:
+            return QgsProcessingUtils.formatHelpMapAsHtml(self.inline_help, self)
+
+        return ''
 
     def tr(self, string, context=''):
         """
