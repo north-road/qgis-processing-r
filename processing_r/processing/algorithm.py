@@ -209,8 +209,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             # ordering for inline_help uses
             tmp = []
             for subs in ["#'", "##"]:
-                [tmp.append(line) for line in lines if subs in line]
-            [tmp.append(l) for l in lines if l not in tmp]
+                for line in lines:
+                    if subs in line:
+                        tmp.append(line)
+            for line in lines:
+                if line not in tmp:
+                    tmp.append(line)
             lines = tmp
         self.parse_script(iter(lines))
 
