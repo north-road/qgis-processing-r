@@ -58,8 +58,7 @@ If added to the help file, it will allow for more descriptive information to be 
 
 ## In-line help
  
-As of version 3.2.0 of the plugin, it is also possible to enter the documentation as lines in the same script. lines in the script itself. This makes it possible to dispense with the **.rsx.help** file.  This requires entering lines starting with the characters `#'`. Let's see how the above example should be written.
-
+As of version 3.2.0 of the plugin, it is also possible to enter the documentation as lines in the script itself. This makes it possible to dispense with the **.rsx.help** file. For this purpose, lines with the structure `#' Parameter: Description` must be written. Let's see how the above example should be written.
 ```r
 ##Example scripts=group
 ##Scatterplot=name
@@ -82,4 +81,4 @@ plot(Layer[[X]], Layer[[Y]])
 #' ALG_VERSION: 0.0.1
 ```
 
-Note that this form also allows you to enter the description of a parameter on multiple lines. For which you are required to enter a colon (`:`) after the `#'` characters.
+Note that in this way it is also possible to enter the description of a parameter on several lines. To do this, it is necessary to continue the subsequent lines without entering the parameter name, like this: `#' : description append`.
