@@ -210,7 +210,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             tmp = []
             for subs in ["#'", "##"]:
                 for line in lines:
-                    if subs in line:
+                    if line.startswith(subs):
                         tmp.append(line)
             for line in lines:
                 if line not in tmp:
