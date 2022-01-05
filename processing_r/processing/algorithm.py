@@ -72,9 +72,9 @@ from processing_r.gui.gui_utils import GuiUtils
 from processing_r.processing.r_templates import RTemplates
 
 if Qgis.QGIS_VERSION_INT >= 31000:
-    from qgis.core import QgsProcessingParameterColor
+    from qgis.core import QgsProcessingParameterColor  # pylint: disable=ungrouped-imports
 if Qgis.QGIS_VERSION_INT >= 31400:
-    from qgis.core import QgsProcessingParameterDateTime
+    from qgis.core import QgsProcessingParameterDateTime  # pylint: disable=ungrouped-imports
 
 
 class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-methods
@@ -749,7 +749,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 if isinstance(param, QgsProcessingParameterDateTime):
                     datetime: QDateTime = self.parameterAsDateTime(parameters, param.name(), context)
                     commands.extend(self.r_templates.set_datetime(param.name(), datetime))
-                    
+
         # folder, file/html output paths
         for param in self.destinationParameterDefinitions():
             if isinstance(param, QgsProcessingParameterFolderDestination):
