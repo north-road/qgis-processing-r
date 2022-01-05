@@ -741,11 +741,13 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     layer_idx += 1
                 s += ')'
                 commands.append(s)
-            elif Qgis.QGIS_VERSION_INT >= 31000:
+
+            if Qgis.QGIS_VERSION_INT >= 31000:
                 if isinstance(param, QgsProcessingParameterColor):
                     color: QColor = self.parameterAsColor(parameters, param.name(), context)
                     commands.extend(self.r_templates.set_color(param.name(), color))
-            elif Qgis.QGIS_VERSION_INT >= 31400:
+
+            if Qgis.QGIS_VERSION_INT >= 31400:
                 if isinstance(param, QgsProcessingParameterDateTime):
                     datetime: QDateTime = self.parameterAsDateTime(parameters, param.name(), context)
                     commands.extend(self.r_templates.set_datetime(param.name(), datetime))
