@@ -27,6 +27,7 @@ from qgis.core import (Qgis,
                        QgsProcessingAlgorithm,
                        QgsProcessingException,
                        QgsProcessingParameterRasterLayer,
+                       QgsProcessingParameterBand,
                        QgsProcessingParameterVectorLayer,
                        QgsProcessingParameterExtent,
                        QgsProcessingParameterCrs,
@@ -658,6 +659,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             if isinstance(param, QgsProcessingParameterRasterLayer):
                 rl = self.parameterAsRasterLayer(parameters, param.name(), context)
                 commands.append(self.build_raster_layer_import_command(param.name(), rl))
+            elif isinstance(param, QgsProcessingParameterBand):
+                value = self.parameterAsInt(parameters, param.name(), context)
+                commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterVectorLayer):
                 commands.append(self.load_vector_layer_from_parameter(param.name(), parameters, context, feedback))
             elif isinstance(param, QgsProcessingParameterFeatureSource):
@@ -699,12 +703,22 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 value = self.parameterAsDouble(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterEnum):
-                value = self.parameterAsEnum(parameters, param.name(), context)
-                if self.r_templates.is_literal_enum(param.name()):
-                    enum_values = self.parameterDefinition(param.name()).options()
-                    commands.append(self.r_templates.set_variable_enum_value(param.name(), value, enum_values))
+                if param.allowMultiple():
+                    values = self.parameterAsEnums(parameters, param.name(), context)
+                    if self.r_templates.is_literal_enum(param.name()):
+                        enum_values = self.parameterDefinition(param.name()).options()
+                        commands.append(
+                            self.r_templates.set_variable_string_list(param.name(), [enum_values[i] for i in values]))
+                    else:
+                        value = f'c({", ".join([str(i) for i in values])})'
+                        commands.append(self.r_templates.set_variable_directly(param.name(), value))
                 else:
-                    commands.append(self.r_templates.set_variable_directly(param.name(), value))
+                    value = self.parameterAsEnum(parameters, param.name(), context)
+                    if self.r_templates.is_literal_enum(param.name()):
+                        enum_values = self.parameterDefinition(param.name()).options()
+                        commands.append(self.r_templates.set_variable_enum_value(param.name(), value, enum_values))
+                    else:
+                        commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterBoolean):
                 value = self.parameterAsBool(parameters, param.name(), context)
                 value = 'TRUE' if value else 'FALSE'
