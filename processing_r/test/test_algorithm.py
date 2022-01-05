@@ -558,6 +558,7 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_r_script({'range': [0.5, 1.5]}, context, feedback)
         self.assertIn('range <- c(min = 0.5, max = 1.5)', script)
 
+    @unittest.skipIf(Qgis.QGIS_VERSION_INT < 31000, "QGIS version does not support this.")
     def testAlgColorInput(self):
         """
         Test color parameter
@@ -574,6 +575,7 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_r_script({'color': QColor(255, 0, 0)}, context, feedback)
         self.assertIn('color <- rgb(255, 0, 0, 255, maxColorValue = 255)', script)
 
+    @unittest.skipIf(Qgis.QGIS_VERSION_INT < 31400, "QGIS version does not support this.")
     def testAlgDateTimeInput(self):
         """
         Test datetime parameter
