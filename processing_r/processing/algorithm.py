@@ -56,11 +56,6 @@ from qgis.core import (Qgis,
                        QgsExpression,
                        QgsGeometry)
 
-if Qgis.QGIS_VERSION_INT >= 31000:
-    from qgis.core import QgsProcessingParameterColor
-if Qgis.QGIS_VERSION_INT >= 31400:
-    from qgis.core import QgsProcessingParameterDateTime
-    
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QDir,
@@ -75,6 +70,11 @@ from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
 from processing_r.gui.gui_utils import GuiUtils
 from processing_r.processing.r_templates import RTemplates
+
+if Qgis.QGIS_VERSION_INT >= 31000:
+    from qgis.core import QgsProcessingParameterColor
+if Qgis.QGIS_VERSION_INT >= 31400:
+    from qgis.core import QgsProcessingParameterDateTime
 
 
 class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-methods
