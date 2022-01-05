@@ -582,7 +582,7 @@ class AlgorithmTest(unittest.TestCase):
         Test datetime parameter
         """
 
-        if Qgis.QGIS_VERSION_INT < 31500:
+        if Qgis.QGIS_VERSION_INT < 31400:
             self.skipTest("QGIS version does not support this.")
 
         context = QgsProcessingContext()
