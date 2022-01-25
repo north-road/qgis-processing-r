@@ -2,9 +2,7 @@ name: github pages
 
 on:
   push:
-    paths: 
-      - processing_r/metadata.txt
-      - website/**
+    paths: processing_r/metadata.txt
 
 jobs:
 
@@ -12,16 +10,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: contains(github.event.head_commit.message, 'version') || contains(github.event.head_commit.message, 'fix') || contains(github.event.head_commit.modified, 'processing_r/metadata.txt')
-
     steps:
     - uses: actions/checkout@v1
-
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: |
-        echo "$GITHUB_CONTEXT"
 
     - name: Set up Python
       uses: actions/setup-python@v1
