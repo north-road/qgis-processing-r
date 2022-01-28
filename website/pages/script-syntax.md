@@ -99,7 +99,7 @@ So the inputs can look like this:
 
 ##### Feature source
 
-QgsProcessingParameterFeatureSource|name|description|geometry type|default value|optional
+`##QgsProcessingParameterFeatureSource|name|description|geometry type|default value|optional`
 * _name_ is mandatory
 * _description_ is mandatory
 * _geometry type_ is optional and the default value is `-1` for any geometry, the available values are `0` for point, `1` for line, `2` for polygon, `5` for table
@@ -118,7 +118,7 @@ QgsProcessingParameterFeatureSource|name|description|geometry type|default value
 
 ##### Raster layer
 
-QgsProcessingParameterRasterLayer|name|description|default value|optional
+`##QgsProcessingParameterRasterLayer|name|description|default value|optional`
 * _name_ is mandatory
 * _description_ is mandatory
 * _default value_ is optional and the default value is `None`
@@ -126,7 +126,7 @@ QgsProcessingParameterRasterLayer|name|description|default value|optional
 
 ##### File or folder parameter
 
-QgsProcessingParameterFile|name|description|behavior|extension|default value|optional|file filter
+`##QgsProcessingParameterFile|name|description|behavior|extension|default value|optional|file filter`
 * _name_ is mandatory
 * _description_ is mandatory
 * _behavior_ is optional and the default value is `0` for file, `1` is for folder input parameter

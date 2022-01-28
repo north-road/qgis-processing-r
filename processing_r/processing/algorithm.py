@@ -45,8 +45,6 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterPoint,
                        QgsProcessingParameterRange,
-                       QgsProcessingParameterColor,
-                       QgsProcessingParameterDateTime,
                        QgsProcessingParameterExpression,
                        QgsProcessingOutputDefinition,
                        QgsVectorFileWriter,
@@ -73,6 +71,11 @@ from processing_r.processing.outputs import create_output_from_string
 from processing_r.processing.utils import RUtils
 from processing_r.gui.gui_utils import GuiUtils
 from processing_r.processing.r_templates import RTemplates
+
+if Qgis.QGIS_VERSION_INT >= 31000:
+    from qgis.core import QgsProcessingParameterColor  # pylint: disable=ungrouped-imports
+if Qgis.QGIS_VERSION_INT >= 31400:
+    from qgis.core import QgsProcessingParameterDateTime  # pylint: disable=ungrouped-imports
 
 
 class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-methods
@@ -727,12 +730,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             elif isinstance(param, QgsProcessingParameterRange):
                 rgn: list = self.parameterAsRange(parameters, param.name(), context)
                 commands.extend(self.r_templates.set_range(param.name(), rgn))
-            elif isinstance(param, QgsProcessingParameterColor):
-                color: QColor = self.parameterAsColor(parameters, param.name(), context)
-                commands.extend(self.r_templates.set_color(param.name(), color))
-            elif isinstance(param, QgsProcessingParameterDateTime):
-                datetime: QDateTime = self.parameterAsDateTime(parameters, param.name(), context)
-                commands.extend(self.r_templates.set_datetime(param.name(), datetime))
             elif isinstance(param, QgsProcessingParameterMultipleLayers):
                 layer_idx = 0
                 layers = self.parameterAsLayerList(parameters, param.name(), context)
@@ -758,6 +755,16 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     layer_idx += 1
                 s += ')'
                 commands.append(s)
+
+            if Qgis.QGIS_VERSION_INT >= 31000:
+                if isinstance(param, QgsProcessingParameterColor):
+                    color: QColor = self.parameterAsColor(parameters, param.name(), context)
+                    commands.extend(self.r_templates.set_color(param.name(), color))
+
+            if Qgis.QGIS_VERSION_INT >= 31400:
+                if isinstance(param, QgsProcessingParameterDateTime):
+                    datetime: QDateTime = self.parameterAsDateTime(parameters, param.name(), context)
+                    commands.extend(self.r_templates.set_datetime(param.name(), datetime))
 
         # folder, file/html output paths
         for param in self.destinationParameterDefinitions():
