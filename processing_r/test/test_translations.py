@@ -26,7 +26,8 @@ class SafeTranslationsTest(unittest.TestCase):
 
     def setUp(self):
         """Runs before each test."""
-        if 'LANG' in iter(os.environ.keys()):  # pylint: disable=consider-iterating-dictionary
+        if os.getenv('LANG'):
+            del os.environ['LANG']
             os.environ.__delitem__('LANG')
 
     def tearDown(self):
