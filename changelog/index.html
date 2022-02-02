@@ -70,6 +70,10 @@
 <li>
     <a href="../ex_plot/" class="dropdown-item">Example of graphs output</a>
 </li>
+                                    
+<li>
+    <a href="../ex_expression/" class="dropdown-item">Example of using QGIS expressions</a>
+</li>
                                 </ul>
                             </li>
                             <li class="navitem active">
@@ -87,7 +91,7 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../ex_plot/" class="nav-link">
+                                <a rel="prev" href="../ex_expression/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
@@ -125,6 +129,9 @@
 
 <h1 id="changelog">Changelog</h1>
 <ul>
+<li>
+<p>3.1.1 Capture correctly even errors from R starting with <code>Error:</code>, fix importing <code>QgsProcessingParameterColor</code> and <code>QgsProcessingParameterDateTime</code> for older QGIS versions (where it is not available)</p>
+</li>
 <li>
 <p>3.0.0 Added support for <code>QgsProcessingParameter*</code> strings, that can be used to define script parameters. Better handling of errors in R scripts. New script parameter <code>##script_title</code>, that can be used to define string under which the script is listed in QGIS Toolbox.</p>
 </li>

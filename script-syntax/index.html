@@ -70,6 +70,10 @@
 <li>
     <a href="../ex_plot/" class="dropdown-item">Example of graphs output</a>
 </li>
+                                    
+<li>
+    <a href="../ex_expression/" class="dropdown-item">Example of using QGIS expressions</a>
+</li>
                                 </ul>
                             </li>
                             <li class="navitem">
@@ -155,6 +159,8 @@ This metadata line is based on the QGIS parameter <code>asScriptCode</code> / <c
 <p>So the inputs can look like this:</p>
 <p><code>##Layer=vector</code> specifies that there will be variable <code>Layer</code> that will be a vector.</p>
 <p><code>##X=Field Layer</code> specifies that variable <code>X</code> will be field name taken from <code>Layer</code>.</p>
+<p><code>##Raster_Layer=raster</code> specifies that there will be variable <code>Layer</code> that will be a raster.</p>
+<p><code>##X=Band Raster_Layer</code> specifies that variable <code>X</code> will be raster band index taken from <code>Raster_Layer</code>.</p>
 <p><code>##Size=number 10</code> specifies that there will be variable <code>Size</code> that will be numeric, and a default value for <code>Size</code> will be <code>10</code>.</p>
 <p><code>##Extent=extent</code> specifies that there will be variable <code>Extent</code> that will be numeric of length <code>4</code> (<em>xmin</em>, <em>xmax</em>, <em>ymin</em> and <em>ymax</em> values).</p>
 <p><code>##CRS=crs</code> specifies that there will be variable <code>CRS</code> that will be <code>EPSG:____</code> string.</p>
@@ -164,7 +170,8 @@ This metadata line is based on the QGIS parameter <code>asScriptCode</code> / <c
 <h5 id="enum">Enum</h5>
 <p>The basic enum syntax is <code>##var_enum=enum a;b;c</code> to select from values <code>a</code>, <code>b</code> or <code>c</code>. The value of <code>var_enum</code> in this case will be integer indicated position of the selected item in a list. So for example, if <code>a</code> is selected the value of <code>var_enum</code> will be <code>0</code>.</p>
 <p>The approach described above works well for a wide range of applications but for <strong>R</strong> it is often not ideal. That is a reason why a new type of enum is available in script syntax.</p>
-<p>The syntax is <code>##var_enum_string=enum literal a;b;c</code>. The important part here is the keyword <code>literal</code> (or more precisely <code>enum literal</code>) which specifies that the value from the select box to <code>var_enum_string</code> should be passed as a string. So if <code>b</code> is selected, then the value of <code>var_enum_string</code> will be <code>"a"</code>.</p>
+<p>The syntax is <code>##var_enum_string=enum literal a;b;c</code>. The important part here is the keyword <code>literal</code> (or more precisely <code>enum literal</code>) which specifies that the value from the select box to <code>var_enum_string</code> should be passed as a string. So if <code>b</code> is selected, then the value of <code>var_enum_string</code> will be <code>"b"</code>.</p>
+<p>Enum also accept multiples choices in both, literal or numeric setups, i.e. <code>##var_enum_string=enum literal multiple a;b;c</code> or <code>##var_enum_string=enum multiple a;b;c</code>. The variables in R will behave in the same way as non-multiple setup.</p>
 <h4 id="advanced-specification">Advanced specification</h4>
 <p>The inputs to R script are specified as: <code>QgsProcessingParameter|name|description|other_parameters_separated_by_pipe</code>.
 The <em>other</em> parameter_ separated_ by_ pipe_ can contain the <code>QgsProcessingParameter</code> specific parameters.
@@ -177,7 +184,7 @@ This metadata line is based on the QGIS definitions used in description file use
 <p><code>##QgsProcessingParameterEnum|METHOD|Method|[0] Sum;[1] Min;[2] Max</code> specifies that there will be variable <code>METHOD</code> that will be a value provided under <code>[]</code>.</p>
 <p><code>##QgsProcessingParameterVectorDestination|OUTPUT|Result</code> specifies that there will be variable <code>OUTPUT</code> that will be the destination file.</p>
 <h5 id="feature-source">Feature source</h5>
-<p>QgsProcessingParameterFeatureSource|name|description|geometry type|default value|optional
+<p><code>##QgsProcessingParameterFeatureSource|name|description|geometry type|default value|optional</code>
 * <em>name</em> is mandatory
 * <em>description</em> is mandatory
 * <em>geometry type</em> is optional and the default value is <code>-1</code> for any geometry, the available values are <code>0</code> for point, <code>1</code> for line, <code>2</code> for polygon, <code>5</code> for table
@@ -189,13 +196,13 @@ This metadata line is based on the QGIS definitions used in description file use
 <p><code>##QgsProcessingParameterFeatureSource|INPUT|Table|5</code> specifies that there will be variable <code>INPUT</code> that will be a vector layer to provide table.</p>
 <p><code>##QgsProcessingParameterFeatureSource|INPUT|Optional layer|-1|None|True</code> specifies that there will be variable <code>INPUT</code> that will be an optional vector layer.</p>
 <h5 id="raster-layer">Raster layer</h5>
-<p>QgsProcessingParameterRasterLayer|name|description|default value|optional
+<p><code>##QgsProcessingParameterRasterLayer|name|description|default value|optional</code>
 * <em>name</em> is mandatory
 * <em>description</em> is mandatory
 * <em>default value</em> is optional and the default value is <code>None</code>
 * <em>optional</em> is optional and the default value is <code>False</code></p>
 <h5 id="file-or-folder-parameter">File or folder parameter</h5>
-<p>QgsProcessingParameterFile|name|description|behavior|extension|default value|optional|file filter
+<p><code>##QgsProcessingParameterFile|name|description|behavior|extension|default value|optional|file filter</code>
 * <em>name</em> is mandatory
 * <em>description</em> is mandatory
 * <em>behavior</em> is optional and the default value is <code>0</code> for file, <code>1</code> is for folder input parameter
@@ -207,6 +214,13 @@ This metadata line is based on the QGIS definitions used in description file use
 <p><code>##QgsProcessingParameterFile|in_folder|Input folder|1</code> specifies that there will be variable <code>in_folder</code> that will be a folder.</p>
 <p><code>##QgsProcessingParameterFile|in_gpkg|Input gpkg|0|gpkg</code> specifies that there will be variable <code>in_gpkg</code> that will be gpkg file.</p>
 <p><code>##QgsProcessingParameterFile|in_img|Input img|0|png|None|False|PNG Files (*.png);; JPG Files (*.jpg *.jpeg)</code>  specifies that there will be variable <code>in_img</code> that will be an image PNG or JPG.</p>
+<h4 id="qgis-expression">QGIS Expression</h4>
+<p>A QGIS expression can be used as input for the script. The syntax is <code>r_variable_name=expression</code> followed by space and any valid QGIS expression. The expression is evaluated in QGIS before passing the result value script to R. This type of input is hidden from user of the script and can only be modified by editing the R script itself.</p>
+<p>The following code:</p>
+<p><code>##qgis_expression=expression @qgis_version</code></p>
+<p>creates variable <code>qgis_expression</code> that will hold information about QGIS version on which the script was run (i.e. <strong>3.22.0-Białowieża</strong>).</p>
+<p><code>##example_geometry=expression make_circle( make_point(0, 0), 10)</code> creates R variable with name <code>example_geometry</code> that holds polygon created by the expression.</p>
+<p>The variable type for R is determined from type of expression output in QGIS. So far these types are supported - string, integer, float, date, time, datetime, geometry and lists (arrays) of these types.</p>
 <h3 id="outputs">Outputs</h3>
 <p>The outputs of R script are specified as <code>##variable_name=output output_type</code>. This line also specifies how tool UI will look in QGIS, as outputs are one section of the tool UI. In this specification <em>variable_name</em> specifies variable from the script that will be exported back to QGIS, <em>output_type</em> is one of the allowed types that can be returned from R script (layer, raster, folder, file, HTML, number, string, table).</p>
 <p>So the outputs can look like this:</p>

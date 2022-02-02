@@ -6,9 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <meta name="author" content="Jan Caha">
-        <link rel="canonical" href="https://north-road.github.io/qgis-processing-r/ex_plot/">
+        <link rel="canonical" href="https://north-road.github.io/qgis-processing-r/ex_expression/">
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Example of graphs output - Processing R Provider</title>
+        <title>Example of using QGIS expressions - Processing R Provider</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -68,11 +68,11 @@
 </li>
                                     
 <li>
-    <a href="./" class="dropdown-item active">Example of graphs output</a>
+    <a href="../ex_plot/" class="dropdown-item">Example of graphs output</a>
 </li>
                                     
 <li>
-    <a href="../ex_expression/" class="dropdown-item">Example of using QGIS expressions</a>
+    <a href="./" class="dropdown-item active">Example of using QGIS expressions</a>
 </li>
                                 </ul>
                             </li>
@@ -91,12 +91,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../ex_console_output/" class="nav-link">
+                                <a rel="prev" href="../ex_plot/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../ex_expression/" class="nav-link">
+                                <a rel="next" href="../changelog/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -118,13 +118,21 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#example-of-graphs-output" class="nav-link">Example of graphs output</a>
+            <li class="nav-item" data-level="1"><a href="#example-with-qgis-expression-as-inputs" class="nav-link">Example with QGIS expression as inputs</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-level="2"><a href="#script" class="nav-link">Script</a>
               <ul class="nav flex-column">
               </ul>
             </li>
             <li class="nav-item" data-level="2"><a href="#script-lines-description" class="nav-link">Script lines description</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#script-output" class="nav-link">Script output</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#generated-r-script" class="nav-link">Generated R script</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -135,30 +143,61 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="example-of-graphs-output">Example of graphs output</h1>
-<p>This scripts takes input vector data and randomly samples <em>Size</em> points over it. The result is returned as a vector layer.
-s</p>
+<h1 id="example-with-qgis-expression-as-inputs">Example with QGIS expression as inputs</h1>
+<p>This script takes several QGIS expression and prints their values from R.</p>
 <h2 id="script">Script</h2>
-<pre><code>##Basic statistics=group
-##Graphs=name
-##output_plots_to_html
-##Layer=vector
-##Field=Field Layer
-qqnorm(Layer[[Field]])
-qqline(Layer[[Field]])
+<pre><code>##Expression examples=group
+##Expressions=name
+##qgis_version_info=expression @qgis_version_no
+##example_value=expression 1+2+3
+##example_geometry=expression make_circle( make_point(0, 0), 10)
+##example_date=expression make_date(2020,5,4)
+##example_time=expression make_time(13,45,30.5)
+##example_array=expression array(2, 10, 'a')
+&gt;print(qgis_version_info)
+&gt;print(example_value)
+&gt;print(example_geometry)
+&gt;print(example_date)
+&gt;print(example_time)
+&gt;print(example_array)
 </code></pre>
 <h2 id="script-lines-description">Script lines description</h2>
 <ol>
-<li><strong>Basic statistics</strong> is the group of the algorithm.</li>
-<li><strong>Graphs</strong> is the name of the algorithm.</li>
-<li>The script output plot or plots.</li>
-<li><strong>Layer</strong> is the input vector layer.</li>
-<li><strong>Field</strong> is the name of the field from <em>Layer</em> whose values will be plotted.</li>
-<li>Produce a standard QQ plot of the values from <em>Field</em> of <em>Layer</em>.</li>
-<li>Add a line to a “theoretical”, by default normal, quantile-quantile plot which passes through the probs quantiles, by default the first and third quartiles.</li>
+<li><strong>Expression examples</strong> is the group of the algorithm.</li>
+<li><strong>Expressions</strong> is the name of the algorithm.</li>
+<li><strong>qgis_version_info</strong> will be <strong>string</strong> after the expression is evaluated.</li>
+<li><strong>example_value</strong> will be number (<strong>integer</strong>) after the expression is evaluated.</li>
+<li><strong>example_geometry</strong> will be <strong>sfg</strong> (from <strong>sf</strong> package) after the expression is evaluated.</li>
+<li><strong>example_date</strong> will be <strong>POSIXct</strong> after the expression is evaluated.</li>
+<li><strong>example_time</strong> will be <strong>Period</strong> (from <strong>lubridate</strong> package) after the expression is evaluated.</li>
+<li><strong>example_array</strong> will be <strong>list</strong> of values after the expression is evaluated.</li>
 </ol>
-<p>The plot is automatically added to the Result Viewer of Processing, and it can be open the location shown in the image.</p>
-<p><img alt="" src="../images/graph_location.jpg" /></p></div>
+<p>The rest of the lines prints the outputs in R. </p>
+<h2 id="script-output">Script output</h2>
+<p>The result may look like this (depending on QGIS version):</p>
+<pre><code>1] 32200
+[1] 6
+POLYGON ((3.06e-15 10, 1.736482 9.848078, 3.420201 9.396926, 5 8.660254, 6.427876 7.660444, 7.660444 6.427876, 8.660254 5, 9.396926 3.420201, 9.848078 1.736482, 10 -2.45e-15, 9.848078 -1.736482, 9.396926 -3.420201, 8.660254 -5, 7.660444 -6.427876, 6.427876 -7.660444, 5 -8.660254, 3.420201 -9.396926, 1.736482 -9.848078, -1.84e-15 -10, -1.736482 -9.848078, -3.420201 -9.396926, -5 -8.660254, -6.427876 -7.660444, -7.660444 -6.427876, -8.660254 -5, -9.396926 -3.420201, -9.848078 -1.736482, -10 1.22e-15, -9.848078 1.736482, -9.396926 3.420201, -8.660254 5, -7.660444 6.427876, -6.427876 7.660444, -5 8.660254, -3.420201 9.396926, -1.736482 9.848078, 3.06e-15 10))
+[1] &quot;2020-05-04 CEST&quot;
+[1] &quot;13H 45M 30S&quot;
+[[1]]
+[1] 2
+
+[[2]]
+[1] 10
+
+[[3]]
+[1] &quot;a&quot;
+</code></pre>
+<h2 id="generated-r-script">Generated R script</h2>
+<p>The code that was actually generated from these expressions and passed to R looks like this:</p>
+<pre><code>qgis_version_info &lt;- 32200
+example_value &lt;- 6
+example_geometry &lt;- sf::st_as_sfc(&quot;Polygon ((0.00000000000000306 10, 1.73648177666930459 9.84807753012207954, 3.42020143325668657 9.39692620785908517, 5.00000000000000533 8.66025403784438375, 6.42787609686539696 7.66044443118977814, 7.6604444311897808 6.42787609686539163, 8.66025403784438552 5, 9.39692620785908517 3.42020143325668124, 9.84807753012208131 1.73648177666929904, 10 -0.00000000000000245, 9.84807753012207954 -1.73648177666930392, 9.39692620785908517 -3.42020143325668569, 8.66025403784438907 -4.99999999999999734, 7.66044443118977902 -6.42787609686539607, 6.42787609686539163 -7.66044443118977991, 4.99999999999999645 -8.66025403784438907, 3.42020143325668613 -9.39692620785908517, 1.73648177666930414 -9.84807753012207954, -0.00000000000000184 -10, -1.73648177666930348 -9.84807753012207954, -3.42020143325668924 -9.39692620785908339, -5 -8.6602540378443873, -6.42787609686539607 -7.66044443118977902, -7.66044443118977991 -6.42787609686539252, -8.66025403784438552 -5.00000000000000089, -9.39692620785908161 -3.42020143325669057, -9.84807753012208131 -1.73648177666930015, -10 0.00000000000000122, -9.84807753012208131 1.73648177666930281, -9.39692620785908517 3.42020143325668435, -8.66025403784438552 5.00000000000000444, -7.66044443118977902 6.42787609686539607, -6.42787609686539252 7.66044443118977991, -5.00000000000000089 8.66025403784438552, -3.42020143325669101 9.39692620785908161, -1.73648177666930059 9.84807753012208131, 0.00000000000000306 10))&quot;)[[1]]
+example_date &lt;- as.POSIXct(&quot;2020-05-04&quot;, format = &quot;%Y-%m-%d&quot;)
+example_time &lt;- lubridate::hms(&quot;13:45:30&quot;)
+example_array &lt;- list(2, 10, &quot;a&quot;)
+</code></pre></div>
             </div>
         </div>
 
