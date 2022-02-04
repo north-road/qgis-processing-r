@@ -588,6 +588,9 @@ class AlgorithmTest(unittest.TestCase):
         Test color parameter
         """
 
+        if Qgis.QGIS_VERSION_INT < 31000:
+            self.skipTest("QGIS version does not support this.")
+
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
 
@@ -603,6 +606,9 @@ class AlgorithmTest(unittest.TestCase):
         """
         Test datetime parameter
         """
+
+        if Qgis.QGIS_VERSION_INT < 31400:
+            self.skipTest("QGIS version does not support this.")
 
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()

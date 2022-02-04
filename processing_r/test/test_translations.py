@@ -26,13 +26,13 @@ class SafeTranslationsTest(unittest.TestCase):
 
     def setUp(self):
         """Runs before each test."""
-        if 'LANG' in iter(os.environ.keys()):
-            os.environ.__delitem__('LANG')
+        if os.getenv('LANG'):
+            del os.environ['LANG']
 
     def tearDown(self):
         """Runs after each test."""
-        if 'LANG' in iter(os.environ.keys()):
-            os.environ.__delitem__('LANG')
+        if os.getenv('LANG'):
+            del os.environ['LANG']
 
     def test_qgis_translations(self):
         """Test that translations work."""
