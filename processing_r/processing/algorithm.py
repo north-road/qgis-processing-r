@@ -836,32 +836,19 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         if self.r_templates.is_literal_enum(param.name()):
 
-            if Qgis.versionInt() >= 31800:
+            if param.allowMultiple():
 
-                if param.allowMultiple():
+                values = self.parameterAsEnums(parameters, param.name(), context)
+                enum_values = self.parameterDefinition(param.name()).options()
+                enum_values = [enum_values[i] for i in values]
 
-                    enum_values = self.parameterAsEnumStrings(parameters, param.name(), context)
-                    enum_code = self.r_templates.set_variable_string_list(param.name(), enum_values)
-
-                else:
-                    enum_value = self.parameterAsEnumString(parameters, param.name(), context)
-                    enum_code = self.r_templates.set_variable_string(param.name(), enum_value)
+                enum_code = self.r_templates.set_variable_string_list(param.name(), enum_values)
 
             else:
 
-                if param.allowMultiple():
-
-                    values = self.parameterAsEnums(parameters, param.name(), context)
-                    enum_values = self.parameterDefinition(param.name()).options()
-                    enum_values = [enum_values[i] for i in values]
-
-                    enum_code = self.r_templates.set_variable_string_list(param.name(), enum_values)
-
-                else:
-
-                    value = self.parameterAsEnum(parameters, param.name(), context)
-                    enum_value = self.parameterDefinition(param.name()).options()
-                    enum_code = self.r_templates.set_variable_enum_value(param.name(), value, enum_value)
+                value = self.parameterAsEnum(parameters, param.name(), context)
+                enum_value = self.parameterDefinition(param.name()).options()
+                enum_code = self.r_templates.set_variable_enum_value(param.name(), value, enum_value)
 
         else:
 
