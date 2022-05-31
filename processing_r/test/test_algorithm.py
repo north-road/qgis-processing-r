@@ -650,7 +650,22 @@ class AlgorithmTest(unittest.TestCase):
                                            feedback)
         self.assertIn('Band <- 1', script)
 
+    def testAlgLibraryWithOptions(self):
+        """
+        Test library with options
+        """
 
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_library_with_option.rsx'))
+        alg.initAlgorithm()
+
+        script = alg.r_templates.build_script_header_commands(alg.script)
+
+        self.assertIn('tryCatch(find.package("MASS"), error = function(e) install.packages("MASS", dependencies=TRUE))', script)
+        self.assertIn('tryCatch(find.package("Matrix"), error = function(e) install.packages("Matrix", dependencies=TRUE))', script)
+        self.assertIn('library("MASS", quietly=True)', script)
+        self.assertIn('library("Matrix")', script)
+
+ 
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
     runner = unittest.TextTestRunner(verbosity=2)
