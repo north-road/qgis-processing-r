@@ -841,8 +841,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 if Qgis.versionInt() >= 31800:
                     enum_values = self.parameterAsEnumStrings(parameters, param.name(), context)
                 else:
+                    values = self.parameterAsEnums(parameters, param.name(), context)
                     enum_values = self.parameterDefinition(param.name()).options()
-                    enum_values = [enum_values[i] for i in enum_values]
+                    enum_values = [enum_values[i] for i in values]
 
                 enum_code = self.r_templates.set_variable_string_list(param.name(), enum_values)
 
@@ -860,6 +861,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     enum_value = self.parameterAsEnumString(parameters, param.name(), context)
                     enum_code = self.r_templates.set_variable_string(param.name(), enum_value)
                 else:
+                    value = self.parameterAsEnum(parameters, param.name(), context)
                     enum_value = self.parameterDefinition(param.name()).options()
                     enum_code = self.r_templates.set_variable_enum_value(param.name(), value, enum_value)
 
