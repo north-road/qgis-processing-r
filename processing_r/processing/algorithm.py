@@ -302,7 +302,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             return
 
         # process enum with values and preparing its template
-        if "=enum literal" in RUtils.upgrade_parameter_line(line):
+        if "enum literal" in RUtils.upgrade_parameter_line(line):
             self.r_templates.add_literal_enum(value)
 
         if "=expression" in line:
