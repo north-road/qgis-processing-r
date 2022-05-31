@@ -665,7 +665,7 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('library("MASS", quietly=True)', script)
         self.assertIn('library("Matrix")', script)
 
- 
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(AlgorithmTest)
     runner = unittest.TextTestRunner(verbosity=2)

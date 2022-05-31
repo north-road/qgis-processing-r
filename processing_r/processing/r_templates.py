@@ -507,7 +507,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
             splitted = package_load_string.split(",", maxsplit=1)
 
-            package_name = splitted[0] 
+            package_name = splitted[0]
             load_options = splitted[1]
 
         else:
