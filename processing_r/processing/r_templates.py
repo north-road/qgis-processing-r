@@ -12,7 +12,7 @@ __author__ = '(C) 2019 by Jan Caha'
 __date__ = '17/10/2019'
 __copyright__ = 'Copyright 2018, North Road'
 
-from typing import List, Any
+from typing import List, Any, Tuple, Optional
 
 from qgis.core import (QgsCoordinateReferenceSystem,
                        QgsPointXY,
@@ -498,6 +498,25 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         commands.append('cat({0}, file="{1}", sep="\n", append=TRUE)'.format(variable, path))
         return commands
 
+    def extract_package_name_options(self, package_load_string: str) -> Tuple[str, Optional[str]]:
+        """
+        Returns package name and options if they exist.
+        """
+
+        if "," in package_load_string:
+
+            splitted = package_load_string.split(",", maxsplit=1)
+
+            package_name = splitted[0] 
+            load_options = splitted[1]
+
+        else:
+
+            package_name = package_load_string
+            load_options = None
+
+        return package_name, load_options
+
     def check_package_availability(self, package_name: str) -> str:
         """
         Function that produces R code to check availability and install missing R packages.
@@ -505,8 +524,11 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param package_name: string. Name of the package to check.
         :return: string. R code to check the package and install it if missing.
         """
+
+        package, _ = self.extract_package_name_options(package_name)
+
         command = 'tryCatch(find.package("{0}"), error = function(e) install.packages("{0}", dependencies=TRUE))' \
-            .format(package_name)
+            .format(package)
 
         return command
 
@@ -517,7 +539,15 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param package_name: string. Name of the package.
         :return: string. R code to load given package.
         """
-        return 'library("{0}")'.format(package_name)
+
+        package, options = self.extract_package_name_options(package_name)
+
+        if options:
+            library_command = 'library("{0}",{1})'.format(package, options)
+        else:
+            library_command = 'library("{0}")'.format(package_name)
+
+        return library_command
 
     def change_libPath(self, path: str) -> str:
         """
