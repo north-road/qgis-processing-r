@@ -490,9 +490,29 @@ class AlgorithmTest(unittest.TestCase):
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
 
-        script = alg.build_import_commands({'enum_normal': [0, 1], 'enum_string': [0, 1]}, context, feedback)
+        params = {'enum_normal': [0, 1],
+                  'enum_string': [0, 1],
+                  'R_CONSOLE_OUTPUT': 'TEMPORARY_OUTPUT'}
+
+        script = alg.build_import_commands(params, context, feedback)
+
         self.assertIn('enum_normal <- c(0, 1)', script)
         self.assertIn('enum_string <- c("enum_a","enum_b")', script)
+        self.assertIn('enum_string_optional <- NULL', script)
+        self.assertIn('enum_normal_optional <- NULL', script)
+
+        params = {'enum_normal': [0, 1, 2],
+                  'enum_string': [0, 2],
+                  'enum_string_optional': [0],
+                  'enum_normal_optional': [1],
+                  'R_CONSOLE_OUTPUT': 'TEMPORARY_OUTPUT'}
+
+        script = alg.build_import_commands(params, context, feedback)
+
+        self.assertIn('enum_normal <- c(0, 1, 2)', script)
+        self.assertIn('enum_string <- c("enum_a","enum_c")', script)
+        self.assertIn('enum_string_optional <- c("enum_a")', script)
+        self.assertIn('enum_normal_optional <- c(1)', script)
 
     def testAlgHelp(self):  # pylint: disable=too-many-locals,too-many-statements
         """
