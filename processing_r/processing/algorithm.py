@@ -302,7 +302,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             return
 
         # process enum with values and preparing its template
-        if "=enum literal" in RUtils.upgrade_parameter_line(line):
+        if "enum literal" in RUtils.upgrade_parameter_line(line):
             self.r_templates.add_literal_enum(value)
 
         if "=expression" in line:
@@ -703,22 +703,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 value = self.parameterAsDouble(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterEnum):
-                if param.allowMultiple():
-                    values = self.parameterAsEnums(parameters, param.name(), context)
-                    if self.r_templates.is_literal_enum(param.name()):
-                        enum_values = self.parameterDefinition(param.name()).options()
-                        commands.append(
-                            self.r_templates.set_variable_string_list(param.name(), [enum_values[i] for i in values]))
-                    else:
-                        value = f'c({", ".join([str(i) for i in values])})'
-                        commands.append(self.r_templates.set_variable_directly(param.name(), value))
-                else:
-                    value = self.parameterAsEnum(parameters, param.name(), context)
-                    if self.r_templates.is_literal_enum(param.name()):
-                        enum_values = self.parameterDefinition(param.name()).options()
-                        commands.append(self.r_templates.set_variable_enum_value(param.name(), value, enum_values))
-                    else:
-                        commands.append(self.r_templates.set_variable_directly(param.name(), value))
+                commands.append(self.process_enum(parameters, param, context))
             elif isinstance(param, QgsProcessingParameterBoolean):
                 value = self.parameterAsBool(parameters, param.name(), context)
                 value = 'TRUE' if value else 'FALSE'
@@ -841,3 +826,41 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if context == '':
             context = 'RAlgorithmProvider'
         return QCoreApplication.translate(context, string)
+
+    def process_enum(self, parameters, param, context) -> str:
+        """
+        Returns string representation of enum `param`.
+        """
+
+        enum_code = ""
+
+        if self.r_templates.is_literal_enum(param.name()):
+
+            if param.allowMultiple():
+
+                values = self.parameterAsEnums(parameters, param.name(), context)
+                enum_values = self.parameterDefinition(param.name()).options()
+                enum_values = [enum_values[i] for i in values]
+
+                enum_code = self.r_templates.set_variable_string_list(param.name(), enum_values)
+
+            else:
+
+                value = self.parameterAsEnum(parameters, param.name(), context)
+                enum_value = self.parameterDefinition(param.name()).options()
+                enum_code = self.r_templates.set_variable_enum_value(param.name(), value, enum_value)
+
+        else:
+
+            if param.allowMultiple():
+
+                values = self.parameterAsEnums(parameters, param.name(), context)
+                value = f'c({", ".join([str(i) for i in values])})'
+                enum_code = self.r_templates.set_variable_directly(param.name(), value)
+
+            else:
+
+                value = self.parameterAsEnum(parameters, param.name(), context)
+                enum_code = self.r_templates.set_variable_directly(param.name(), value)
+
+        return enum_code
