@@ -534,6 +534,17 @@ class AlgorithmTest(unittest.TestCase):
         alg.initAlgorithm()
         self.assertEqual(alg.shortHelpString(), "")
 
+        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_inline_help.rsx'))
+        alg.initAlgorithm()
+        self.assertIn('A polygon layer', alg.shortHelpString())
+        self.assertIn('Me2', alg.shortHelpString())
+        self.assertIn('Test help.', alg.shortHelpString())
+
+        # param help
+        if Qgis.QGIS_VERSION_INT >= 31604:
+            polyg_param = alg.parameterDefinition('polyg')
+            self.assertEqual(polyg_param.help(), 'A polygon layer description from multi-lines')
+
     def testAlgDontLoadAnyPackages(self):
         """
         Test dont_load_any_packages keyword
