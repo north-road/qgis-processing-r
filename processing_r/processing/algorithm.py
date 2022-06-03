@@ -210,15 +210,22 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         with open(self.description_file, 'r', encoding='utf8') as f:
             lines = [line.strip() for line in f]
             # ordering for inline_help uses
-            tmp = []
-            for subs in ["#'", "##"]:
-                for line in lines:
-                    if line.startswith(subs):
-                        tmp.append(line)
-            for line in lines:
-                if line not in tmp:
-                    tmp.append(line)
-            lines = tmp
+
+        lines_help = []
+        lines_header = []
+        lines_r = []
+
+        for line in lines:
+            line = line.strip()
+            if line.startswith("#'"):
+                lines_help.append(line)
+            elif line.startswith("##"):
+                lines_header.append(line)
+            else:
+                lines_r.append(line)
+
+        lines = lines_help + lines_header + lines_r
+
         self.parse_script(iter(lines))
 
     def parse_script(self, lines):
