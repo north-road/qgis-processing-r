@@ -302,7 +302,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             return
 
         # process enum with values and preparing its template
-        if "=enum literal" in RUtils.upgrade_parameter_line(line):
+        if "enum literal" in RUtils.upgrade_parameter_line(line):
             self.r_templates.add_literal_enum(value)
 
         if "=expression" in line:
@@ -834,34 +834,29 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         enum_code = ""
 
-        if param.allowMultiple():
+        if self.r_templates.is_literal_enum(param.name()):
 
-            if self.r_templates.is_literal_enum(param.name()):
+            if param.allowMultiple():
 
-                if Qgis.versionInt() >= 31800:
-                    enum_values = self.parameterAsEnumStrings(parameters, param.name(), context)
-                else:
-                    enum_values = self.parameterDefinition(param.name()).options()
-                    enum_values = [enum_values[i] for i in enum_values]
+                values = self.parameterAsEnums(parameters, param.name(), context)
+                enum_values = self.parameterDefinition(param.name()).options()
+                enum_values = [enum_values[i] for i in values]
 
                 enum_code = self.r_templates.set_variable_string_list(param.name(), enum_values)
 
             else:
 
-                values = self.parameterAsEnums(parameters, param.name(), context)
-                value = f'c({", ".join([str(i) for i in values])})'
-                enum_code = self.r_templates.set_variable_directly(param.name(), value)
+                value = self.parameterAsEnum(parameters, param.name(), context)
+                enum_value = self.parameterDefinition(param.name()).options()
+                enum_code = self.r_templates.set_variable_enum_value(param.name(), value, enum_value)
 
         else:
 
-            if self.r_templates.is_literal_enum(param.name()):
+            if param.allowMultiple():
 
-                if Qgis.versionInt() >= 31800:
-                    enum_value = self.parameterAsEnumString(parameters, param.name(), context)
-                else:
-                    enum_value = self.parameterDefinition(param.name()).options()
-
-                enum_code = self.r_templates.set_variable_enum_value(param.name(), value, enum_value)
+                values = self.parameterAsEnums(parameters, param.name(), context)
+                value = f'c({", ".join([str(i) for i in values])})'
+                enum_code = self.r_templates.set_variable_directly(param.name(), value)
 
             else:
 
