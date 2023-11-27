@@ -31,16 +31,6 @@ class RTemplates:  # pylint: disable=too-many-public-methods
     """
 
     def __init__(self):
-        self._use_sf = True
-        """
-        Variable defining that vectors will be read through package `sf` if `TRUE` or through `rgdal` and `sp` if
-        `FALSE`.
-        """
-        self._use_raster = True
-        """
-        Variable defining that rasters will be read through package `raster` if `TRUE` or through `rgdal` and `sp` if
-        `FALSE`.
-        """
         self._use_lubridate = False
         """
         Variable specifying whether lubridate package should be used.
@@ -116,57 +106,17 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         self._install_github = use
 
-    @property
-    def use_sf(self):
-        """
-        Getter for class variable use_sf.
-        :return: bool
-        """
-        return self._use_sf
-
-    @use_sf.setter
-    def use_sf(self, use: bool):
-        """
-        Setter for class variable use_sf.
-        :param use: bool
-        """
-        self._use_sf = use
-
-    @property
-    def use_raster(self):
-        """
-        Getter fir class variable use_raster.
-        :return: bool
-        """
-        return self._use_raster
-
-    @use_raster.setter
-    def use_raster(self, use: bool):
-        """
-        Setter for class variable use_raster.
-        :param use: bool
-        """
-        self._use_raster = use
-
     def get_necessary_packages(self) -> list:
         """
-        Produces list of necessary packages for the script based on values of variables use_raster and use_sf.
+        Produces list of necessary packages for the script.
 
         :return: list of strings with names of packages
         """
         packages = []
 
         if self.auto_load_packages:
-            if self.use_sf:
-                packages.append("sf")
-            else:
-                packages.append("rgdal")
-                packages.append("sp")
-
-            if self.use_raster:
-                packages.append("raster")
-            else:
-                packages.append("rgdal")
+            packages.append("sf")
+            packages.append("raster")
 
         if self._use_lubridate:
             packages.append("lubridate")
@@ -175,44 +125,6 @@ class RTemplates:  # pylint: disable=too-many-public-methods
             packages.append("remotes")
 
         return packages
-
-    def __set_variable_vector_sf(self, variable: str, path: str, layer: str = None) -> str:
-        """
-        Internal function that produces R code to read vector data using sf package.
-
-        :param variable: string
-        :param path: string
-        :param layer: string
-        :return: string
-        """
-        command = ""
-
-        if layer is not None:
-            command = '{0} <- st_read("{1}", layer = "{2}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable,
-                                                                                                            path, layer)
-        else:
-            command = '{0} <- st_read("{1}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable, path)
-
-        return command
-
-    def __set_variable_vector_rgdal(self, variable: str, path: str, layer: str = None) -> str:
-        """
-        Internal function that produces R code to read vector data using rgdal package.
-
-        :param variable: string
-        :param path: string
-        :param layer: string
-        :return: string
-        """
-
-        command = ""
-
-        if layer is not None:
-            command = '{0} <- readOGR("{1}", layer="{2}")'.format(variable, path, layer)
-        else:
-            command = '{0} <- readOGR("{1}")'.format(variable, path)
-
-        return command
 
     def set_variable_vector(self, variable: str, path: str, layer: str = None) -> str:
         """
@@ -224,33 +136,13 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code to read vector data.
         """
 
-        if self.use_sf:
-            code = self.__set_variable_vector_sf(variable, path, layer)
+        if layer is not None:
+            command = '{0} <- st_read("{1}", layer = "{2}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable,
+                                                                                                            path, layer)
         else:
-            code = self.__set_variable_vector_rgdal(variable, path, layer)
+            command = '{0} <- st_read("{1}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable, path)
 
-        return code
-
-    def __set_variable_raster_raster(self, variable: str, path: str) -> str:
-        """
-        Internal function that produces R code to read raster data using raster package.
-
-        :param variable: string
-        :param path: string
-        :return: string
-        """
-        return '{0} <- brick("{1}")'.format(variable, path)
-
-    def __set_variable_raster_gdal(self, variable: str, path: str) -> str:
-        """
-        Internal function that produces R code to read raster data using rgdal package.
-
-        :param variable: string
-        :param path: string
-        :return: string
-        """
-
-        return '{0} <- readGDAL("{1}")'.format(variable, path)
+        return command
 
     def set_variable_raster(self, variable: str, path: str) -> str:
         """
@@ -261,12 +153,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code to read raster data.
         """
 
-        if self.use_raster:
-            code = self.__set_variable_raster_raster(variable, path)
-        else:
-            code = self.__set_variable_raster_gdal(variable, path)
-
-        return code
+        return '{0} <- brick("{1}")'.format(variable, path)
 
     def set_variable_extent(self, variable: str, x_min: float, x_max: float, y_min: float, y_max: float):
         """
@@ -371,41 +258,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         return 'dev.off()'
 
-    def __write_vector_sf(self, variable: str, path: str, layer_name: str = None) -> str:
-        """
-        Internal function that produces R code to write vector data using sf package.
-
-        :param variable: string
-        :param path: string
-        :param layer_name: string
-        :return: string
-        """
-
-        command = ""
-
-        if layer_name is not None:
-            command = 'st_write({0}, "{1}", layer = "{2}", quiet = TRUE)'.format(variable, path, layer_name)
-        else:
-            command = 'st_write({0}, "{1}", quiet = TRUE)'.format(variable, path)
-
-        return command
-
-    def __write_vector_ogr(self, variable: str, path: str, layer_name: str = None, driver: str = "gpkg") -> str:
-        """
-        Internal function that produces R code to write vector data using rgdal package.
-
-        :param variable: string
-        :param path: string
-        :param layer_name: string
-        :param driver: string
-        :return: string
-        """
-
-        command = 'writeOGR({0}, "{1}", "{2}", driver="{3}")'.format(variable, path, layer_name, driver)
-
-        return command
-
-    def write_vector_output(self, variable: str, path: str, layer_name: str = None, driver: str = "gpkg") -> str:
+    def write_vector_output(self, variable: str, path: str, layer_name: str = None) -> str:
         """
         Functions that produces R code to write vector data.
 
@@ -415,35 +268,12 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param driver: string. GDAL driver name to use. Default value "GPKG" - geopackage.
         :return: string. R code to write vector data to disc.
         """
-        if self.use_sf:
-            code = self.__write_vector_sf(variable, path, layer_name)
+        if layer_name is not None:
+            command = 'st_write({0}, "{1}", layer = "{2}", quiet = TRUE)'.format(variable, path, layer_name)
         else:
-            code = self.__write_vector_ogr(variable, path, layer_name, driver)
+            command = 'st_write({0}, "{1}", quiet = TRUE)'.format(variable, path)
 
-        return code
-
-    def __write_raster_raster(self, variable: str, path: str) -> str:
-        """
-        Internal function that produces R code to write raster data using raster package.
-
-        :param variable: string
-        :param path: string
-        :return: string
-        """
-        return 'writeRaster({0}, "{1}", overwrite = TRUE)'.format(variable, path)
-
-    def __write_raster_gdal(self, variable: str, path: str) -> str:
-        """
-        Internal function that produces R code to write raster data using rgdal package.
-
-        :param variable: string
-        :param path: string
-        :return: stringable_n
-        """
-
-        if not path.lower().endswith('tif'):
-            path = path + '.tif'
-        return 'writeGDAL({0}, "{1}")'.format(variable, path)
+        return command
 
     def write_raster_output(self, variable: str, path: str) -> str:
         """
@@ -453,12 +283,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param path: string. Path to write the data to.
         :return: string. R code to write raster data to disc.
         """
-        if self.use_raster:
-            code = self.__write_raster_raster(variable, path)
-        else:
-            code = self.__write_raster_gdal(variable, path)
-
-        return code
+        return 'writeRaster({0}, "{1}", overwrite = TRUE)'.format(variable, path)
 
     def write_csv_output(self, variable: str, path: str) -> str:
         """
@@ -656,19 +481,10 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         commands = []
 
-        if self.use_sf:
-
-            commands.append('point_crs <- st_crs(\'{}\')'.format(crs.toWkt()))
-            commands.append('{0} <- st_sfc(st_point(c({1},{2})), crs = point_crs)'.format(variable,
-                                                                                          point.x(),
-                                                                                          point.y()))
-
-        else:
-
-            commands.append('xy_df <- cbind(c({}), c({}))'.format(point.x(),
-                                                                  point.y()))
-            commands.append('point_crs <- CRS(\'{}\')'.format(crs.toProj4()))
-            commands.append('{} <- SpatialPoints(xy_df, proj4string = point_crs)'.format(variable))
+        commands.append('point_crs <- st_crs(\'{}\')'.format(crs.toWkt()))
+        commands.append('{0} <- st_sfc(st_point(c({1},{2})), crs = point_crs)'.format(variable,
+                                                                                      point.x(),
+                                                                                      point.y()))
 
         return commands
 
