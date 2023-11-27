@@ -7,11 +7,11 @@ This scripts takes input vector data and randomly samples _Size_ points over it.
 ```
 ##Point pattern analysis=group
 ##Sample random points=name
-##load_vector_using_rgdal
 ##Layer=vector
 ##Size=number 10
 ##Output= output vector
-pts = spsample(Layer,Size,type="random")
+Layer_sp = as_Spatial(Layer)
+pts = spsample(Layer_sp,Size,type="random")
 Output = SpatialPointsDataFrame(pts, as.data.frame(pts))
 ```
 
@@ -19,10 +19,10 @@ Output = SpatialPointsDataFrame(pts, as.data.frame(pts))
 
 1. **Point pattern analysis** is the group of the algorithm.
 2. **Sample random points** is the name of the algorithm.
-3. The script does not use _sf_ package; it instead uses packages _sp_ and _rgdal_.
-4. **Layer** is the input vector layer.
-5. **Size** is the numerical parameter with a default value of 10.
-6. **Output** is the vector layer that will be created by the algorithm.
+3. **Layer** is the input vector layer.
+4. **Size** is the numerical parameter with a default value of 10.
+5. **Output** is the vector layer that will be created by the algorithm.
+6. Convert from sf format to older sp format, for which `spsample()` works
 7. Call the spsample function of the sp library and pass it to all the input defined above.
 8. Create the output vector with the SpatialPointsDataFrame function.
 

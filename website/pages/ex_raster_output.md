@@ -7,12 +7,13 @@ This scripts takes point layer and a field name as an input and performs automat
 ```
 ##Basic statistics=group
 ##Krige value=name
-##load_vector_using_rgdal
 ##Layer=vector
 ##Field=Field Layer
 ##Output=output raster
 library("automap")
-table = as.data.frame(Layer)
+library("sp")
+Layer_sp = as_Spatial(Layer)
+table = as.data.frame(Layer_sp)
 coordinates(table)= ~coords.x1+coords.x2
 c = Layer[[Field]]
 kriging_result = autoKrige(c~1, table)
