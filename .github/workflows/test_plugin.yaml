@@ -25,12 +25,12 @@ jobs:
 
     strategy:
       matrix:
-        docker_tags: [release-3_16, release-3_18, release-3_20, release-3_22, release-3_24, latest]
+        docker_tags: [release-3_16, release-3_18, release-3_20, release-3_22, release-3_24, release-3_30, release-3_34, latest]
 
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Docker pull and create qgis-testing-environment
         run: |
@@ -61,7 +61,7 @@ jobs:
           architecture: 'x64'
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install packages
         run: |
