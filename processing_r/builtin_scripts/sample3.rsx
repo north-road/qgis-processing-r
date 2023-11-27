@@ -1,6 +1,5 @@
 ##Example scripts=group
 ##test_sp=name
-##load_vector_using_rgdal
 ##Layer=vector
 ##output= output vector
 
