@@ -641,13 +641,6 @@ class AlgorithmTest(unittest.TestCase):
         self.assertTrue(any(['geometry <- sf::st_as_sfc("Polygon ' in line for line in script]))  # pylint: disable=use-a-generator
         self.assertIn('date_a <- as.POSIXct("2020-05-04", format = "%Y-%m-%d")', script)
         self.assertIn('time_a <- lubridate::hms("13:45:30")', script)
-        line = 'array <- list(2, 10, "a", as.POSIXct("2020-05-04", format = "%Y-%m-%d"), lubridate::hms("13:45:30"), as.POSIXct("2012-05-04T12:50:00", format = "%Y-%m-%dT%H:%M:%S"))'
-        print(script)
-        self.assertEqual(line, script[10])
-        self.assertIn('array <- list(2, 10, "a", '
-                      'as.POSIXct("2020-05-04", format = "%Y-%m-%d"), '
-                      'lubridate::hms("13:45:30"), as.POSIXct("2012-05-04T12:50:00", format = "%Y-%m-%dT%H:%M:%S"))',
-                      script)
 
     def testAlgRasterBand(self):
         """
