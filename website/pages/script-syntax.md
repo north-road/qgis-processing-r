@@ -23,10 +23,6 @@ Several metadata lines define the general behaviour of the script.
 
 `##output_plots_to_html` (older version of this metadata keyword is `##showplots`) defines that there will be graphical output from the script that will be presented as an HTML page with images.
 
-`##load_raster_using_rgdal` (legacy alias `##dontuserasterpackage`) specifies that raster data should not be pased to R using [raster](https://CRAN.R-project.org/package=raster) package as **RasterLayer** or **RasterBrick** object. Raster data are instead read using [rgdal](https://CRAN.R-project.org/package=rgdal) into object **SpatialGridDataFrame** from [sp](https://CRAN.R-project.org/package=sp).
-
-`##load_vector_using_rgdal` specifies that vector data should not be pased to R using [sf](https://CRAN.R-project.org/package=sf) package as **sf** **data.frame**. Instead data are passed as **Spatial?DataFrame** (where **?** is the type of vector object) from [sp](https://CRAN.R-project.org/package=sp) package.
-
 `##pass_filenames` (legacy alias `##passfilenames`) specifies that data are not passed directly. Instead only their file names are passed.
 
 `##dont_load_any_packages` specifies that no packages, besides what is directly specified in script, should be loaded. This means that neither of **sf**, **raster**, **sp** or **rgdal** packages is loaded automatically. If spatial data (either raster or vector) should be passed to this script, the metadata `##pass_filenames` should be used as well.
