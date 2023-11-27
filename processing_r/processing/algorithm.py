@@ -527,8 +527,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     # CSV table export
                     commands.append(self.r_templates.write_csv_output(out.name(), dest))
                 else:
-                    commands.append(self.r_templates.write_vector_output(out.name(), dest, filename,
-                                                                         QgsVectorFileWriter.driverForExtension(ext)))
+                    commands.append(self.r_templates.write_vector_output(out.name(), dest, filename))
                 self.results[out.name()] = dest
 
         if self.save_output_values:
