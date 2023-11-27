@@ -291,16 +291,6 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                                                                     self.tr('HTML files (*.html)'), optional=True))
             return
 
-        # dontuserasterpackage is the older version, should be considere obsolete
-        if line.lower().strip().startswith('load_raster_using_rgdal') or \
-           line.lower().strip().startswith('dontuserasterpackage'):
-            self.r_templates.use_raster = False
-            return
-
-        if line.lower().strip().startswith('load_vector_using_rgdal'):
-            self.r_templates.use_sf = False
-            return
-
         # passfilenames is the older version, should be considere obsolete
         if line.lower().strip().startswith('pass_filenames') or\
            line.lower().strip().startswith('passfilenames'):
