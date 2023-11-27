@@ -1,5 +1,4 @@
 ##output_plots_to_html
-##load_raster_using_rgdal
 ##pass_filenames
 
 ##polyg=vector

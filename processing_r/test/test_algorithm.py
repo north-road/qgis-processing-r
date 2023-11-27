@@ -50,7 +50,6 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.displayName(), 'test algorithm 1')
         self.assertIn('test_algorithm_1.rsx', 'test_algorithm_1.rsx')
         self.assertTrue(alg.show_plots)
-        self.assertFalse(alg.r_templates.use_raster)
         self.assertTrue(alg.pass_file_names)
 
         alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_algorithm_2.rsx'))
@@ -61,7 +60,6 @@ class AlgorithmTest(unittest.TestCase):
         self.assertEqual(alg.group(), 'my group')
         self.assertEqual(alg.groupId(), 'my group')
         self.assertFalse(alg.show_plots)
-        self.assertTrue(alg.r_templates.use_raster)
         self.assertFalse(alg.pass_file_names)
 
         # test that inputs were created correctly
@@ -287,7 +285,7 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands({'param_csv_dest': '/tmp/processing/test_algorithm_2_r/dest.csv'}, context, feedback)
         self.assertIn('param_csv_dest <- "/tmp/processing/test_algorithm_2_r/dest.csv"', script)
 
-    def testReadOgr(self):
+    def testReadSf(self):
         """
         Test reading vector inputs
         """
@@ -300,15 +298,15 @@ class AlgorithmTest(unittest.TestCase):
 
         USE_NEW_API = Qgis.QGIS_VERSION_INT >= 30900 and hasattr(QgsProcessingAlgorithm, 'parameterAsCompatibleSourceLayerPathAndLayerName')
         if USE_NEW_API:
-            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+            self.assertEqual(script[0], 'Layer <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
-            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+            self.assertEqual(script[0], 'Layer <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')))
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp').replace('/', '\\')},
                                            context, feedback)
         if USE_NEW_API:
-            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+            self.assertEqual(script[0], 'Layer <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')))
         else:
-            self.assertEqual(script[0], 'Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')))
+            self.assertEqual(script[0], 'Layer <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')))
         vl = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=points')
         self.assertTrue(vl.isValid())
         vl2 = QgsVectorLayer(os.path.join(test_data_path, 'test_gpkg.gpkg') + '|layername=lines')
@@ -318,12 +316,12 @@ class AlgorithmTest(unittest.TestCase):
         if USE_NEW_API:
             # use the newer api and avoid unnecessary layer translation
             self.assertEqual(script,
-                             ['Layer <- readOGR("{}", layer="points")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg')),
-                              'Layer2 <- readOGR("{}", layer="lines")'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
+                             ['Layer <- st_read("{}", layer = "points", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'test_gpkg.gpkg')),
+                              'Layer2 <- st_read("{}", layer = "lines", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'test_gpkg.gpkg'))])
         else:
             # older version, forced to use inefficient api
-            self.assertIn('Layer <- readOGR("/tmp', script[0])
-            self.assertIn('Layer2 <- readOGR("/tmp', script[1])
+            self.assertIn('Layer <- st_read("/tmp', script[0])
+            self.assertIn('Layer2 <- st_read("/tmp', script[1])
 
     def testRasterIn(self):
         """
@@ -346,13 +344,6 @@ class AlgorithmTest(unittest.TestCase):
         alg.initAlgorithm()
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
         self.assertEqual(script, ['Layer <- "{}"'.format(os.path.join(test_data_path, 'dem.tif'))])
-        script = alg.build_import_commands({'Layer': None}, context, feedback)
-        self.assertEqual(script, ['Layer <- NULL'])
-
-        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_rasterin_norasterpackage.rsx'))
-        alg.initAlgorithm()
-        script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'dem.tif')}, context, feedback)
-        self.assertEqual(script, ['Layer <- readGDAL("{}")'.format(os.path.join(test_data_path, 'dem.tif'))])
         script = alg.build_import_commands({'Layer': None}, context, feedback)
         self.assertEqual(script, ['Layer <- NULL'])
 
@@ -392,8 +383,8 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands(
             {'Layer': [os.path.join(test_data_path, 'lines.shp'), os.path.join(test_data_path, 'points.gml')]}, context,
             feedback)
-        self.assertEqual(script, ['tempvar0 <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
-                                  'tempvar1 <- readOGR("{}")'.format(os.path.join(test_data_path, 'points.gml')),
+        self.assertEqual(script, ['tempvar0 <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')),
+                                  'tempvar1 <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'points.gml')),
                                   'Layer = list(tempvar0,tempvar1)'])
         script = alg.build_import_commands({'Layer': []}, context, feedback)
         self.assertEqual(script, ['Layer = list()'])
@@ -413,15 +404,15 @@ class AlgorithmTest(unittest.TestCase):
         script = alg.build_import_commands(
             {'Layer': os.path.join(test_data_path, 'lines.shp')}, context,
             feedback)
-        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+        self.assertEqual(script, ['Layer <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')),
                                   'MultiField <- NULL'])
         script = alg.build_import_commands({'Layer': os.path.join(test_data_path, 'lines.shp'), 'MultiField': ['a']},
                                            context, feedback)
-        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+        self.assertEqual(script, ['Layer <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')),
                                   'MultiField <- c("a")'])
         script = alg.build_import_commands(
             {'Layer': os.path.join(test_data_path, 'lines.shp'), 'MultiField': ['a', 'b"c']}, context, feedback)
-        self.assertEqual(script, ['Layer <- readOGR("{}")'.format(os.path.join(test_data_path, 'lines.shp')),
+        self.assertEqual(script, ['Layer <- st_read("{}", quiet = TRUE, stringsAsFactors = FALSE)'.format(os.path.join(test_data_path, 'lines.shp')),
                                   'MultiField <- c("a","b\\"c")'])
 
     def testVectorOutputs(self):
@@ -435,11 +426,11 @@ class AlgorithmTest(unittest.TestCase):
         feedback = QgsProcessingFeedback()
         script = alg.build_export_commands({'Output': '/home/test/lines.shp', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
-        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")',
+        self.assertEqual(script, ['st_write(Output, "/home/test/lines.shp", layer = "lines", quiet = TRUE)',
                                   'write.csv(OutputCSV, "/home/test/tab.csv", row.names = FALSE)'])
         script = alg.build_export_commands({'Output': '/home/test/lines.gpkg', 'OutputCSV': '/home/test/tab.csv'},
                                            context, feedback)
-        self.assertEqual(script, ['writeOGR(Output, "/home/test/lines.gpkg", "lines", driver="GPKG")',
+        self.assertEqual(script, ['st_write(Output, "/home/test/lines.gpkg", layer = "lines", quiet = TRUE)',
                                   'write.csv(OutputCSV, "/home/test/tab.csv", row.names = FALSE)'])
 
     def testMultiOutputs(self):
@@ -456,7 +447,7 @@ class AlgorithmTest(unittest.TestCase):
                                             'OutputFile': '/home/test/file.csv'},
                                            context, feedback)
 
-        self.assertIn('writeOGR(Output, "/home/test/lines.shp", "lines", driver="ESRI Shapefile")', script)
+        self.assertIn('st_write(Output, "/home/test/lines.shp", layer = "lines", quiet = TRUE)', script)
         self.assertIn('write.csv(OutputCSV, "/home/test/tab.csv", row.names = FALSE)', script)
         self.assertTrue(script[2].startswith('cat("##OutputFile", file='), script[2])
         self.assertTrue(script[3].startswith('cat(OutputFile, file='), script[3])
@@ -577,14 +568,6 @@ class AlgorithmTest(unittest.TestCase):
         self.assertIn('library("sf")', script)
         self.assertIn('point <- st_sfc(st_point(c(20.219926,49.138354)), crs = point_crs)', script)
 
-        alg = RAlgorithm(description_file=os.path.join(test_data_path, 'test_input_point_sp.rsx'))
-        alg.initAlgorithm()
-        script = alg.build_r_script({'point': '20.219926,49.138354 [EPSG:4326]'}, context, feedback)
-
-        self.assertIn('library("sp")', script)
-        self.assertIn('xy_df <- cbind(c(20.219926), c(49.138354))', script)
-        self.assertIn('point <- SpatialPoints(xy_df, proj4string = point_crs)', script)
-
     def testAlgRangeInput(self):
         """
         Test range parameter
@@ -658,13 +641,9 @@ class AlgorithmTest(unittest.TestCase):
         self.assertTrue(any(['geometry <- sf::st_as_sfc("Polygon ' in line for line in script]))  # pylint: disable=use-a-generator
         self.assertIn('date_a <- as.POSIXct("2020-05-04", format = "%Y-%m-%d")', script)
         self.assertIn('time_a <- lubridate::hms("13:45:30")', script)
-        self.assertIn('array <- list('
-                      '2, '
-                      '10, '
-                      '"a", '
+        self.assertIn('array <- list(2, 10, "a", '
                       'as.POSIXct("2020-05-04", format = "%Y-%m-%d"), '
-                      'lubridate::hms("13:45:30"), '
-                      'as.POSIXct("2012-05-04T10:50:00", format = "%Y-%m-%dT%H:%M:%S"))',
+                      'lubridate::hms("13:45:30"), as.POSIXct("2012-05-04T12:50:00", format = "%Y-%m-%dT%H:%M:%S"))',
                       script)
 
     def testAlgRasterBand(self):
