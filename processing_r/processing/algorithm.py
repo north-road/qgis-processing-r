@@ -291,6 +291,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                                                                     self.tr('HTML files (*.html)'), optional=True))
             return
 
+        # these metadata commands are no longer supported
+        if line.lower().strip().startswith('load_raster_using_rgdal') or \
+           line.lower().strip().startswith('dontuserasterpackage') or \
+           line.lower().strip().startswith('load_vector_using_rgdal'):
+            raise QgsProcessingException("This command is no longer supported, `rgdal` package was removed from CRAN.")
+
         # passfilenames is the older version, should be considere obsolete
         if line.lower().strip().startswith('pass_filenames') or\
            line.lower().strip().startswith('passfilenames'):
