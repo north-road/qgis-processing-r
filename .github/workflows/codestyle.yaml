@@ -30,8 +30,8 @@ jobs:
         - name: Run Isort
           run: isort processing_r --check-only --diff --profile black --line-width 120
         
-        # - name: Pylint
-        #   run: make pylint
+        - name: Pylint
+          run: make pylint
 
-        # - name: Pycodestyle
-        #   run: make pycodestyle
+        - name: Pycodestyle
+          run: make pycodestyle
