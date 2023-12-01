@@ -25,9 +25,7 @@ from typing import Optional
 from ctypes import cdll
 
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessingUtils,
-                       QgsMessageLog,
-                       Qgis)
+from qgis.core import QgsProcessingUtils, QgsMessageLog, Qgis
 from processing.core.ProcessingConfig import ProcessingConfig
 from processing.tools.system import userFolder, mkdir
 
@@ -39,28 +37,28 @@ class RUtils:  # pylint: disable=too-many-public-methods
     Utilities for the R Provider and Algorithm
     """
 
-    RSCRIPTS_FOLDER = 'R_SCRIPTS_FOLDER'
-    R_FOLDER = 'R_FOLDER'
-    R_USE64 = 'R_USE64'
-    R_LIBS_USER = 'R_LIBS_USER'
-    R_USE_USER_LIB = 'R_USE_USER_LIB'
-    R_REPO = 'R_REPO'
+    RSCRIPTS_FOLDER = "R_SCRIPTS_FOLDER"
+    R_FOLDER = "R_FOLDER"
+    R_USE64 = "R_USE64"
+    R_LIBS_USER = "R_LIBS_USER"
+    R_USE_USER_LIB = "R_USE_USER_LIB"
+    R_REPO = "R_REPO"
 
-    VALID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
     @staticmethod
     def is_windows() -> bool:
         """
         Returns True if the plugin is running on Windows
         """
-        return os.name == 'nt'
+        return os.name == "nt"
 
     @staticmethod
     def is_macos() -> bool:
         """
         Returns True if the plugin is running on MacOS
         """
-        return platform.system() == 'Darwin'
+        return platform.system() == "Darwin"
 
     @staticmethod
     def r_binary_folder() -> str:
@@ -71,7 +69,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         if not folder:
             folder = RUtils.guess_r_binary_folder()
 
-        return os.path.abspath(folder) if folder else ''
+        return os.path.abspath(folder) if folder else ""
 
     @staticmethod
     def guess_r_binary_folder() -> str:
@@ -79,26 +77,25 @@ class RUtils:  # pylint: disable=too-many-public-methods
         Tries to pick a reasonable path for the R binaries to be executed from
         """
         if RUtils.is_macos():
-            return '/usr/local/bin'
+            return "/usr/local/bin"
 
         if RUtils.is_windows():
-            search_paths = ['ProgramW6432', 'PROGRAMFILES(x86)', 'PROGRAMFILES', 'C:\\']
-            r_folder = ''
+            search_paths = ["ProgramW6432", "PROGRAMFILES(x86)", "PROGRAMFILES", "C:\\"]
+            r_folder = ""
             for path in search_paths:
-                if path in os.environ and os.path.isdir(
-                        os.path.join(os.environ[path], 'R')):
-                    r_folder = os.path.join(os.environ[path], 'R')
+                if path in os.environ and os.path.isdir(os.path.join(os.environ[path], "R")):
+                    r_folder = os.path.join(os.environ[path], "R")
                     break
 
             if r_folder:
                 sub_folders = os.listdir(r_folder)
                 sub_folders.sort(reverse=True)
                 for sub_folder in sub_folders:
-                    if sub_folder.upper().startswith('R-'):
+                    if sub_folder.upper().startswith("R-"):
                         return os.path.join(r_folder, sub_folder)
 
         # expect R to be in OS path
-        return ''
+        return ""
 
     @staticmethod
     def package_repo():
@@ -121,11 +118,11 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         folder = ProcessingConfig.getSetting(RUtils.R_LIBS_USER)
         if folder is None:
-            folder = str(os.path.join(userFolder(), 'rlibs'))
+            folder = str(os.path.join(userFolder(), "rlibs"))
         try:
             mkdir(folder)
         except FileNotFoundError:
-            folder = str(os.path.join(userFolder(), 'rlibs'))
+            folder = str(os.path.join(userFolder(), "rlibs"))
             mkdir(folder)
         return os.path.abspath(str(folder))
 
@@ -134,14 +131,14 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Returns the built-in scripts path
         """
-        return os.path.join(os.path.dirname(__file__), '..', 'builtin_scripts')
+        return os.path.join(os.path.dirname(__file__), "..", "builtin_scripts")
 
     @staticmethod
     def default_scripts_folder():
         """
         Returns the default path to look for user scripts within
         """
-        folder = os.path.join(userFolder(), 'rscripts')
+        folder = os.path.join(userFolder(), "rscripts")
         mkdir(folder)
         return os.path.abspath(folder)
 
@@ -152,7 +149,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         folder = ProcessingConfig.getSetting(RUtils.RSCRIPTS_FOLDER)
         if folder is not None:
-            folders = folder.split(';')
+            folders = folder.split(";")
         else:
             folders = [RUtils.default_scripts_folder()]
 
@@ -164,7 +161,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Returns a safe version of a parameter name
         """
-        return name.replace('_', ' ')
+        return name.replace("_", " ")
 
     @staticmethod
     def is_valid_r_variable(variable: str) -> bool:
@@ -194,7 +191,7 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Strips non-alphanumeric characters from a name
         """
-        return ''.join(c for c in name if c in RUtils.VALID_CHARS)
+        return "".join(c for c in name if c in RUtils.VALID_CHARS)
 
     @staticmethod
     def create_r_script_from_commands(commands):
@@ -202,10 +199,10 @@ class RUtils:  # pylint: disable=too-many-public-methods
         Creates an R script in a temporary location consisting of the given commands.
         Returns the path to the temporary script file.
         """
-        script_file = QgsProcessingUtils.generateTempFilename('processing_script.r')
-        with open(script_file, 'w', encoding='utf8') as f:
+        script_file = QgsProcessingUtils.generateTempFilename("processing_script.r")
+        with open(script_file, "w", encoding="utf8") as f:
             for command in commands:
-                f.write(command + '\n')
+                f.write(command + "\n")
         return script_file
 
     @staticmethod
@@ -213,7 +210,9 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Returns True if the given line looks like an error message
         """
-        return any([error in line for error in ['Error ', 'Execution halted', 'Error:']])  # pylint: disable=use-a-generator
+        return any(
+            [error in line for error in ["Error ", "Execution halted", "Error:"]]
+        )  # pylint: disable=use-a-generator
 
     @staticmethod
     def get_windows_code_page():
@@ -243,9 +242,9 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         kw = {}
         if RUtils.is_windows():
-            kw['startupinfo'] = RUtils.get_process_startup_info()
+            kw["startupinfo"] = RUtils.get_process_startup_info()
             if sys.version_info >= (3, 6):
-                kw['encoding'] = "cp{}".format(RUtils.get_windows_code_page())
+                kw["encoding"] = "cp{}".format(RUtils.get_windows_code_page())
         return kw
 
     @staticmethod
@@ -262,23 +261,21 @@ class RUtils:  # pylint: disable=too-many-public-methods
         script_filename = RUtils.create_r_script_from_commands(script_lines)
 
         # run commands
-        command = [
-            RUtils.path_to_r_executable(script_executable=True),
-            script_filename
-        ]
+        command = [RUtils.path_to_r_executable(script_executable=True), script_filename]
 
-        feedback.pushInfo(RUtils.tr('R execution console output'))
+        feedback.pushInfo(RUtils.tr("R execution console output"))
 
         console_results = []
 
-        with subprocess.Popen(command,
-                              stdout=subprocess.PIPE,
-                              stdin=subprocess.DEVNULL,
-                              stderr=subprocess.STDOUT,
-                              universal_newlines=True,
-                              **RUtils.get_process_keywords()
-                              ) as proc:
-            for line in iter(proc.stdout.readline, ''):
+        with subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            **RUtils.get_process_keywords()
+        ) as proc:
+            for line in iter(proc.stdout.readline, ""):
                 if feedback.isCanceled():
                     proc.terminate()
 
@@ -294,11 +291,11 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Returns a HTML formatted string of the given output lines
         """
-        s = '<h2>{}</h2>\n'.format(RUtils.tr('R Output'))
-        s += '<code>\n'
+        s = "<h2>{}</h2>\n".format(RUtils.tr("R Output"))
+        s += "<code>\n"
         for line in output:
-            s += '{}<br />\n'.format(line)
-        s += '</code>'
+            s += "{}<br />\n".format(line)
+        s += "</code>"
         return s
 
     @staticmethod
@@ -306,15 +303,15 @@ class RUtils:  # pylint: disable=too-many-public-methods
         """
         Returns the path to the R executable
         """
-        executable = 'Rscript' if script_executable else 'R'
+        executable = "Rscript" if script_executable else "R"
         bin_folder = RUtils.r_binary_folder()
         if bin_folder:
             if RUtils.is_windows():
                 if ProcessingConfig.getSetting(RUtils.R_USE64):
-                    exec_dir = 'x64'
+                    exec_dir = "x64"
                 else:
-                    exec_dir = 'i386'
-                return os.path.join(bin_folder, 'bin', exec_dir, '{}.exe'.format(executable))
+                    exec_dir = "i386"
+                return os.path.join(bin_folder, "bin", exec_dir, "{}.exe".format(executable))
             return os.path.join(bin_folder, executable)
 
         return executable
@@ -326,35 +323,38 @@ class RUtils:  # pylint: disable=too-many-public-methods
         or an error string if R was not found.
         """
         if DEBUG:
-            QgsMessageLog.logMessage(RUtils.tr('R binary path: {}').format(RUtils.path_to_r_executable()), 'R',
-                                     Qgis.Info)
+            QgsMessageLog.logMessage(
+                RUtils.tr("R binary path: {}").format(RUtils.path_to_r_executable()), "R", Qgis.Info
+            )
 
         if RUtils.is_windows():
             path = RUtils.r_binary_folder()
-            if path == '':
-                return RUtils.tr('R folder is not configured.\nPlease configure '
-                                 'it before running R scripts.')
+            if path == "":
+                return RUtils.tr("R folder is not configured.\nPlease configure " "it before running R scripts.")
 
-        command = [RUtils.path_to_r_executable(), '--version']
+        command = [RUtils.path_to_r_executable(), "--version"]
         try:
-            with subprocess.Popen(command,
-                                  stdout=subprocess.PIPE,
-                                  stdin=subprocess.DEVNULL,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True,
-                                  **RUtils.get_process_keywords()) as proc:
+            with subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+                **RUtils.get_process_keywords()
+            ) as proc:
                 for line in proc.stdout:
-                    if ('R version' in line) or ('R Under development' in line):
+                    if ("R version" in line) or ("R Under development" in line):
                         return None
         except FileNotFoundError:
             pass
 
         html = RUtils.tr(
-            '<p>This algorithm requires R to be run. Unfortunately, it '
-            'seems that R is not installed in your system, or it is not '
-            'correctly configured to be used from QGIS</p>'
+            "<p>This algorithm requires R to be run. Unfortunately, it "
+            "seems that R is not installed in your system, or it is not "
+            "correctly configured to be used from QGIS</p>"
             '<p><a href="http://docs.qgis.org/testing/en/docs/user_manual/processing/3rdParty.html">Click here</a> '
-            'to know more about how to install and configure R to be used with QGIS</p>')
+            "to know more about how to install and configure R to be used with QGIS</p>"
+        )
 
         return html
 
@@ -366,16 +366,18 @@ class RUtils:  # pylint: disable=too-many-public-methods
         if RUtils.is_windows() and not RUtils.r_binary_folder():
             return None
 
-        command = [RUtils.path_to_r_executable(), '--version']
+        command = [RUtils.path_to_r_executable(), "--version"]
         try:
-            with subprocess.Popen(command,
-                                  stdout=subprocess.PIPE,
-                                  stdin=subprocess.DEVNULL,
-                                  stderr=subprocess.STDOUT,
-                                  universal_newlines=True,
-                                  **RUtils.get_process_keywords()) as proc:
+            with subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+                **RUtils.get_process_keywords()
+            ) as proc:
                 for line in proc.stdout:
-                    if ('R version' in line) or ('R Under development' in line):
+                    if ("R version" in line) or ("R Under development" in line):
                         return line
         except FileNotFoundError:
             pass
@@ -396,19 +398,19 @@ class RUtils:  # pylint: disable=too-many-public-methods
         Upgrades a parameter definition line from 2.x to 3.x format
         """
         # alias 'selection' to 'enum'
-        if '=selection' in line:
-            line = line.replace('=selection', '=enum')
-        if '=vector' in line:
-            line = line.replace('=vector', '=source')
+        if "=selection" in line:
+            line = line.replace("=selection", "=enum")
+        if "=vector" in line:
+            line = line.replace("=vector", "=source")
         return line
 
     @staticmethod
-    def tr(string, context=''):
+    def tr(string, context=""):
         """
         Translates a string
         """
-        if context == '':
-            context = 'RUtils'
+        if context == "":
+            context = "RUtils"
         return QCoreApplication.translate(context, string)
 
 
@@ -416,6 +418,4 @@ def log(message: str) -> None:
     """
     Simple logging function, most for debuging.
     """
-    QgsMessageLog.logMessage(message,
-                             "Processing R Plugin",
-                             Qgis.Info)
+    QgsMessageLog.logMessage(message, "Processing R Plugin", Qgis.Info)

@@ -8,15 +8,13 @@
 
 """
 
-__author__ = '(C) 2019 by Jan Caha'
-__date__ = '17/10/2019'
-__copyright__ = 'Copyright 2018, North Road'
+__author__ = "(C) 2019 by Jan Caha"
+__date__ = "17/10/2019"
+__copyright__ = "Copyright 2018, North Road"
 
 from typing import List, Any, Tuple, Optional
 
-from qgis.core import (QgsCoordinateReferenceSystem,
-                       QgsPointXY,
-                       QgsGeometry)
+from qgis.core import QgsCoordinateReferenceSystem, QgsPointXY, QgsGeometry
 
 from qgis.PyQt.QtCore import QDateTime, Qt, QDate, QTime
 
@@ -137,8 +135,9 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
 
         if layer is not None:
-            command = '{0} <- st_read("{1}", layer = "{2}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable,
-                                                                                                            path, layer)
+            command = '{0} <- st_read("{1}", layer = "{2}", quiet = TRUE, stringsAsFactors = FALSE)'.format(
+                variable, path, layer
+            )
         else:
             command = '{0} <- st_read("{1}", quiet = TRUE, stringsAsFactors = FALSE)'.format(variable, path)
 
@@ -166,7 +165,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param y_max: float. Maximal y coordinate.
         :return: string. R code to produce extent variable.
         """
-        return '{0} <- extent({1},{2},{3},{4})'.format(variable, x_min, x_max, y_min, y_max)
+        return "{0} <- extent({1},{2},{3},{4})".format(variable, x_min, x_max, y_min, y_max)
 
     def set_variable_string(self, variable: str, value: str) -> str:
         """
@@ -177,7 +176,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code to produce variable with given value.
         """
 
-        return '{0} <- {1}'.format(variable, self._r_string(value))
+        return "{0} <- {1}".format(variable, self._r_string(value))
 
     def _r_string(self, value: str) -> str:
         """
@@ -203,7 +202,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
                 v = v.replace('"', '\\"')
             escaped_values.append('"{0}"'.format(v))
 
-        return '{0} <- c({1})'.format(variable, ','.join(escaped_values))
+        return "{0} <- c({1})".format(variable, ",".join(escaped_values))
 
     def set_variable_directly(self, variable: str, value) -> str:
         """
@@ -213,7 +212,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param value: Value of the variable.
         :return: string. R code to produce variable with given value.
         """
-        return '{0} <- {1}'.format(variable, value)
+        return "{0} <- {1}".format(variable, value)
 
     def set_variable_null(self, variable: str) -> str:
         """
@@ -232,7 +231,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param geom_wkt_value: string. WKT of geometry.
         :return: string. R code to creating variable of classes sfg.
         """
-        return '{0} <- {1}'.format(variable, self._r_geom(geom_wkt_value))
+        return "{0} <- {1}".format(variable, self._r_geom(geom_wkt_value))
 
     def _r_geom(self, geom_wkt_value: str) -> str:
         """
@@ -256,7 +255,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         :return: string. R code to close graphical device.
         """
-        return 'dev.off()'
+        return "dev.off()"
 
     def write_vector_output(self, variable: str, path: str, layer_name: str = None) -> str:
         """
@@ -352,8 +351,11 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         package, _ = self.extract_package_name_options(package_name)
 
-        command = 'tryCatch(find.package("{0}"), error = function(e) install.packages("{0}", dependencies=TRUE))' \
-            .format(package)
+        command = (
+            'tryCatch(find.package("{0}"), error = function(e) install.packages("{0}", dependencies=TRUE))'.format(
+                package
+            )
+        )
 
         return command
 
@@ -381,7 +383,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param path: string. Path to search for packages and install there if missing.
         :return: string. R code to change path to package library.
         """
-        return '.libPaths(\"{0}\")'.format(path.replace('\\', '/'))
+        return '.libPaths("{0}")'.format(path.replace("\\", "/"))
 
     def set_option(self, option_name: str, value: str) -> str:
         """
@@ -418,7 +420,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         # Try to install packages if needed
         if RUtils.use_user_library():
-            path_to_use = str(RUtils.r_library_folder()).replace('\\', '/')
+            path_to_use = str(RUtils.r_library_folder()).replace("\\", "/")
             commands.append(self.change_libPath(path_to_use))
 
         packages = self.get_necessary_packages()
@@ -466,10 +468,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
         return enum_name in self._enums_literals
 
-    def set_point(self,
-                  variable: str,
-                  point: QgsPointXY,
-                  crs: QgsCoordinateReferenceSystem) -> list:
+    def set_point(self, variable: str, point: QgsPointXY, crs: QgsCoordinateReferenceSystem) -> list:
         """
         Produces R code that creates a variable from point input.
 
@@ -481,16 +480,12 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         commands = []
 
-        commands.append('point_crs <- st_crs(\'{}\')'.format(crs.toWkt()))
-        commands.append('{0} <- st_sfc(st_point(c({1},{2})), crs = point_crs)'.format(variable,
-                                                                                      point.x(),
-                                                                                      point.y()))
+        commands.append("point_crs <- st_crs('{}')".format(crs.toWkt()))
+        commands.append("{0} <- st_sfc(st_point(c({1},{2})), crs = point_crs)".format(variable, point.x(), point.y()))
 
         return commands
 
-    def set_range(self,
-                  variable: str,
-                  rgn: list) -> list:
+    def set_range(self, variable: str, rgn: list) -> list:
         """
         Produces R code that creates a variable from range input.
 
@@ -500,13 +495,11 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
 
         commands = []
-        commands.append('{0} <- c(min = {1}, max = {2})'.format(variable, rgn[0], rgn[1]))
+        commands.append("{0} <- c(min = {1}, max = {2})".format(variable, rgn[0], rgn[1]))
 
         return commands
 
-    def set_color(self,
-                  variable: str,
-                  color: QColor) -> list:
+    def set_color(self, variable: str, color: QColor) -> list:
         """
         Produces R code that creates a variable from color input.
 
@@ -516,11 +509,11 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
 
         commands = []
-        commands.append('{0} <- rgb({1}, {2}, {3}, {4}, maxColorValue = 255)'.format(variable,
-                                                                                     color.red(),
-                                                                                     color.green(),
-                                                                                     color.blue(),
-                                                                                     color.alpha()))
+        commands.append(
+            "{0} <- rgb({1}, {2}, {3}, {4}, maxColorValue = 255)".format(
+                variable, color.red(), color.green(), color.blue(), color.alpha()
+            )
+        )
 
         return commands
 
@@ -529,14 +522,11 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Generate R string.
         """
 
-        return 'rgb({0}, {1}, {2}, {3}, maxColorValue = 255)'.format(color.red(),
-                                                                     color.green(),
-                                                                     color.blue(),
-                                                                     color.alpha())
+        return "rgb({0}, {1}, {2}, {3}, maxColorValue = 255)".format(
+            color.red(), color.green(), color.blue(), color.alpha()
+        )
 
-    def set_datetime(self,
-                     variable: str,
-                     datetime: QDateTime) -> list:
+    def set_datetime(self, variable: str, datetime: QDateTime) -> list:
         """
         Produces R code that creates a variable from datetime input.
 
@@ -559,9 +549,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         return 'as.POSIXct("{}", format = "%Y-%m-%dT%H:%M:%S")'.format(datetime)
 
-    def set_date(self,
-                 variable: str,
-                 date: QDate) -> str:
+    def set_date(self, variable: str, date: QDate) -> str:
         """
         Produces R code that creates a variable from date input.
 
@@ -570,7 +558,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code that constructs the date.
         """
 
-        return '{0} <- {1}'.format(variable, self._r_date(date))
+        return "{0} <- {1}".format(variable, self._r_date(date))
 
     def _r_date(self, date: QDate) -> str:
         """
@@ -581,9 +569,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         return 'as.POSIXct("{}", format = "%Y-%m-%d")'.format(date)
 
-    def set_time(self,
-                 variable: str,
-                 time: QTime) -> str:
+    def set_time(self, variable: str, time: QTime) -> str:
         """
         Produces R code that creates a variable from time input.
 
@@ -592,7 +578,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :return: string. R code that constructs the time.
         """
 
-        return '{0} <- {1}'.format(variable, self._r_time(time))
+        return "{0} <- {1}".format(variable, self._r_time(time))
 
     def _r_time(self, time: QTime) -> str:
         """
@@ -603,9 +589,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         return 'lubridate::hms("{}")'.format(time.toString(Qt.TextDate))
 
-    def set_variable_list(self,
-                          variable: str,
-                          values_list: List[Any]) -> Any:
+    def set_variable_list(self, variable: str, values_list: List[Any]) -> Any:
         """
         Generate R code for list of values.
 
@@ -623,7 +607,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
             elif isinstance(value, (int, float)):
 
-                values.append('{}'.format(value))
+                values.append("{}".format(value))
 
             elif isinstance(value, QDateTime):
 
@@ -645,4 +629,4 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
                 values.append(self._r_color(value))
 
-        return '{0} <- list({1})'.format(variable, ", ".join(values))
+        return "{0} <- list({1})".format(variable, ", ".join(values))

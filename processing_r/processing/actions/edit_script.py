@@ -17,13 +17,13 @@
 ***************************************************************************
 """
 
-__author__ = 'Victor Olaya'
-__date__ = 'August 2012'
-__copyright__ = '(C) 2012, Victor Olaya'
+__author__ = "Victor Olaya"
+__date__ = "August 2012"
+__copyright__ = "(C) 2012, Victor Olaya"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 from qgis.core import QgsProcessingAlgorithm
 from qgis.utils import iface
@@ -44,9 +44,13 @@ class EditScriptAction(ContextAction):
 
     def isEnabled(self):
         """
-         Returns whether the action is enabled
-         """
-        return isinstance(self.itemData, QgsProcessingAlgorithm) and self.itemData.provider().id() == "r" and self.itemData.is_user_script
+        Returns whether the action is enabled
+        """
+        return (
+            isinstance(self.itemData, QgsProcessingAlgorithm)
+            and self.itemData.provider().id() == "r"
+            and self.itemData.is_user_script
+        )
 
     def execute(self):
         """
@@ -57,6 +61,4 @@ class EditScriptAction(ContextAction):
             dlg = ScriptEditorDialog(file_path, iface.mainWindow())
             dlg.show()
         else:
-            QMessageBox.warning(None,
-                                self.tr("Edit Script"),
-                                self.tr("Can not find corresponding script file."))
+            QMessageBox.warning(None, self.tr("Edit Script"), self.tr("Can not find corresponding script file."))

@@ -7,19 +7,19 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 """
 
-__author__ = '(C) 2018 by Nyall Dawson'
-__date__ = '20/10/2018'
-__copyright__ = 'Copyright 2018, North Road'
+__author__ = "(C) 2018 by Nyall Dawson"
+__date__ = "20/10/2018"
+__copyright__ = "Copyright 2018, North Road"
 # This will get replaced with a git SHA1 when you do a git archive
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
-from qgis.PyQt.QtCore import (QTranslator,
-                              QCoreApplication)
+from qgis.PyQt.QtCore import QTranslator, QCoreApplication
 from qgis.core import QgsApplication
 from qgis.gui import QgisInterface
 from processing_r.processing.provider import RAlgorithmProvider
-VERSION = '3.1.0'
+
+VERSION = "3.1.0"
 
 
 class RProviderPlugin:
@@ -40,10 +40,7 @@ class RProviderPlugin:
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
         locale = QgsApplication.locale()
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            '{}.qm'.format(locale))
+        locale_path = os.path.join(self.plugin_dir, "i18n", "{}.qm".format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -66,7 +63,7 @@ class RProviderPlugin:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('RProvider', message)
+        return QCoreApplication.translate("RProvider", message)
 
     def initProcessing(self):
         """Create the Processing provider"""

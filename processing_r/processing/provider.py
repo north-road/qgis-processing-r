@@ -19,13 +19,10 @@
 
 import os
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (Qgis,
-                       QgsProcessingProvider,
-                       QgsMessageLog)
+from qgis.core import Qgis, QgsProcessingProvider, QgsMessageLog
 
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
-from processing.gui.ProviderActions import (ProviderActions,
-                                            ProviderContextMenuActions)
+from processing.gui.ProviderActions import ProviderActions, ProviderContextMenuActions
 
 from processing_r.processing.actions.create_new_script import CreateNewScriptAction
 from processing_r.processing.actions.edit_script import EditScriptAction
@@ -41,7 +38,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
     Processing provider for executing R scripts
     """
 
-    VERSION = '3.0.0'
+    VERSION = "3.0.0"
 
     def __init__(self):
         super().__init__()
@@ -49,8 +46,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
         self.actions = []
         create_script_action = CreateNewScriptAction()
         self.actions.append(create_script_action)
-        self.contextMenuActions = [EditScriptAction(),
-                                   DeleteScriptAction()]
+        self.contextMenuActions = [EditScriptAction(), DeleteScriptAction()]
 
         self.r_version = None
 
@@ -59,32 +55,49 @@ class RAlgorithmProvider(QgsProcessingProvider):
         Called when first loading provider
         """
         ProcessingConfig.settingIcons[self.name()] = self.icon()
-        ProcessingConfig.addSetting(Setting(
-            self.name(), RUtils.RSCRIPTS_FOLDER,
-            self.tr('R scripts folder'), RUtils.default_scripts_folder(),
-            valuetype=Setting.MULTIPLE_FOLDERS))
+        ProcessingConfig.addSetting(
+            Setting(
+                self.name(),
+                RUtils.RSCRIPTS_FOLDER,
+                self.tr("R scripts folder"),
+                RUtils.default_scripts_folder(),
+                valuetype=Setting.MULTIPLE_FOLDERS,
+            )
+        )
 
-        ProcessingConfig.addSetting(Setting(self.name(), RUtils.R_USE_USER_LIB,
-                                            self.tr('Use user library folder instead of system libraries'), True))
-        ProcessingConfig.addSetting(Setting(
-            self.name(),
-            RUtils.R_LIBS_USER, self.tr('User library folder'),
-            RUtils.r_library_folder(), valuetype=Setting.FOLDER))
+        ProcessingConfig.addSetting(
+            Setting(
+                self.name(), RUtils.R_USE_USER_LIB, self.tr("Use user library folder instead of system libraries"), True
+            )
+        )
+        ProcessingConfig.addSetting(
+            Setting(
+                self.name(),
+                RUtils.R_LIBS_USER,
+                self.tr("User library folder"),
+                RUtils.r_library_folder(),
+                valuetype=Setting.FOLDER,
+            )
+        )
 
-        ProcessingConfig.addSetting(Setting(
-            self.name(),
-            RUtils.R_REPO, self.tr('Package repository'),
-            "http://cran.at.r-project.org/", valuetype=Setting.STRING))
+        ProcessingConfig.addSetting(
+            Setting(
+                self.name(),
+                RUtils.R_REPO,
+                self.tr("Package repository"),
+                "http://cran.at.r-project.org/",
+                valuetype=Setting.STRING,
+            )
+        )
 
-        ProcessingConfig.addSetting(Setting(
-            self.name(),
-            RUtils.R_FOLDER, self.tr('R folder'), RUtils.r_binary_folder(),
-            valuetype=Setting.FOLDER))
+        ProcessingConfig.addSetting(
+            Setting(
+                self.name(), RUtils.R_FOLDER, self.tr("R folder"), RUtils.r_binary_folder(), valuetype=Setting.FOLDER
+            )
+        )
 
         if RUtils.is_windows():
-            ProcessingConfig.addSetting(Setting(
-                self.name(),
-                RUtils.R_USE64, self.tr('Use 64 bit version'), False))
+            ProcessingConfig.addSetting(Setting(self.name(), RUtils.R_USE64, self.tr("Use 64 bit version"), False))
 
         ProviderActions.registerProviderActions(self, self.actions)
         ProviderContextMenuActions.registerProviderContextMenuActions(self.contextMenuActions)
@@ -121,7 +134,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
         """
         Display name for provider
         """
-        return self.tr('R')
+        return self.tr("R")
 
     def versionInfo(self):
         """
@@ -136,7 +149,7 @@ class RAlgorithmProvider(QgsProcessingProvider):
         """
         Unique ID for provider
         """
-        return 'r'
+        return "r"
 
     def loadAlgorithms(self):
         """
@@ -159,39 +172,41 @@ class RAlgorithmProvider(QgsProcessingProvider):
         algs = []
         for path, _, files in os.walk(folder):
             for description_file in files:
-                if description_file.lower().endswith('rsx'):
+                if description_file.lower().endswith("rsx"):
                     try:
                         fullpath = os.path.join(path, description_file)
                         alg = RAlgorithm(fullpath)
                         if alg.name().strip():
                             algs.append(alg)
                     except InvalidScriptException as e:
-                        QgsMessageLog.logMessage(e.msg, self.tr('Processing'), Qgis.Critical)
+                        QgsMessageLog.logMessage(e.msg, self.tr("Processing"), Qgis.Critical)
                     except Exception as e:  # pylint: disable=broad-except
                         QgsMessageLog.logMessage(
-                            self.tr('Could not load R script: {0}\n{1}').format(description_file, str(e)),
-                            self.tr('Processing'), Qgis.Critical)
+                            self.tr("Could not load R script: {0}\n{1}").format(description_file, str(e)),
+                            self.tr("Processing"),
+                            Qgis.Critical,
+                        )
         return algs
 
-    def tr(self, string, context=''):
+    def tr(self, string, context=""):
         """
         Translates a string
         """
-        if context == '':
-            context = 'RAlgorithmProvider'
+        if context == "":
+            context = "RAlgorithmProvider"
         return QCoreApplication.translate(context, string)
 
     def supportedOutputTableExtensions(self):
         """
         Extensions for non-spatial vector outputs
         """
-        return ['csv']
+        return ["csv"]
 
     def defaultVectorFileExtension(self, hasGeometry=True):
         """
         Default extension -- we use Geopackage for spatial layers, CSV for non-spatial layers
         """
-        return 'gpkg' if hasGeometry else 'csv'
+        return "gpkg" if hasGeometry else "csv"
 
     def supportsNonFileBasedOutput(self):
         """

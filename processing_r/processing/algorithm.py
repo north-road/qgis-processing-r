@@ -21,50 +21,45 @@ import os
 import json
 from pathlib import Path
 
-from qgis.core import (Qgis,
-                       QgsProcessing,
-                       QgsProviderRegistry,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingException,
-                       QgsProcessingParameterRasterLayer,
-                       QgsProcessingParameterBand,
-                       QgsProcessingParameterVectorLayer,
-                       QgsProcessingParameterExtent,
-                       QgsProcessingParameterCrs,
-                       QgsProcessingParameterField,
-                       QgsProcessingParameterString,
-                       QgsProcessingParameterFile,
-                       QgsProcessingParameterNumber,
-                       QgsProcessingParameterEnum,
-                       QgsProcessingParameterBoolean,
-                       QgsProcessingParameterMultipleLayers,
-                       QgsProcessingParameterRasterDestination,
-                       QgsProcessingParameterVectorDestination,
-                       QgsProcessingParameterFileDestination,
-                       QgsProcessingParameterFolderDestination,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterPoint,
-                       QgsProcessingParameterRange,
-                       QgsProcessingParameterExpression,
-                       QgsProcessingOutputDefinition,
-                       QgsVectorFileWriter,
-                       QgsVectorLayer,
-                       QgsPointXY,
-                       QgsCoordinateReferenceSystem,
-                       QgsProcessingUtils,
-                       QgsExpressionContext,
-                       QgsProcessingContext,
-                       QgsExpression,
-                       QgsGeometry)
-
-from qgis.PyQt.QtCore import (
-    QCoreApplication,
-    QDir,
-    QUrl,
-    QDateTime,
-    QDate,
-    QTime
+from qgis.core import (
+    Qgis,
+    QgsProcessing,
+    QgsProviderRegistry,
+    QgsProcessingAlgorithm,
+    QgsProcessingException,
+    QgsProcessingParameterRasterLayer,
+    QgsProcessingParameterBand,
+    QgsProcessingParameterVectorLayer,
+    QgsProcessingParameterExtent,
+    QgsProcessingParameterCrs,
+    QgsProcessingParameterField,
+    QgsProcessingParameterString,
+    QgsProcessingParameterFile,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterMultipleLayers,
+    QgsProcessingParameterRasterDestination,
+    QgsProcessingParameterVectorDestination,
+    QgsProcessingParameterFileDestination,
+    QgsProcessingParameterFolderDestination,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterPoint,
+    QgsProcessingParameterRange,
+    QgsProcessingParameterExpression,
+    QgsProcessingOutputDefinition,
+    QgsVectorFileWriter,
+    QgsVectorLayer,
+    QgsPointXY,
+    QgsCoordinateReferenceSystem,
+    QgsProcessingUtils,
+    QgsExpressionContext,
+    QgsProcessingContext,
+    QgsExpression,
+    QgsGeometry,
 )
+
+from qgis.PyQt.QtCore import QCoreApplication, QDir, QUrl, QDateTime, QDate, QTime
 from qgis.PyQt.QtGui import QColor
 from processing_r.processing.parameters import create_parameter_from_string
 from processing_r.processing.outputs import create_output_from_string
@@ -83,17 +78,17 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
     R Script Algorithm
     """
 
-    R_CONSOLE_OUTPUT = 'R_CONSOLE_OUTPUT'
-    RPLOTS = 'RPLOTS'
+    R_CONSOLE_OUTPUT = "R_CONSOLE_OUTPUT"
+    RPLOTS = "RPLOTS"
 
     def __init__(self, description_file, script=None):
         super().__init__()
 
         self.r_templates = RTemplates()
         self.script = script
-        self._name = ''
-        self._display_name = ''
-        self._group = ''
+        self._name = ""
+        self._display_name = ""
+        self._group = ""
         self.description_file = os.path.realpath(description_file) if description_file else None
         self.error = None
         self.commands = []
@@ -105,8 +100,8 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         self.pass_file_names = False
         self.show_console_output = False
         self.save_output_values = False
-        self.plots_filename = ''
-        self.output_values_filename = ''
+        self.plots_filename = ""
+        self.output_values_filename = ""
         self.results = {}
         self.descriptions = None
         self.inline_help = None
@@ -181,16 +176,16 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if not self.error:
             self.error = message
         else:
-            self.error += '\n'
+            self.error += "\n"
             self.error += message
 
     def load_from_string(self):
         """
         Load the algorithm from a string
         """
-        lines = self.script.split('\n')
-        self._name = 'unnamedalgorithm'
-        self._display_name = self.tr('[Unnamed algorithm]')
+        lines = self.script.split("\n")
+        self._name = "unnamedalgorithm"
+        self._display_name = self.tr("[Unnamed algorithm]")
         self.parse_script(iter(lines))
 
     def load_from_file(self):
@@ -199,15 +194,15 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         filename = os.path.basename(self.description_file)
         self._display_name = self._name
-        self._name = filename[:filename.rfind('.')]
-        self._display_name = self._name.replace('_', ' ')
+        self._name = filename[: filename.rfind(".")]
+        self._display_name = self._name.replace("_", " ")
 
-        help_file = self.description_file + '.help'
+        help_file = self.description_file + ".help"
         if os.path.exists(help_file):
-            with open(help_file, encoding='utf8') as f:
+            with open(help_file, encoding="utf8") as f:
                 self.descriptions = json.load(f)
 
-        with open(self.description_file, 'r', encoding='utf8') as f:
+        with open(self.description_file, "r", encoding="utf8") as f:
             lines = [line.strip() for line in f]
             # ordering for inline_help uses
 
@@ -232,47 +227,52 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Parse the lines from an R script, initializing parameters and outputs as encountered
         """
-        self.script = ''
+        self.script = ""
         self.commands = []
         self.error = None
         self.show_plots = False
         self.show_console_output = False
         self.pass_file_names = False
         ender = 0
-        line = next(lines).strip('\n').strip('\r')
+        line = next(lines).strip("\n").strip("\r")
         while ender < 10:
-            if line.startswith('##'):
+            if line.startswith("##"):
                 try:
                     self.process_metadata_line(line)
                 except Exception as e:  # pylint: disable=broad-except
                     self.add_error_message(
-                        self.tr('This script has a syntax error.\n'
-                                'Exception {1} with line: {0}').format(line, e)
+                        self.tr("This script has a syntax error.\n" "Exception {1} with line: {0}").format(line, e)
                     )
             elif line.startswith("#'"):
                 try:
                     self.process_help_line(line)
                 except Exception as e:  # pylint: disable=broad-except
                     self.add_error_message(
-                        self.tr('This script has a syntax error.\n'
-                                'Exception {1} with help line: {0}...').format(line[0:50], e)
+                        self.tr("This script has a syntax error.\n" "Exception {1} with help line: {0}...").format(
+                            line[0:50], e
+                        )
                     )
-            elif line.startswith('>'):
+            elif line.startswith(">"):
                 self.commands.append(line[1:])
                 if not self.show_console_output:
                     self.addParameter(
-                        QgsProcessingParameterFileDestination(RAlgorithm.R_CONSOLE_OUTPUT, self.tr('R Console Output'),
-                                                              self.tr('HTML files (*.html)'), optional=True))
+                        QgsProcessingParameterFileDestination(
+                            RAlgorithm.R_CONSOLE_OUTPUT,
+                            self.tr("R Console Output"),
+                            self.tr("HTML files (*.html)"),
+                            optional=True,
+                        )
+                    )
                 self.show_console_output = True
             else:
-                if line == '':
+                if line == "":
                     ender += 1
                 else:
                     ender = 0
                 self.commands.append(line)
-            self.script += line + '\n'
+            self.script += line + "\n"
             try:
-                line = next(lines).strip('\n').strip('\r')
+                line = next(lines).strip("\n").strip("\r")
             except StopIteration:
                 break
 
@@ -280,45 +280,48 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Processes a "metadata" (##) line
         """
-        line = line.replace('#', '')
+        line = line.replace("#", "")
 
         # special commands
         # showplots is the older version, should be considere obsolete
-        if line.lower().strip().startswith('output_plots_to_html') or \
-           line.lower().strip().startswith('showplots'):
+        if line.lower().strip().startswith("output_plots_to_html") or line.lower().strip().startswith("showplots"):
             self.show_plots = True
-            self.addParameter(QgsProcessingParameterFileDestination(RAlgorithm.RPLOTS, self.tr('R Plots'),
-                                                                    self.tr('HTML files (*.html)'), optional=True))
+            self.addParameter(
+                QgsProcessingParameterFileDestination(
+                    RAlgorithm.RPLOTS, self.tr("R Plots"), self.tr("HTML files (*.html)"), optional=True
+                )
+            )
             return
 
         # these metadata commands are no longer supported
-        if line.lower().strip().startswith('load_raster_using_rgdal') or \
-           line.lower().strip().startswith('dontuserasterpackage') or \
-           line.lower().strip().startswith('load_vector_using_rgdal'):
+        if (
+            line.lower().strip().startswith("load_raster_using_rgdal")
+            or line.lower().strip().startswith("dontuserasterpackage")
+            or line.lower().strip().startswith("load_vector_using_rgdal")
+        ):
             raise QgsProcessingException("This command is no longer supported, `rgdal` package was removed from CRAN.")
 
         # passfilenames is the older version, should be considere obsolete
-        if line.lower().strip().startswith('pass_filenames') or\
-           line.lower().strip().startswith('passfilenames'):
+        if line.lower().strip().startswith("pass_filenames") or line.lower().strip().startswith("passfilenames"):
             self.pass_file_names = True
             return
 
-        if line.lower().strip().startswith('dont_load_any_packages'):
+        if line.lower().strip().startswith("dont_load_any_packages"):
             self.r_templates.auto_load_packages = False
             return
 
         value, type_ = self.split_tokens(line)
-        if type_.lower().strip() == 'group':
+        if type_.lower().strip() == "group":
             self._group = value
             return
-        if type_.lower().strip() == 'name':
+        if type_.lower().strip() == "name":
             self._name = self._display_name = value
             self._name = RUtils.strip_special_characters(self._name.lower())
             return
-        if type_.lower().strip() == 'display_name':
+        if type_.lower().strip() == "display_name":
             self._display_name = value
             return
-        if type_.lower().strip() == 'github_install':
+        if type_.lower().strip() == "github_install":
             self.r_templates.install_github = True
             self.r_templates.github_dependencies = value
             return
@@ -359,7 +362,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             tokens = line.split("|")
             return tokens[1], line
 
-        tokens = line.split('=')
+        tokens = line.split("=")
         return tokens[0], tokens[1]
 
     def process_parameter_line(self, line):
@@ -371,9 +374,11 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         if not RUtils.is_valid_r_variable(value):
             self.add_error_message(
-                self.tr('This script has a syntax error in variable name.\n'
-                        '"{1}" is not a valid variable name in R.'
-                        'Problem with line: {0}').format(line, value)
+                self.tr(
+                    "This script has a syntax error in variable name.\n"
+                    '"{1}" is not a valid variable name in R.'
+                    "Problem with line: {0}"
+                ).format(line, value)
             )
 
         output = create_output_from_string(line)
@@ -400,8 +405,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 self.addParameter(param)
             else:
                 self.add_error_message(
-                    self.tr('This script has a syntax error.\n'
-                            'Problem with line: {0}').format(line)
+                    self.tr("This script has a syntax error.\n" "Problem with line: {0}").format(line)
                 )
 
     def canExecute(self):
@@ -415,7 +419,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if msg is not None:
             return False, msg
 
-        return True, ''
+        return True, ""
 
     def processAlgorithm(self, parameters, context: QgsProcessingContext, feedback):
         """
@@ -427,30 +431,30 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         if RUtils.is_windows():
             path = RUtils.r_binary_folder()
-            if path == '':
+            if path == "":
                 raise QgsProcessingException(
-                    self.tr('R folder is not configured.\nPlease configure it '
-                            'before running R scripts.'))
+                    self.tr("R folder is not configured.\nPlease configure it " "before running R scripts.")
+                )
 
-        feedback.pushInfo(self.tr('R execution commands'))
+        feedback.pushInfo(self.tr("R execution commands"))
 
         output = RUtils.execute_r_algorithm(self, parameters, context, feedback)
 
         if self.show_plots:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
             if html_filename:
-                with open(html_filename, 'w', encoding='utf8') as f:
+                with open(html_filename, "w", encoding="utf8") as f:
                     f.write('<html><img src="{}"/></html>'.format(QUrl.fromLocalFile(self.plots_filename).toString()))
                 self.results[RAlgorithm.RPLOTS] = html_filename
         if self.show_console_output:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.R_CONSOLE_OUTPUT, context)
             if html_filename:
-                with open(html_filename, 'w', encoding='utf8') as f:
+                with open(html_filename, "w", encoding="utf8") as f:
                     f.write(RUtils.html_formatted_console_output(output))
                 self.results[RAlgorithm.R_CONSOLE_OUTPUT] = html_filename
 
         if self.save_output_values and self.output_values_filename:
-            with open(self.output_values_filename, 'r', encoding='utf8') as f:
+            with open(self.output_values_filename, "r", encoding="utf8") as f:
                 lines = [line.strip() for line in f]
             # get output values stored into the file
             outputs = self.parse_output_values(iter(lines))
@@ -477,24 +481,24 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
         output = None
         ender = 0
-        line = next(lines).strip('\n').strip('\r')
+        line = next(lines).strip("\n").strip("\r")
         while ender < 10:
-            if line.startswith('##'):
-                name = line.replace('#', '')
+            if line.startswith("##"):
+                name = line.replace("#", "")
                 output = self.outputDefinition(name)
             else:
-                if line == '':
+                if line == "":
                     ender += 1
                 else:
                     ender = 0
                 if not output:
                     continue
                 if output.name() in outputs:
-                    outputs[output.name()] += '\n\r' + line
+                    outputs[output.name()] += "\n\r" + line
                 else:
                     outputs[output.name()] = line
             try:
-                line = next(lines).strip('\n').strip('\r')
+                line = next(lines).strip("\n").strip("\r")
             except StopIteration:
                 break
 
@@ -521,15 +525,15 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         for out in self.destinationParameterDefinitions():
             if isinstance(out, QgsProcessingParameterRasterDestination):
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
-                dest = dest.replace('\\', '/')
+                dest = dest.replace("\\", "/")
                 commands.append(self.r_templates.write_raster_output(out.name(), dest))
                 self.results[out.name()] = dest
             elif isinstance(out, QgsProcessingParameterVectorDestination):
                 dest = self.parameterAsOutputLayer(parameters, out.name(), context)
-                dest = dest.replace('\\', '/')
+                dest = dest.replace("\\", "/")
                 filename = os.path.basename(dest)
                 filename, ext = os.path.splitext(filename)
-                if ext.lower() == '.csv':
+                if ext.lower() == ".csv":
                     # CSV table export
                     commands.append(self.r_templates.write_csv_output(out.name(), dest))
                 else:
@@ -546,7 +550,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                     continue
                 # create file path for output values only if it is necessary
                 if not self.output_values_filename:
-                    self.output_values_filename = QgsProcessingUtils.generateTempFilename('processing_values.txt')
+                    self.output_values_filename = QgsProcessingUtils.generateTempFilename("processing_values.txt")
                 # write output name and value with cat
                 commands.extend(self.r_templates.write_cat_output(name, self.output_values_filename))
 
@@ -562,20 +566,20 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         :param parameters: Parameters of the algorithm.
         :param context: Processing context
         """
-        if Qgis.QGIS_VERSION_INT >= 30900 and hasattr(self, 'parameterAsCompatibleSourceLayerPathAndLayerName'):
+        if Qgis.QGIS_VERSION_INT >= 30900 and hasattr(self, "parameterAsCompatibleSourceLayerPathAndLayerName"):
             # requires qgis 3.10 or later!
-            ogr_data_path, layer_name = self.parameterAsCompatibleSourceLayerPathAndLayerName(parameters, name, context,
-                                                                                              QgsVectorFileWriter.supportedFormatExtensions(),
-                                                                                              feedback=feedback)
+            ogr_data_path, layer_name = self.parameterAsCompatibleSourceLayerPathAndLayerName(
+                parameters, name, context, QgsVectorFileWriter.supportedFormatExtensions(), feedback=feedback
+            )
             if layer_name:
                 return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path), layer_name)
 
             return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path))
 
-        ogr_data_path = self.parameterAsCompatibleSourceLayerPath(parameters, name, context,
-                                                                  QgsVectorFileWriter.supportedFormatExtensions(),
-                                                                  feedback=feedback)
-        ogr_layer = QgsVectorLayer(ogr_data_path, '', 'ogr')
+        ogr_data_path = self.parameterAsCompatibleSourceLayerPath(
+            parameters, name, context, QgsVectorFileWriter.supportedFormatExtensions(), feedback=feedback
+        )
+        ogr_layer = QgsVectorLayer(ogr_data_path, "", "ogr")
         return self.load_vector_layer_command(name, ogr_layer, feedback)
 
     def build_vector_layer_import_command(self, variable_name, layer, context, feedback):
@@ -585,25 +589,29 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if layer is None:
             return self.r_templates.set_variable_null(variable_name)
 
-        is_ogr_disk_based_layer = layer is not None and layer.dataProvider().name() == 'ogr'
+        is_ogr_disk_based_layer = layer is not None and layer.dataProvider().name() == "ogr"
         if is_ogr_disk_based_layer:
             # we only support direct reading of disk based ogr layers -- not ogr postgres layers, etc
-            source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
-            if not source_parts.get('path'):
+            source_parts = QgsProviderRegistry.instance().decodeUri("ogr", layer.source())
+            if not source_parts.get("path"):
                 is_ogr_disk_based_layer = False
-            elif source_parts.get('layerId'):
+            elif source_parts.get("layerId"):
                 # no support for directly reading layers by id in R
                 is_ogr_disk_based_layer = False
 
         if not is_ogr_disk_based_layer:
             # parameter is not a vector layer or not an OGR layer - try to convert to a source compatible with
             # R OGR inputs and extract selection if required
-            path = QgsProcessingUtils.convertToCompatibleFormat(layer, False, variable_name,
-                                                                compatibleFormats=QgsVectorFileWriter.supportedFormatExtensions(),
-                                                                preferredFormat='gpkg',
-                                                                context=context,
-                                                                feedback=feedback)
-            ogr_layer = QgsVectorLayer(path, '', 'ogr')
+            path = QgsProcessingUtils.convertToCompatibleFormat(
+                layer,
+                False,
+                variable_name,
+                compatibleFormats=QgsVectorFileWriter.supportedFormatExtensions(),
+                preferredFormat="gpkg",
+                context=context,
+                feedback=feedback,
+            )
+            ogr_layer = QgsVectorLayer(path, "", "ogr")
             return self.load_vector_layer_command(variable_name, ogr_layer, None)
 
         # already an ogr disk based layer source
@@ -613,12 +621,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         """
         Creates a command to load a vector layer into the workspace
         """
-        source_parts = QgsProviderRegistry.instance().decodeUri('ogr', layer.source())
-        file_path = source_parts.get('path')
+        source_parts = QgsProviderRegistry.instance().decodeUri("ogr", layer.source())
+        file_path = source_parts.get("path")
         if self.pass_file_names:
             return self.r_templates.set_variable_string(name, QDir.fromNativeSeparators(file_path))
 
-        layer_name = source_parts.get('layerName')
+        layer_name = source_parts.get("layerName")
         if layer_name:
             return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(file_path), layer=layer_name)
 
@@ -638,13 +646,14 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if layer is None:
             return self.r_templates.set_variable_null(variable_name)
 
-        if layer.dataProvider().name() != 'gdal':
+        if layer.dataProvider().name() != "gdal":
             raise QgsProcessingException(
-                self.tr(
-                    "Layer {} is not a GDAL layer. Currently only GDAL based raster layers are supported."
-                ).format(variable_name))
+                self.tr("Layer {} is not a GDAL layer. Currently only GDAL based raster layers are supported.").format(
+                    variable_name
+                )
+            )
 
-        path = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.source())['path']
+        path = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.source())["path"]
         value = QDir.fromNativeSeparators(path)
         if self.pass_file_names:
             return self.r_templates.set_variable_string(variable_name, value)
@@ -667,22 +676,28 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
 
                 if not exp.prepare(self.alg_context):
                     raise QgsProcessingException(
-                        self.tr('Expression with name `{0}` and value `{1}` is malformed. '
-                                'Error: {2}.'.format(param.name(), param.defaultValue(), exp.parserErrorString())))
+                        self.tr(
+                            "Expression with name `{0}` and value `{1}` is malformed. "
+                            "Error: {2}.".format(param.name(), param.defaultValue(), exp.parserErrorString())
+                        )
+                    )
 
                 exp_result = exp.evaluate(self.alg_context)
 
                 if exp.hasEvalError():
                     raise QgsProcessingException(
-                        self.tr('Expression with name `{0}` and value `{1}` can not be evaluated. '
-                                'Error: {2}.').format(param.name(), param.defaultValue(), exp.evalErrorString()))
+                        self.tr(
+                            "Expression with name `{0}` and value `{1}` can not be evaluated. " "Error: {2}."
+                        ).format(param.name(), param.defaultValue(), exp.evalErrorString())
+                    )
 
                 commands.append(self.expression_as_r_command(param, exp_result))
 
         return commands
 
-    def build_import_commands(self,  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-                              parameters, context, feedback):
+    def build_import_commands(
+        self, parameters, context, feedback  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+    ):
         """
         Builds the set of input commands for the algorithm
         """
@@ -710,25 +725,27 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 extent = self.parameterAsExtent(parameters, param.name(), context)
                 # Extent from raster package is "xmin, xmax, ymin, ymax" like in Processing
                 # http://www.inside-r.org/packages/cran/raster/docs/Extent
-                commands.append(self.r_templates.set_variable_extent(param.name(),
-                                                                     extent.xMinimum(),
-                                                                     extent.xMaximum(),
-                                                                     extent.yMinimum(),
-                                                                     extent.yMaximum()))
+                commands.append(
+                    self.r_templates.set_variable_extent(
+                        param.name(), extent.xMinimum(), extent.xMaximum(), extent.yMinimum(), extent.yMaximum()
+                    )
+                )
             elif isinstance(param, QgsProcessingParameterCrs):
                 crs = self.parameterAsCrs(parameters, param.name(), context)
                 if crs.isValid():
                     if crs.authid().lower().startswith("user:") or crs.authid() == "":
-                        commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                             crs.toWkt(QgsCoordinateReferenceSystem.WKT2_2019_SIMPLIFIED)))
+                        commands.append(
+                            self.r_templates.set_variable_string(
+                                param.name(), crs.toWkt(QgsCoordinateReferenceSystem.WKT2_2019_SIMPLIFIED)
+                            )
+                        )
                     else:
                         commands.append(self.r_templates.set_variable_string(param.name(), crs.authid()))
                 else:
                     commands.append(self.r_templates.set_variable_null(param.name()))
             elif isinstance(param, QgsProcessingParameterFile):
                 value = self.parameterAsString(parameters, param.name(), context)
-                commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                     QDir.fromNativeSeparators(value)))
+                commands.append(self.r_templates.set_variable_string(param.name(), QDir.fromNativeSeparators(value)))
             elif isinstance(param, QgsProcessingParameterString):
                 value = self.parameterAsString(parameters, param.name(), context)
                 commands.append(self.r_templates.set_variable_string(param.name(), value))
@@ -746,7 +763,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 commands.append(self.process_enum(parameters, param, context))
             elif isinstance(param, QgsProcessingParameterBoolean):
                 value = self.parameterAsBool(parameters, param.name(), context)
-                value = 'TRUE' if value else 'FALSE'
+                value = "TRUE" if value else "FALSE"
                 commands.append(self.r_templates.set_variable_directly(param.name(), value))
             elif isinstance(param, QgsProcessingParameterPoint):
                 point: QgsPointXY = self.parameterAsPoint(parameters, param.name(), context)
@@ -760,25 +777,25 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 layers = self.parameterAsLayerList(parameters, param.name(), context)
                 if param.layerType() == QgsProcessing.TypeRaster:
                     for layer in layers:
-                        variable_name = 'tempvar{}'.format(layer_idx)
+                        variable_name = "tempvar{}".format(layer_idx)
                         commands.append(self.build_raster_layer_import_command(variable_name, layer))
                         layer_idx += 1
                 else:
                     for layer in layers:
-                        variable_name = 'tempvar{}'.format(layer_idx)
+                        variable_name = "tempvar{}".format(layer_idx)
                         commands.append(self.build_vector_layer_import_command(variable_name, layer, context, feedback))
                         layer_idx += 1
 
-                s = ''
+                s = ""
                 s += param.name()
-                s += ' = list('
+                s += " = list("
                 layer_idx = 0
                 for _ in layers:
                     if layer_idx != 0:
-                        s += ','
-                    s += 'tempvar{}'.format(layer_idx)
+                        s += ","
+                    s += "tempvar{}".format(layer_idx)
                     layer_idx += 1
-                s += ')'
+                s += ")"
                 commands.append(s)
 
             if Qgis.QGIS_VERSION_INT >= 31000:
@@ -796,21 +813,19 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             if isinstance(param, QgsProcessingParameterFolderDestination):
                 folder = self.parameterAsString(parameters, param.name(), context)
                 Path(folder).mkdir(parents=True, exist_ok=True)
-                commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                     QDir.fromNativeSeparators(folder)))
+                commands.append(self.r_templates.set_variable_string(param.name(), QDir.fromNativeSeparators(folder)))
                 self.save_output_values = True
             elif isinstance(param, QgsProcessingParameterFileDestination):
                 filename = self.parameterAsFileOutput(parameters, param.name(), context)
                 Path(filename).parent.mkdir(parents=True, exist_ok=True)
-                commands.append(self.r_templates.set_variable_string(param.name(),
-                                                                     QDir.fromNativeSeparators(filename)))
+                commands.append(self.r_templates.set_variable_string(param.name(), QDir.fromNativeSeparators(filename)))
                 self.save_output_values = True
 
         if self.show_plots:
             html_filename = self.parameterAsFileOutput(parameters, RAlgorithm.RPLOTS, context)
             path, _ = os.path.splitext(html_filename)
-            self.plots_filename = path + '.png'
-            self.plots_filename = self.plots_filename.replace('\\', '/')
+            self.plots_filename = path + ".png"
+            self.plots_filename = self.plots_filename.replace("\\", "/")
             commands.append(self.r_templates.create_png(self.plots_filename))
 
         return commands
@@ -860,14 +875,14 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if self.inline_help is not None:
             return QgsProcessingUtils.formatHelpMapAsHtml(self.inline_help, self)
 
-        return ''
+        return ""
 
-    def tr(self, string, context=''):
+    def tr(self, string, context=""):
         """
         Translates a string
         """
-        if context == '':
-            context = 'RAlgorithmProvider'
+        if context == "":
+            context = "RAlgorithmProvider"
         return QCoreApplication.translate(context, string)
 
     def process_enum(self, parameters, param, context) -> str:

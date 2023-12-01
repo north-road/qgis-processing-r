@@ -8,11 +8,11 @@
 
 """
 
-__author__ = '(C) 2018 by Nyall Dawson'
-__date__ = '20/04/2018'
-__copyright__ = 'Copyright 2018, North Road'
+__author__ = "(C) 2018 by Nyall Dawson"
+__date__ = "20/04/2018"
+__copyright__ = "Copyright 2018, North Road"
 # This will get replaced with a git SHA1 when you do a git archive
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import unittest
 from processing_r.gui.gui_utils import GuiUtils
@@ -28,19 +28,16 @@ class GuiUtilsTest(unittest.TestCase):
         """
         Tests get_icon
         """
-        self.assertFalse(
-            GuiUtils.get_icon('providerR.svg').isNull())
-        self.assertTrue(GuiUtils.get_icon('not_an_icon.svg').isNull())
+        self.assertFalse(GuiUtils.get_icon("providerR.svg").isNull())
+        self.assertTrue(GuiUtils.get_icon("not_an_icon.svg").isNull())
 
     def testGetIconSvg(self):
         """
         Tests get_icon svg path
         """
-        self.assertTrue(
-            GuiUtils.get_icon_svg('providerR.svg'))
-        self.assertIn('providerR.svg',
-                      GuiUtils.get_icon_svg('providerR.svg'))
-        self.assertFalse(GuiUtils.get_icon_svg('not_an_icon.svg'))
+        self.assertTrue(GuiUtils.get_icon_svg("providerR.svg"))
+        self.assertIn("providerR.svg", GuiUtils.get_icon_svg("providerR.svg"))
+        self.assertFalse(GuiUtils.get_icon_svg("not_an_icon.svg"))
 
 
 if __name__ == "__main__":

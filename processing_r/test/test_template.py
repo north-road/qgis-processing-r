@@ -8,11 +8,11 @@
 
 """
 
-__author__ = '(C) 2018 by Nyall Dawson'
-__date__ = '20/04/2018'
-__copyright__ = 'Copyright 2018, North Road'
+__author__ = "(C) 2018 by Nyall Dawson"
+__date__ = "20/04/2018"
+__copyright__ = "Copyright 2018, North Road"
 # This will get replaced with a git SHA1 when you do a git archive
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import unittest
 import os
@@ -21,9 +21,7 @@ from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
 
-test_data_path = os.path.join(
-    os.path.dirname(__file__),
-    'data')
+test_data_path = os.path.join(os.path.dirname(__file__), "data")
 
 
 class TemplateTest(unittest.TestCase):
@@ -36,27 +34,31 @@ class TemplateTest(unittest.TestCase):
         templates = RTemplates()
         templates.install_github = True
         templates.github_dependencies = "user_1/repo_1, user_2/repo_2"
-        self.assertEqual(templates.install_package_github(templates.github_dependencies[0]),
-                         'remotes::install_github("user_1/repo_1")')
-        self.assertEqual(templates.install_package_github(templates.github_dependencies[1]),
-                         'remotes::install_github("user_2/repo_2")')
+        self.assertEqual(
+            templates.install_package_github(templates.github_dependencies[0]),
+            'remotes::install_github("user_1/repo_1")',
+        )
+        self.assertEqual(
+            templates.install_package_github(templates.github_dependencies[1]),
+            'remotes::install_github("user_2/repo_2")',
+        )
 
     def testString(self):  # pylint: disable=too-many-locals,too-many-statements
         """
         Test string variable
         """
         templates = RTemplates()
-        self.assertEqual(templates.set_variable_string('var', 'val'), 'var <- "val"')
-        self.assertEqual(templates.set_variable_string('var', 'va"l'), 'var <- "va\\"l"')
+        self.assertEqual(templates.set_variable_string("var", "val"), 'var <- "val"')
+        self.assertEqual(templates.set_variable_string("var", 'va"l'), 'var <- "va\\"l"')
 
     def testStringListVariable(self):  # pylint: disable=too-many-locals,too-many-statements
         """
         Test string list variable
         """
         templates = RTemplates()
-        self.assertEqual(templates.set_variable_string_list('var', []), 'var <- c()')
-        self.assertEqual(templates.set_variable_string_list('var', ['aaaa']), 'var <- c("aaaa")')
-        self.assertEqual(templates.set_variable_string_list('var', ['aaaa', 'va"l']), 'var <- c("aaaa","va\\"l")')
+        self.assertEqual(templates.set_variable_string_list("var", []), "var <- c()")
+        self.assertEqual(templates.set_variable_string_list("var", ["aaaa"]), 'var <- c("aaaa")')
+        self.assertEqual(templates.set_variable_string_list("var", ["aaaa", 'va"l']), 'var <- c("aaaa","va\\"l")')
 
 
 if __name__ == "__main__":

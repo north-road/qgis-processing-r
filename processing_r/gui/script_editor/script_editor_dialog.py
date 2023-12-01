@@ -17,13 +17,13 @@
 ***************************************************************************
 """
 
-__author__ = 'Alexander Bruy'
-__date__ = 'December 2012'
-__copyright__ = '(C) 2012, Alexander Bruy'
+__author__ = "Alexander Bruy"
+__date__ = "December 2012"
+__copyright__ = "(C) 2012, Alexander Bruy"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
 import codecs
@@ -34,16 +34,12 @@ import warnings
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QCursor
-from qgis.PyQt.QtWidgets import (QMessageBox,
-                                 QFileDialog)
+from qgis.PyQt.QtWidgets import QMessageBox, QFileDialog
 
 from qgis.gui import QgsGui, QgsErrorDialog
-from qgis.core import (QgsApplication,
-                       QgsSettings,
-                       QgsError,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingFeatureBasedAlgorithm)
+from qgis.core import QgsApplication, QgsSettings, QgsError, QgsProcessingAlgorithm, QgsProcessingFeatureBasedAlgorithm
 from qgis.utils import iface, OverrideCursor
+
 # from qgis.processing import alg as algfactory
 
 from processing.gui.AlgorithmDialog import AlgorithmDialog
@@ -57,8 +53,7 @@ pluginPath = os.path.split(os.path.dirname(__file__))[0]
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
-    WIDGET, BASE = uic.loadUiType(
-        GuiUtils.get_ui_file_path('DlgScriptEditor.ui'))
+    WIDGET, BASE = uic.loadUiType(GuiUtils.get_ui_file_path("DlgScriptEditor.ui"))
 
 
 # This class is ported from the QGIS core Processing script editor.
@@ -83,30 +78,18 @@ class ScriptEditorDialog(BASE, WIDGET):
             self.toolBar.setIconSize(iface.iconSize())
             self.setStyleSheet(iface.mainWindow().styleSheet())
 
-        self.actionOpenScript.setIcon(
-            QgsApplication.getThemeIcon('/mActionScriptOpen.svg'))
-        self.actionSaveScript.setIcon(
-            QgsApplication.getThemeIcon('/mActionFileSave.svg'))
-        self.actionSaveScriptAs.setIcon(
-            QgsApplication.getThemeIcon('/mActionFileSaveAs.svg'))
-        self.actionRunScript.setIcon(
-            QgsApplication.getThemeIcon('/mActionStart.svg'))
-        self.actionCut.setIcon(
-            QgsApplication.getThemeIcon('/mActionEditCut.svg'))
-        self.actionCopy.setIcon(
-            QgsApplication.getThemeIcon('/mActionEditCopy.svg'))
-        self.actionPaste.setIcon(
-            QgsApplication.getThemeIcon('/mActionEditPaste.svg'))
-        self.actionUndo.setIcon(
-            QgsApplication.getThemeIcon('/mActionUndo.svg'))
-        self.actionRedo.setIcon(
-            QgsApplication.getThemeIcon('/mActionRedo.svg'))
-        self.actionFindReplace.setIcon(
-            QgsApplication.getThemeIcon('/mActionFindReplace.svg'))
-        self.actionIncreaseFontSize.setIcon(
-            QgsApplication.getThemeIcon('/mActionIncreaseFont.svg'))
-        self.actionDecreaseFontSize.setIcon(
-            QgsApplication.getThemeIcon('/mActionDecreaseFont.svg'))
+        self.actionOpenScript.setIcon(QgsApplication.getThemeIcon("/mActionScriptOpen.svg"))
+        self.actionSaveScript.setIcon(QgsApplication.getThemeIcon("/mActionFileSave.svg"))
+        self.actionSaveScriptAs.setIcon(QgsApplication.getThemeIcon("/mActionFileSaveAs.svg"))
+        self.actionRunScript.setIcon(QgsApplication.getThemeIcon("/mActionStart.svg"))
+        self.actionCut.setIcon(QgsApplication.getThemeIcon("/mActionEditCut.svg"))
+        self.actionCopy.setIcon(QgsApplication.getThemeIcon("/mActionEditCopy.svg"))
+        self.actionPaste.setIcon(QgsApplication.getThemeIcon("/mActionEditPaste.svg"))
+        self.actionUndo.setIcon(QgsApplication.getThemeIcon("/mActionUndo.svg"))
+        self.actionRedo.setIcon(QgsApplication.getThemeIcon("/mActionRedo.svg"))
+        self.actionFindReplace.setIcon(QgsApplication.getThemeIcon("/mActionFindReplace.svg"))
+        self.actionIncreaseFontSize.setIcon(QgsApplication.getThemeIcon("/mActionIncreaseFont.svg"))
+        self.actionDecreaseFontSize.setIcon(QgsApplication.getThemeIcon("/mActionDecreaseFont.svg"))
 
         # Connect signals and slots
         self.actionOpenScript.triggered.connect(self.openScript)
@@ -141,12 +124,12 @@ class ScriptEditorDialog(BASE, WIDGET):
         if self.filePath:
             path, file_name = os.path.split(self.filePath)
         else:
-            file_name = self.tr('Untitled Script')
+            file_name = self.tr("Untitled Script")
 
         if self.hasChanged:
-            file_name = '*' + file_name
+            file_name = "*" + file_name
 
-        self.setWindowTitle(self.tr('{} - R Script Editor').format(file_name))
+        self.setWindowTitle(self.tr("{} - R Script Editor").format(file_name))
 
     def closeEvent(self, event):
         settings = QgsSettings()
@@ -155,9 +138,12 @@ class ScriptEditorDialog(BASE, WIDGET):
 
         if self.hasChanged:
             ret = QMessageBox.question(
-                self, self.tr('Save Script?'),
-                self.tr('There are unsaved changes in this script. Do you want to keep those?'),
-                QMessageBox.Save | QMessageBox.Cancel | QMessageBox.Discard, QMessageBox.Cancel)
+                self,
+                self.tr("Save Script?"),
+                self.tr("There are unsaved changes in this script. Do you want to keep those?"),
+                QMessageBox.Save | QMessageBox.Cancel | QMessageBox.Discard,
+                QMessageBox.Cancel,
+            )
 
             if ret == QMessageBox.Save:
                 self.saveScript(False)
@@ -171,18 +157,20 @@ class ScriptEditorDialog(BASE, WIDGET):
 
     def openScript(self):
         if self.hasChanged:
-            ret = QMessageBox.warning(self,
-                                      self.tr("Unsaved changes"),
-                                      self.tr("There are unsaved changes in the script. Continue?"),
-                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            ret = QMessageBox.warning(
+                self,
+                self.tr("Unsaved changes"),
+                self.tr("There are unsaved changes in the script. Continue?"),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
             if ret == QMessageBox.No:
                 return
 
         scriptDir = RUtils.default_scripts_folder()
-        fileName, _ = QFileDialog.getOpenFileName(self,
-                                                  self.tr("Open script"),
-                                                  scriptDir,
-                                                  self.tr("R scripts (*.rsx *.RSX)"))
+        fileName, _ = QFileDialog.getOpenFileName(
+            self, self.tr("Open script"), scriptDir, self.tr("R scripts (*.rsx *.RSX)")
+        )
 
         if fileName == "":
             return
@@ -200,10 +188,9 @@ class ScriptEditorDialog(BASE, WIDGET):
         newPath = None
         if self.filePath is None or saveAs:
             scriptDir = RUtils.default_scripts_folder()
-            newPath, _ = QFileDialog.getSaveFileName(self,
-                                                     self.tr("Save script"),
-                                                     scriptDir,
-                                                     self.tr("R scripts (*.rsx *.RSX)"))
+            newPath, _ = QFileDialog.getSaveFileName(
+                self, self.tr("Save script"), scriptDir, self.tr("R scripts (*.rsx *.RSX)")
+            )
 
             if newPath:
                 if not newPath.lower().endswith(".rsx"):
@@ -217,10 +204,7 @@ class ScriptEditorDialog(BASE, WIDGET):
                 with codecs.open(self.filePath, "w", encoding="utf-8") as f:
                     f.write(text)
             except IOError as e:
-                QMessageBox.warning(self,
-                                    self.tr("I/O error"),
-                                    self.tr("Unable to save edits:\n{}").format(str(e))
-                                    )
+                QMessageBox.warning(self, self.tr("I/O error"), self.tr("Unable to save edits:\n{}").format(str(e)))
                 return
 
             self.setHasChanged(False)
@@ -236,9 +220,7 @@ class ScriptEditorDialog(BASE, WIDGET):
         alg = RAlgorithm(description_file=None, script=self.editor.text())
         if alg.error is not None:
             error = QgsError(alg.error, "R")
-            QgsErrorDialog.show(error,
-                                self.tr("Execution error")
-                                )
+            QgsErrorDialog.show(error, self.tr("Execution error"))
             return
 
         alg.setProvider(QgsApplication.processingRegistry().providerById("r"))
@@ -273,7 +255,7 @@ class ScriptEditorDialog(BASE, WIDGET):
 
     def toggleSearchBox(self, checked):
         self.searchWidget.setVisible(checked)
-        if (checked):
+        if checked:
             self.leFindText.setFocus()
 
     def _loadFile(self, filePath):
