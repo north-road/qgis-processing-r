@@ -17,55 +17,55 @@
 ***************************************************************************
 """
 
-import os
 import json
+import os
 from pathlib import Path
 
 from qgis.core import (
     Qgis,
+    QgsCoordinateReferenceSystem,
+    QgsExpression,
+    QgsExpressionContext,
+    QgsGeometry,
+    QgsPointXY,
     QgsProcessing,
-    QgsProviderRegistry,
     QgsProcessingAlgorithm,
+    QgsProcessingContext,
     QgsProcessingException,
-    QgsProcessingParameterRasterLayer,
+    QgsProcessingOutputDefinition,
     QgsProcessingParameterBand,
-    QgsProcessingParameterVectorLayer,
-    QgsProcessingParameterExtent,
-    QgsProcessingParameterCrs,
-    QgsProcessingParameterField,
-    QgsProcessingParameterString,
-    QgsProcessingParameterFile,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterEnum,
     QgsProcessingParameterBoolean,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingParameterVectorDestination,
+    QgsProcessingParameterCrs,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterExpression,
+    QgsProcessingParameterExtent,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterField,
+    QgsProcessingParameterFile,
     QgsProcessingParameterFileDestination,
     QgsProcessingParameterFolderDestination,
-    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterMultipleLayers,
+    QgsProcessingParameterNumber,
     QgsProcessingParameterPoint,
     QgsProcessingParameterRange,
-    QgsProcessingParameterExpression,
-    QgsProcessingOutputDefinition,
+    QgsProcessingParameterRasterDestination,
+    QgsProcessingParameterRasterLayer,
+    QgsProcessingParameterString,
+    QgsProcessingParameterVectorDestination,
+    QgsProcessingParameterVectorLayer,
+    QgsProcessingUtils,
+    QgsProviderRegistry,
     QgsVectorFileWriter,
     QgsVectorLayer,
-    QgsPointXY,
-    QgsCoordinateReferenceSystem,
-    QgsProcessingUtils,
-    QgsExpressionContext,
-    QgsProcessingContext,
-    QgsExpression,
-    QgsGeometry,
 )
-
-from qgis.PyQt.QtCore import QCoreApplication, QDir, QUrl, QDateTime, QDate, QTime
+from qgis.PyQt.QtCore import QCoreApplication, QDate, QDateTime, QDir, QTime, QUrl
 from qgis.PyQt.QtGui import QColor
-from processing_r.processing.parameters import create_parameter_from_string
-from processing_r.processing.outputs import create_output_from_string
-from processing_r.processing.utils import RUtils
+
 from processing_r.gui.gui_utils import GuiUtils
+from processing_r.processing.outputs import create_output_from_string
+from processing_r.processing.parameters import create_parameter_from_string
 from processing_r.processing.r_templates import RTemplates
+from processing_r.processing.utils import RUtils
 
 if Qgis.QGIS_VERSION_INT >= 31000:
     from qgis.core import QgsProcessingParameterColor  # pylint: disable=ungrouped-imports

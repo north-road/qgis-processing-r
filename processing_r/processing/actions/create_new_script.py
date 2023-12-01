@@ -25,8 +25,9 @@ __copyright__ = "(C) 2012, Victor Olaya"
 
 __revision__ = "$Format:%H$"
 
-from qgis.PyQt.QtCore import QCoreApplication
 from processing.gui.ToolboxAction import ToolboxAction
+from qgis.PyQt.QtCore import QCoreApplication
+
 from processing_r.gui.script_editor.script_editor_dialog import ScriptEditorDialog
 
 

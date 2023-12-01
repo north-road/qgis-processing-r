@@ -14,21 +14,24 @@ __copyright__ = "Copyright 2018, North Road"
 # This will get replaced with a git SHA1 when you do a git archive
 __revision__ = "$Format:%H$"
 
-import unittest
 import os
+import unittest
+
 from qgis.core import (
     Qgis,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterFile,
     QgsProcessing,
+    QgsProcessingAlgorithm,
     QgsProcessingContext,
     QgsProcessingFeedback,
+    QgsProcessingParameterFile,
+    QgsProcessingParameterNumber,
     QgsVectorLayer,
-    QgsProcessingAlgorithm,
 )
-from qgis.PyQt.QtCore import QDateTime, QDate, QTime
+from qgis.PyQt.QtCore import QDate, QDateTime, QTime
 from qgis.PyQt.QtGui import QColor
+
 from processing_r.processing.algorithm import RAlgorithm
+
 from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()

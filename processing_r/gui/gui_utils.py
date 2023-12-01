@@ -14,6 +14,7 @@ __copyright__ = "Copyright 2018, North Road"
 __revision__ = "$Format:%H$"
 
 import os
+
 from qgis.PyQt.QtGui import QIcon
 
 

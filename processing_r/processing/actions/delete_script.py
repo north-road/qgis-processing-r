@@ -26,10 +26,11 @@ __copyright__ = "(C) 2012, Victor Olaya"
 __revision__ = "$Format:%H$"
 
 import os
+
+from processing.gui.ContextAction import ContextAction
+from qgis.core import QgsApplication, QgsProcessingAlgorithm
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import QgsApplication, QgsProcessingAlgorithm
-from processing.gui.ContextAction import ContextAction
 
 
 class DeleteScriptAction(ContextAction):

@@ -27,13 +27,11 @@ __revision__ = "$Format:%H$"
 
 import os
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QFont, QColor, QKeySequence, QFontDatabase, QFontMetrics
-from qgis.PyQt.QtWidgets import QShortcut
 from qgis.core import QgsApplication, QgsSettings
-
-from qgis.PyQt.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
-
+from qgis.PyQt.Qsci import QsciAPIs, QsciLexerPython, QsciScintilla
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QColor, QFont, QFontDatabase, QFontMetrics, QKeySequence
+from qgis.PyQt.QtWidgets import QShortcut
 
 # This class is ported from the QGIS core Processing script editor.
 # Unfortunately generalising the core editor to allow everything we want in an R editor

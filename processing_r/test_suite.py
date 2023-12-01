@@ -9,12 +9,13 @@ Test Suite.
 
 """
 
-import sys
 import os
-import unittest
+import sys
 import tempfile
-from osgeo import gdal
+import unittest
+
 import qgis  # pylint: disable=unused-import
+from osgeo import gdal
 from qgis.core import Qgis
 
 try:

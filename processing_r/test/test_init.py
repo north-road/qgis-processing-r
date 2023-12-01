@@ -14,11 +14,10 @@ __license__ = "GPL"
 __copyright__ = "Copyright 2018, LINZ"
 
 
+import configparser
+import logging
 import os
 import unittest
-import logging
-import configparser
-
 
 LOGGER = logging.getLogger("QGIS")
 

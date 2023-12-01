@@ -16,18 +16,18 @@
 *                                                                         *
 ***************************************************************************
 """
-import re
 import os
 import platform
+import re
 import subprocess
 import sys
-from typing import Optional
 from ctypes import cdll
+from typing import Optional
 
-from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsProcessingUtils, QgsMessageLog, Qgis
 from processing.core.ProcessingConfig import ProcessingConfig
-from processing.tools.system import userFolder, mkdir
+from processing.tools.system import mkdir, userFolder
+from qgis.core import Qgis, QgsMessageLog, QgsProcessingUtils
+from qgis.PyQt.QtCore import QCoreApplication
 
 DEBUG = True
 

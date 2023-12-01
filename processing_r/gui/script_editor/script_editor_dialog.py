@@ -25,29 +25,29 @@ __copyright__ = "(C) 2012, Alexander Bruy"
 
 __revision__ = "$Format:%H$"
 
-import os
 import codecs
 import inspect
+import os
 import traceback
 import warnings
 
+from processing.gui.AlgorithmDialog import AlgorithmDialog
+from processing.script import ScriptUtils
+from qgis.core import QgsApplication, QgsError, QgsProcessingAlgorithm, QgsProcessingFeatureBasedAlgorithm, QgsSettings
+from qgis.gui import QgsErrorDialog, QgsGui
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QCursor
-from qgis.PyQt.QtWidgets import QMessageBox, QFileDialog
+from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox
+from qgis.utils import OverrideCursor, iface
 
-from qgis.gui import QgsGui, QgsErrorDialog
-from qgis.core import QgsApplication, QgsSettings, QgsError, QgsProcessingAlgorithm, QgsProcessingFeatureBasedAlgorithm
-from qgis.utils import iface, OverrideCursor
+from processing_r.gui.gui_utils import GuiUtils
+from processing_r.processing.algorithm import RAlgorithm
+from processing_r.processing.utils import RUtils
 
 # from qgis.processing import alg as algfactory
 
-from processing.gui.AlgorithmDialog import AlgorithmDialog
-from processing.script import ScriptUtils
 
-from processing_r.processing.utils import RUtils
-from processing_r.processing.algorithm import RAlgorithm
-from processing_r.gui.gui_utils import GuiUtils
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 

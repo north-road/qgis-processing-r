@@ -14,9 +14,11 @@ __copyright__ = "Copyright 2018, North Road"
 # This will get replaced with a git SHA1 when you do a git archive
 __revision__ = "$Format:%H$"
 
-import unittest
 import os
+import unittest
+
 from processing_r.processing.r_templates import RTemplates
+
 from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()

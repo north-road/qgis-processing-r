@@ -12,12 +12,10 @@ __author__ = "(C) 2019 by Jan Caha"
 __date__ = "17/10/2019"
 __copyright__ = "Copyright 2018, North Road"
 
-from typing import List, Any, Tuple, Optional
+from typing import Any, List, Optional, Tuple
 
-from qgis.core import QgsCoordinateReferenceSystem, QgsPointXY, QgsGeometry
-
-from qgis.PyQt.QtCore import QDateTime, Qt, QDate, QTime
-
+from qgis.core import QgsCoordinateReferenceSystem, QgsGeometry, QgsPointXY
+from qgis.PyQt.QtCore import QDate, QDateTime, Qt, QTime
 from qgis.PyQt.QtGui import QColor
 
 from processing_r.processing.utils import RUtils

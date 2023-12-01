@@ -25,11 +25,12 @@ __copyright__ = "(C) 2012, Victor Olaya"
 
 __revision__ = "$Format:%H$"
 
+from processing.gui.ContextAction import ContextAction
 from qgis.core import QgsProcessingAlgorithm
-from qgis.utils import iface
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtWidgets import QMessageBox
-from processing.gui.ContextAction import ContextAction
+from qgis.utils import iface
+
 from processing_r.gui.script_editor.script_editor_dialog import ScriptEditorDialog
 
 

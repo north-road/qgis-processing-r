@@ -18,19 +18,19 @@
 """
 
 import os
-from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import Qgis, QgsProcessingProvider, QgsMessageLog
 
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from processing.gui.ProviderActions import ProviderActions, ProviderContextMenuActions
+from qgis.core import Qgis, QgsMessageLog, QgsProcessingProvider
+from qgis.PyQt.QtCore import QCoreApplication
 
+from processing_r.gui.gui_utils import GuiUtils
 from processing_r.processing.actions.create_new_script import CreateNewScriptAction
-from processing_r.processing.actions.edit_script import EditScriptAction
 from processing_r.processing.actions.delete_script import DeleteScriptAction
+from processing_r.processing.actions.edit_script import EditScriptAction
+from processing_r.processing.algorithm import RAlgorithm
 from processing_r.processing.exceptions import InvalidScriptException
 from processing_r.processing.utils import RUtils
-from processing_r.processing.algorithm import RAlgorithm
-from processing_r.gui.gui_utils import GuiUtils
 
 
 class RAlgorithmProvider(QgsProcessingProvider):

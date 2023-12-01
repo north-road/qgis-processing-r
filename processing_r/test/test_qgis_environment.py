@@ -12,9 +12,10 @@ __date__ = "20/01/2011"
 __copyright__ = "Copyright 2012, Australia Indonesia Facility for " "Disaster Reduction"
 
 import unittest
-from qgis.core import QgsProviderRegistry
-from .utilities import get_qgis_app
 
+from qgis.core import QgsProviderRegistry
+
+from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
 

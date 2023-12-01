@@ -25,10 +25,11 @@ __copyright__ = (
 
 import logging
 from typing import List
-from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal, QSize
-from qgis.PyQt.QtWidgets import QDockWidget
-from qgis.core import QgsProject, QgsMapLayer
+
+from PyQt5.QtCore import QObject, QSize, pyqtSignal, pyqtSlot
+from qgis.core import QgsMapLayer, QgsProject
 from qgis.gui import QgsMapCanvas, QgsMessageBar
+from qgis.PyQt.QtWidgets import QDockWidget
 
 LOGGER = logging.getLogger("QGIS")
 

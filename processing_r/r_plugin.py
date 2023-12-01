@@ -14,9 +14,11 @@ __copyright__ = "Copyright 2018, North Road"
 __revision__ = "$Format:%H$"
 
 import os
-from qgis.PyQt.QtCore import QTranslator, QCoreApplication
+
 from qgis.core import QgsApplication
 from qgis.gui import QgisInterface
+from qgis.PyQt.QtCore import QCoreApplication, QTranslator
+
 from processing_r.processing.provider import RAlgorithmProvider
 
 VERSION = "3.1.0"

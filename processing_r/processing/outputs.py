@@ -21,18 +21,18 @@ import sys
 
 from qgis.core import (
     QgsProcessing,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputMapLayer,
-    QgsProcessingOutputHtml,
-    QgsProcessingOutputNumber,
-    QgsProcessingOutputString,
-    QgsProcessingOutputFolder,
     QgsProcessingOutputFile,
-    QgsProcessingParameterVectorDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingParameterFolderDestination,
+    QgsProcessingOutputFolder,
+    QgsProcessingOutputHtml,
+    QgsProcessingOutputMapLayer,
+    QgsProcessingOutputNumber,
+    QgsProcessingOutputRasterLayer,
+    QgsProcessingOutputString,
+    QgsProcessingOutputVectorLayer,
     QgsProcessingParameterFileDestination,
+    QgsProcessingParameterFolderDestination,
+    QgsProcessingParameterRasterDestination,
+    QgsProcessingParameterVectorDestination,
 )
 
 
