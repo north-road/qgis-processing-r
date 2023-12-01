@@ -328,14 +328,12 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         """
 
         if "," in package_load_string:
-
             splitted = package_load_string.split(",", maxsplit=1)
 
             package_name = splitted[0]
             load_options = splitted[1]
 
         else:
-
             package_name = package_load_string
             load_options = None
 
@@ -600,33 +598,25 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         values = []
 
         for value in values_list:
-
             if isinstance(value, str):
-
                 values.append(self._r_string(value))
 
             elif isinstance(value, (int, float)):
-
                 values.append("{}".format(value))
 
             elif isinstance(value, QDateTime):
-
                 values.append(self._r_datetime(value))
 
             elif isinstance(value, QDate):
-
                 values.append(self._r_date(value))
 
             elif isinstance(value, QTime):
-
                 values.append(self._r_time(value))
 
             elif isinstance(value, QgsGeometry):
-
                 values.append(self._r_geom(value.asWkt()))
 
             elif isinstance(value, QColor):
-
                 values.append(self._r_color(value))
 
         return "{0} <- list({1})".format(variable, ", ".join(values))

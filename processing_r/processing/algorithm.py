@@ -667,11 +667,9 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         commands = []
 
         for line in self.r_templates.expressions:
-
             param = create_parameter_from_string(line)
 
             if isinstance(param, QgsProcessingParameterExpression):
-
                 exp = QgsExpression(param.defaultValue())
 
                 if not exp.prepare(self.alg_context):
@@ -893,9 +891,7 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         enum_code = ""
 
         if self.r_templates.is_literal_enum(param.name()):
-
             if param.allowMultiple():
-
                 values = self.parameterAsEnums(parameters, param.name(), context)
                 enum_values = self.parameterDefinition(param.name()).options()
                 enum_values = [enum_values[i] for i in values]
@@ -903,21 +899,17 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 enum_code = self.r_templates.set_variable_string_list(param.name(), enum_values)
 
             else:
-
                 value = self.parameterAsEnum(parameters, param.name(), context)
                 enum_value = self.parameterDefinition(param.name()).options()
                 enum_code = self.r_templates.set_variable_enum_value(param.name(), value, enum_value)
 
         else:
-
             if param.allowMultiple():
-
                 values = self.parameterAsEnums(parameters, param.name(), context)
                 value = f'c({", ".join([str(i) for i in values])})'
                 enum_code = self.r_templates.set_variable_directly(param.name(), value)
 
             else:
-
                 value = self.parameterAsEnum(parameters, param.name(), context)
                 enum_code = self.r_templates.set_variable_directly(param.name(), value)
 
