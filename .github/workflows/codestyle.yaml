@@ -13,13 +13,17 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v4
 
-        - uses: psf/black@stable
+        - name: Set up Python
+          uses: actions/setup-python@v4
           with:
-            options: "--check --verbose --line-length 120"
-            src: "./processing_r"
+            python-version: '3.11'
+            architecture: 'x64'
+                
+        - name: Install Black and Isort
+          run: pip install black isort
         
-        - uses: isort/isort-action@v1
-          with:
-            configuration: "--check-only --diff --profile black --line-width 120" 
-            sort-paths: "./processing_r"
-   
+        - name: Run Black
+          run: black processing_r --check --verbose --line-length 120
+        
+        - name: Run Isort
+          run: isort processing_r --check-only --diff --profile black --line-width 120
