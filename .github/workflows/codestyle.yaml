@@ -25,7 +25,7 @@ jobs:
             pip install black isort pylint pycodestyle
         
         - name: Run Black
-          run: black processing_r --check --verbose --line-length 120
+          run: black processing_r --check --line-length 120
         
         - name: Run Isort
           run: isort processing_r --check-only --diff --profile black --line-width 120
