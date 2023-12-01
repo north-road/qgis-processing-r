@@ -48,7 +48,6 @@ from processing_r.processing.utils import RUtils
 # from qgis.processing import alg as algfactory
 
 
-
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 
 with warnings.catch_warnings():
