@@ -1,0 +1,26 @@
+[flake8]
+exclude = [
+    ".git", 
+    "__pycache__", 
+    "tests/*"
+]
+max-line-length = 120
+
+
+[tool.pytest.ini_options]
+testpaths = [
+    "processing_r/tests"
+]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+atomic = true
+profile = "black"
+line_length = 120
+skip_gitignore = true
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 120
+disable = "C0103,C0209,E0611,R0904,R0912,R0914,R0915,R1729,W0611,W1404"
