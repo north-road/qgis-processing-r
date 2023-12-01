@@ -12,12 +12,9 @@
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
-
-        <script src="../js/jquery-1.10.2.min.js" defer></script>
-        <script src="../js/bootstrap.min.js" defer></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
-        <script>hljs.initHighlightingOnLoad();</script> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
     </head>
 
     <body>
@@ -36,8 +33,18 @@
                             <li class="navitem">
                                 <a href=".." class="nav-link">Home</a>
                             </li>
-                            <li class="navitem">
-                                <a href="../script-syntax/" class="nav-link">Script syntax</a>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Syntax <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../script-syntax/" class="dropdown-item">Script Syntax</a>
+</li>
+                                    
+<li>
+    <a href="../help-syntax/" class="dropdown-item">Help Syntax</a>
+</li>
+                                </ul>
                             </li>
                             <li class="dropdown active">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
@@ -91,7 +98,7 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../script-syntax/" class="nav-link">
+                                <a rel="prev" href="../help-syntax/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
@@ -140,21 +147,21 @@
 <h2 id="script">Script</h2>
 <pre><code>##Point pattern analysis=group
 ##Sample random points=name
-##load_vector_using_rgdal
 ##Layer=vector
 ##Size=number 10
 ##Output= output vector
-pts = spsample(Layer,Size,type=&quot;random&quot;)
+Layer_sp = as_Spatial(Layer)
+pts = spsample(Layer_sp,Size,type=&quot;random&quot;)
 Output = SpatialPointsDataFrame(pts, as.data.frame(pts))
 </code></pre>
 <h2 id="script-lines-description">Script lines description</h2>
 <ol>
 <li><strong>Point pattern analysis</strong> is the group of the algorithm.</li>
 <li><strong>Sample random points</strong> is the name of the algorithm.</li>
-<li>The script does not use <em>sf</em> package; it instead uses packages <em>sp</em> and <em>rgdal</em>.</li>
 <li><strong>Layer</strong> is the input vector layer.</li>
 <li><strong>Size</strong> is the numerical parameter with a default value of 10.</li>
 <li><strong>Output</strong> is the vector layer that will be created by the algorithm.</li>
+<li>Convert from sf format to older sp format, for which <code>spsample()</code> works</li>
 <li>Call the spsample function of the sp library and pass it to all the input defined above.</li>
 <li>Create the output vector with the SpatialPointsDataFrame function.</li>
 </ol>
@@ -167,12 +174,14 @@ Output = SpatialPointsDataFrame(pts, as.data.frame(pts))
                 <p>Copyright &copy; 2019 <a href="https://twitter.com/northroadgeo">North Road</a> and <a href="https://twitter.com/cahik13">Jan Caha</a>.</p>
             <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
+        <script src="../js/jquery-3.6.0.min.js"></script>
+        <script src="../js/bootstrap.min.js"></script>
         <script>
             var base_url = "..",
                 shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
         </script>
-        <script src="../js/base.js" defer></script>
-        <script src="../search/main.js" defer></script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

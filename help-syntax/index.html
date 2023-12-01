@@ -6,9 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <meta name="author" content="Jan Caha">
-        <link rel="canonical" href="https://north-road.github.io/qgis-processing-r/changelog/">
+        <link rel="canonical" href="https://north-road.github.io/qgis-processing-r/help-syntax/">
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Changelog - Processing R Provider</title>
+        <title>Help Syntax - Processing R Provider</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -33,7 +33,7 @@
                             <li class="navitem">
                                 <a href=".." class="nav-link">Home</a>
                             </li>
-                            <li class="dropdown">
+                            <li class="dropdown active">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Syntax <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     
@@ -42,7 +42,7 @@
 </li>
                                     
 <li>
-    <a href="../help-syntax/" class="dropdown-item">Help Syntax</a>
+    <a href="./" class="dropdown-item active">Help Syntax</a>
 </li>
                                 </ul>
                             </li>
@@ -83,8 +83,8 @@
 </li>
                                 </ul>
                             </li>
-                            <li class="navitem active">
-                                <a href="./" class="nav-link">Changelog</a>
+                            <li class="navitem">
+                                <a href="../changelog/" class="nav-link">Changelog</a>
                             </li>
                             <li class="navitem">
                                 <a href="https://github.com/north-road/qgis-processing-r" class="nav-link">Github</a>
@@ -98,12 +98,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../ex_expression/" class="nav-link">
+                                <a rel="prev" href="../script-syntax/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" class="nav-link disabled">
+                                <a rel="next" href="../ex_vector_output/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -125,8 +125,16 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#changelog" class="nav-link">Changelog</a>
+            <li class="nav-item" data-level="1"><a href="#help-syntax" class="nav-link">Help syntax</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#help-files" class="nav-link">Help files</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#in-line-help" class="nav-link">In-line help</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -134,55 +142,73 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="changelog">Changelog</h1>
+<h1 id="help-syntax">Help syntax</h1>
+<p>The R scripts for the plugin contain lines of metadata and R commands that perform a procedure. However, it is also possible to add help documentation for the user of that script.</p>
+<h2 id="help-files">Help files</h2>
+<p>The documentation of the script functionalities and its parameters requires an extra file containing the descriptive texts of each input or output parameter. The help file must be located in the same directory and have the name of the script with extension  <strong>.rsx.help</strong>.</p>
+<p>The content of this file is a JSON object with the parameter descriptions. For example, suppose we have added a script <code>"simple_scatterplot.rsx"</code> with the following content:</p>
+<pre><code class="language-r">##Example scripts=group
+##Scatterplot=name
+##output_plots_to_html
+##Layer=vector
+##X=Field Layer
+##Y=Field Layer
+
+# simple scatterplot
+plot(Layer[[X]], Layer[[Y]])
+</code></pre>
+<p>The help file should be named <code>"simple_scatterplot.rsx.help"</code> and its content should be a JSON object as follows:</p>
+<pre><code class="language-json">{
+&quot;Layer&quot;: &quot;Vector Layer&quot;,
+&quot;X&quot;: &quot;Field from Layer to be used as x-axis variable&quot;,
+&quot;Y&quot;: &quot;Field from Layer to be used as y-axis variable&quot;
+}
+</code></pre>
+<p>This file can already be used in the script. Parameters that are not described in the help file will be omitted from the help section. Note that each parameter is composed of a pair of <code>key:value</code> strings and are separated from other parameters by a comma (,).  </p>
+<p>There are special parameters that do not have a user-defined name. These are:</p>
 <ul>
-<li>
-<p>4.0.0 Reflect retirement of <code>rgdal</code> R package, only support loading using <code>sf</code> and <code>raster</code> packages</p>
-</li>
-<li>
-<p>3.1.1 Capture correctly even errors from R starting with <code>Error:</code>, fix importing <code>QgsProcessingParameterColor</code> and <code>QgsProcessingParameterDateTime</code> for older QGIS versions (where it is not available)</p>
-</li>
-<li>
-<p>3.0.0 Added support for <code>QgsProcessingParameter*</code> strings, that can be used to define script parameters. Better handling of errors in R scripts. New script parameter <code>##script_title</code>, that can be used to define string under which the script is listed in QGIS Toolbox.</p>
-</li>
-<li>
-<p>2.3.0 Introduces support for QgsProcessingParameterPoint as an input variable, set parameter help strings under QGIS 3.16 or later</p>
-</li>
-<li>
-<p>2.2.2 Make sure that FolderDestination and FileDestination folders exist, otherwise that would have to be handled by R script
-  causes issue if writing to temp directory which does not exist</p>
-</li>
-<li>
-<p>2.2.1 Fix file based outputs, R version number reporting</p>
-</li>
-<li>
-<p>2.2.0 Add support for file based outputs.</p>
-</li>
-<li>
-<p>2.1.0 Added support for literal enums, skipping package loading, additional output types (e.g. strings and numbers).</p>
-</li>
-<li>
-<p>2.0.0 Many fixes, algorithms have support for choice between sf/raster or rgdal for loading inputs</p>
-</li>
-<li>
-<p>1.0.7 Fix 3.4 compatibility</p>
-</li>
-<li>
-<p>1.0.6 Workaround API break in QGIS, which breaks existing scripts</p>
-</li>
-<li>
-<p>1.0.5 Allow use of R development versions</p>
-</li>
-<li>
-<p>1.0.4 Resurrect ability to run on selected features only</p>
-</li>
-<li>
-<p>1.0.3 Remove activation setting for provider (disable plugin instead!), fix memory layer handling, simpler example script</p>
-</li>
-<li>
-<p>1.0.2 Fix vector paths under windows</p>
-</li>
-</ul></div>
+<li><code>"RPLOTS"</code>, </li>
+<li><code>"R_CONSOLE_OUTPUT"</code>, </li>
+<li><code>"ALG_DESC"</code>,</li>
+<li><code>"ALG_VERSION"</code>, </li>
+<li><code>"ALG_CREATOR"</code>,</li>
+<li><code>"ALG_HELP_CREATOR"</code></li>
+</ul>
+<p>If added to the help file, it will allow for more descriptive information to be appended to the script. Continuing with the previous example we can add to the JSON the following information:</p>
+<pre><code class="language-json">{
+&quot;Layer&quot;: &quot;Vector Layer&quot;,
+&quot;X&quot;: &quot;Field from Layer to be used as x-axis variable&quot;,
+&quot;Y&quot;: &quot;Field from Layer to be used as y-axis variable&quot;,
+&quot;RPLOTS&quot;: &quot;Output path for html file with the scatterplot&quot;,
+&quot;ALG_DESC&quot;: &quot;This file creates a simple scatterplot from two fields in a vector layer&quot;,
+&quot;ALG_CREATOR&quot;: &quot;Name of algorithm creator&quot;,
+&quot;ALG_HELP_CREATOR&quot;: &quot;Name of help creator&quot;,
+&quot;ALG_VERSION&quot;: &quot;0.0.1&quot;
+}
+</code></pre>
+<h2 id="in-line-help">In-line help</h2>
+<p>As of version 3.2.0 of the plugin, it is also possible to enter the documentation as lines in the script itself. This makes it possible to dispense with the <strong>.rsx.help</strong> file. For this purpose, lines with the structure <code>#' Parameter: Description</code> must be written. Let's see how the above example should be written.</p>
+<pre><code class="language-r">##Example scripts=group
+##Scatterplot=name
+##output_plots_to_html
+##Layer=vector
+##X=Field Layer
+##Y=Field Layer
+
+# simple scatterplot
+plot(Layer[[X]], Layer[[Y]])
+
+#' Layer: Vector Layer
+#' X: Field from Layer to be used as x-axis variable
+#' Y: Field from Layer to be used as y-axis variable
+#' RPLOTS: Output path for html file with the scatterplot
+#' ALG_DESC: This file creates a simple scatterplot from 
+#'         : two fields in a vector layer
+#' ALG_CREATOR: Name of algorithm creator
+#' ALG_HELP_CREATOR: Name of help creator
+#' ALG_VERSION: 0.0.1
+</code></pre>
+<p>Note that in this way it is also possible to enter the description of a parameter on several lines. To do this, it is necessary to continue the subsequent lines without entering the parameter name, like this: <code>#' : description append</code>.</p></div>
             </div>
         </div>
 

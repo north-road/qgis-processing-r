@@ -12,12 +12,9 @@
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/font-awesome.min.css" rel="stylesheet">
         <link href="css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
-
-        <script src="js/jquery-1.10.2.min.js" defer></script>
-        <script src="js/bootstrap.min.js" defer></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
-        <script>hljs.initHighlightingOnLoad();</script> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
     </head>
 
     <body class="homepage">
@@ -36,8 +33,18 @@
                             <li class="navitem active">
                                 <a href="." class="nav-link">Home</a>
                             </li>
-                            <li class="navitem">
-                                <a href="script-syntax/" class="nav-link">Script syntax</a>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Syntax <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="script-syntax/" class="dropdown-item">Script Syntax</a>
+</li>
+                                    
+<li>
+    <a href="help-syntax/" class="dropdown-item">Help Syntax</a>
+</li>
+                                </ul>
                             </li>
                             <li class="dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
@@ -120,6 +127,10 @@
             
             <li class="nav-item" data-level="1"><a href="#processing-r-provider" class="nav-link">Processing R Provider</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#important-note-regarding-r-packages" class="nav-link">Important note regarding R packages</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-level="2"><a href="#installation" class="nav-link">Installation</a>
               <ul class="nav flex-column">
               </ul>
@@ -145,6 +156,9 @@
 
 <h1 id="processing-r-provider">Processing R Provider</h1>
 <p>Processing provider for R scripts plugin for <a href="https://www.qgis.org/en/site/">QGIS</a>. The plugin allows execution of R scripts directly from QGIS on data loaded in QGIS.</p>
+<h2 id="important-note-regarding-r-packages">Important note regarding R packages</h2>
+<p>As of November 2023 R package <code>rgdal</code> was retired and removed from CRAN, which means it is no longer easily installable. To reflect this the plugin moves from using this package to only supporting <code>sf</code> for vector data and <code>raster</code> for raster data. If you need to convert to vector format of <code>sp</code> package, which was previously done by loading data using <code>rgdal</code>, you need to load data using <code>sf</code> and then convert to <code>sp</code>. Example how to do that is in <a href="ex_vector_output/">this script</a>. The same applies for loading raster data using <code>rgdal</code>, these are now loaded using <code>raster</code> package.</p>
+<p>Options <code>load_raster_using_rgdal</code>, <code>dontuserasterpackage</code> and <code>load_vector_using_rgdal</code> are removed from plugin version 4.0.0 and will have no effects on scripts (effectively those lines will be skipped).</p>
 <h2 id="installation">Installation</h2>
 <p>The plugin is available QGIS Python Plugins Repository <a href="https://plugins.qgis.org/plugins/processing_r/">here</a>. It can also be installed directly from QGIS via the <strong>Plugins</strong> tool.</p>
 <p>Building from source for offline install can be done by downloading the <a href="https://github.com/north-road/qgis-processing-r">source code</a> and running command:</p>
@@ -162,7 +176,7 @@
 <h3 id="linux">Linux</h3>
 <p>On Linux, the toolbox should find system installation of R on its own.</p>
 <h3 id="windows">Windows</h3>
-<p>If R is installed in the expected path (e.g. "C:\PROGRAM FILES\R\"), the plugin tries to detect the R installation automatically. Otherwise, it is necessary to set the setting "R folder" to the correct folder, as seen on the image. The correct folder is the one under which folders "bin", "doc", "etc" and others exist. Generally, it is a folder that has R's version in its name.   </p>
+<p>If R is installed in the expected path (e.g. "C:\PROGRAM FILES\R\"), the plugin tries to detect the R installation automatically. Otherwise, it is necessary to set the setting "R folder" to the correct folder, as seen on the image. The correct folder is the one under which folders "bin", "doc", "etc" and others exist. Generally, it is a folder that has R's version in its name.</p>
 <p><img alt="" src="images/settings.jpg" /></p></div>
             </div>
         </div>
@@ -172,12 +186,14 @@
                 <p>Copyright &copy; 2019 <a href="https://twitter.com/northroadgeo">North Road</a> and <a href="https://twitter.com/cahik13">Jan Caha</a>.</p>
             <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
+        <script src="js/jquery-3.6.0.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
         <script>
             var base_url = ".",
                 shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
         </script>
-        <script src="js/base.js" defer></script>
-        <script src="search/main.js" defer></script>
+        <script src="js/base.js"></script>
+        <script src="search/main.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -244,6 +260,6 @@
 </html>
 
 <!--
-MkDocs version : 1.2.3
-Build Date UTC : 2022-02-04 16:53:47.395611+00:00
+MkDocs version : 1.5.3
+Build Date UTC : 2023-12-01 09:03:53.107633+00:00
 -->
