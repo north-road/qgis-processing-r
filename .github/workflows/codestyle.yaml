@@ -20,10 +20,18 @@ jobs:
             architecture: 'x64'
                 
         - name: Install Black and Isort
-          run: pip install black isort
+          run: |
+            pip install -r REQUIREMENTS_TESTING.txt
+            pip install black isort pylint pycodestyle
         
         - name: Run Black
           run: black processing_r --check --verbose --line-length 120
         
         - name: Run Isort
           run: isort processing_r --check-only --diff --profile black --line-width 120
+        
+        # - name: Pylint
+        #   run: make pylint
+
+        # - name: Pycodestyle
+        #   run: make pycodestyle
