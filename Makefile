@@ -107,7 +107,7 @@ pycodestyle:
 	@echo "-----------"
 	@echo "pycodestyle PEP8 issues"
 	@echo "-----------"
-	@pycodestyle --repeat --ignore=E203,E121,E122,E123,E124,E125,E126,E127,E128,E402,E501,W504 --exclude $(PEP8EXCLUDE) processing_r
+	@pycodestyle --repeat --ignore=E203,E303,E121,E122,E123,E124,E125,E126,E127,E128,E402,E501,W503,W504 --exclude $(PEP8EXCLUDE) processing_r
 	@echo "-----------"
 	@echo "Ignored in PEP8 check:"
 	@echo $(PEP8EXCLUDE)

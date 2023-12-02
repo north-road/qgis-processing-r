@@ -17,16 +17,17 @@
 ***************************************************************************
 """
 
-__author__ = 'Victor Olaya'
-__date__ = 'August 2012'
-__copyright__ = '(C) 2012, Victor Olaya'
+__author__ = "Victor Olaya"
+__date__ = "August 2012"
+__copyright__ = "(C) 2012, Victor Olaya"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
-from qgis.PyQt.QtCore import QCoreApplication
 from processing.gui.ToolboxAction import ToolboxAction
+from qgis.PyQt.QtCore import QCoreApplication
+
 from processing_r.gui.script_editor.script_editor_dialog import ScriptEditorDialog
 
 

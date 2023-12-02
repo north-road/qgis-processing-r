@@ -8,18 +8,21 @@
 
 """
 
-__author__ = '(C) 2018 by Nyall Dawson'
-__date__ = '20/04/2018'
-__copyright__ = 'Copyright 2018, North Road'
+__author__ = "(C) 2018 by Nyall Dawson"
+__date__ = "20/04/2018"
+__copyright__ = "Copyright 2018, North Road"
 # This will get replaced with a git SHA1 when you do a git archive
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
 import unittest
-from qgis.PyQt.QtCore import QCoreApplication, QSettings
+
 from processing.core.ProcessingConfig import ProcessingConfig
-from processing_r.processing.utils import RUtils
+from qgis.PyQt.QtCore import QCoreApplication, QSettings
+
 from processing_r.processing.provider import RAlgorithmProvider
+from processing_r.processing.utils import RUtils
+
 from .utilities import get_qgis_app
 
 QGIS_APP = get_qgis_app()
@@ -47,7 +50,7 @@ class RUtilsTest(unittest.TestCase):
         Tests built in scripts path
         """
         self.assertTrue(RUtils.builtin_scripts_folder())
-        self.assertIn('builtin_scripts', RUtils.builtin_scripts_folder())
+        self.assertIn("builtin_scripts", RUtils.builtin_scripts_folder())
         self.assertTrue(os.path.exists(RUtils.builtin_scripts_folder()))
 
     def testDefaultScriptsFolder(self):
@@ -55,7 +58,7 @@ class RUtilsTest(unittest.TestCase):
         Tests default user scripts folder
         """
         self.assertTrue(RUtils.default_scripts_folder())
-        self.assertIn('rscripts', RUtils.default_scripts_folder())
+        self.assertIn("rscripts", RUtils.default_scripts_folder())
         self.assertTrue(os.path.exists(RUtils.default_scripts_folder()))
 
     def testScriptsFolders(self):
@@ -70,13 +73,13 @@ class RUtilsTest(unittest.TestCase):
         """
         Tests creating descriptive name
         """
-        self.assertEqual(RUtils.create_descriptive_name('a B_4324_asd'), 'a B 4324 asd')
+        self.assertEqual(RUtils.create_descriptive_name("a B_4324_asd"), "a B 4324 asd")
 
     def testStripSpecialCharacters(self):
         """
         Tests stripping special characters from a name
         """
-        self.assertEqual(RUtils.strip_special_characters('aB 43 24a:sd'), 'aB4324asd')
+        self.assertEqual(RUtils.strip_special_characters("aB 43 24a:sd"), "aB4324asd")
 
     def test_is_windows(self):
         """
@@ -101,8 +104,8 @@ class RUtilsTest(unittest.TestCase):
         Test retrieving R binary folder
         """
         self.assertFalse(RUtils.r_binary_folder())
-        ProcessingConfig.setSettingValue(RUtils.R_FOLDER, '/usr/local/bin')
-        self.assertEqual(RUtils.r_binary_folder(), '/usr/local/bin')
+        ProcessingConfig.setSettingValue(RUtils.R_FOLDER, "/usr/local/bin")
+        self.assertEqual(RUtils.r_binary_folder(), "/usr/local/bin")
         ProcessingConfig.setSettingValue(RUtils.R_FOLDER, None)
         self.assertFalse(RUtils.r_binary_folder())
 
@@ -110,24 +113,24 @@ class RUtilsTest(unittest.TestCase):
         """
         Test retrieving R executable
         """
-        self.assertEqual(RUtils.path_to_r_executable(), 'R')
-        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), 'Rscript')
-        ProcessingConfig.setSettingValue(RUtils.R_FOLDER, '/usr/local/bin')
-        self.assertEqual(RUtils.path_to_r_executable(), '/usr/local/bin/R')
-        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), '/usr/local/bin/Rscript')
+        self.assertEqual(RUtils.path_to_r_executable(), "R")
+        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), "Rscript")
+        ProcessingConfig.setSettingValue(RUtils.R_FOLDER, "/usr/local/bin")
+        self.assertEqual(RUtils.path_to_r_executable(), "/usr/local/bin/R")
+        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), "/usr/local/bin/Rscript")
         ProcessingConfig.setSettingValue(RUtils.R_FOLDER, None)
-        self.assertEqual(RUtils.path_to_r_executable(), 'R')
-        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), 'Rscript')
+        self.assertEqual(RUtils.path_to_r_executable(), "R")
+        self.assertEqual(RUtils.path_to_r_executable(script_executable=True), "Rscript")
 
     def test_package_repo(self):
         """
         Test retrieving/setting the package repo
         """
-        self.assertEqual(RUtils.package_repo(), 'http://cran.at.r-project.org/')
-        ProcessingConfig.setSettingValue(RUtils.R_REPO, 'http://mirror.at.r-project.org/')
-        self.assertEqual(RUtils.package_repo(), 'http://mirror.at.r-project.org/')
-        ProcessingConfig.setSettingValue(RUtils.R_REPO, 'http://cran.at.r-project.org/')
-        self.assertEqual(RUtils.package_repo(), 'http://cran.at.r-project.org/')
+        self.assertEqual(RUtils.package_repo(), "http://cran.at.r-project.org/")
+        ProcessingConfig.setSettingValue(RUtils.R_REPO, "http://mirror.at.r-project.org/")
+        self.assertEqual(RUtils.package_repo(), "http://mirror.at.r-project.org/")
+        ProcessingConfig.setSettingValue(RUtils.R_REPO, "http://cran.at.r-project.org/")
+        self.assertEqual(RUtils.package_repo(), "http://cran.at.r-project.org/")
 
     def test_use_user_library(self):
         """
@@ -143,28 +146,28 @@ class RUtilsTest(unittest.TestCase):
         """
         Test retrieving/setting the library folder
         """
-        self.assertIn('/profiles/default/processing/rlibs', RUtils.r_library_folder())
-        ProcessingConfig.setSettingValue(RUtils.R_LIBS_USER, '/usr/local')
-        self.assertEqual(RUtils.r_library_folder(), '/usr/local')
+        self.assertIn("/profiles/default/processing/rlibs", RUtils.r_library_folder())
+        ProcessingConfig.setSettingValue(RUtils.R_LIBS_USER, "/usr/local")
+        self.assertEqual(RUtils.r_library_folder(), "/usr/local")
         ProcessingConfig.setSettingValue(RUtils.R_LIBS_USER, None)
-        self.assertIn('/profiles/default/processing/rlibs', RUtils.r_library_folder())
+        self.assertIn("/profiles/default/processing/rlibs", RUtils.r_library_folder())
 
     def test_is_error_line(self):
         """
         Test is_error_line
         """
-        self.assertFalse(RUtils.is_error_line('xxx yyy'))
-        self.assertTrue(RUtils.is_error_line('Error something went wrong'))
-        self.assertTrue(RUtils.is_error_line('Execution halted'))
+        self.assertFalse(RUtils.is_error_line("xxx yyy"))
+        self.assertTrue(RUtils.is_error_line("Error something went wrong"))
+        self.assertTrue(RUtils.is_error_line("Execution halted"))
 
     def test_r_is_installed(self):
         """
         Test checking that R is installed
         """
         self.assertIsNone(RUtils.check_r_is_installed())
-        ProcessingConfig.setSettingValue(RUtils.R_FOLDER, '/home')
+        ProcessingConfig.setSettingValue(RUtils.R_FOLDER, "/home")
         self.assertTrue(RUtils.check_r_is_installed())
-        self.assertIn('R is not installed', RUtils.check_r_is_installed())
+        self.assertIn("R is not installed", RUtils.check_r_is_installed())
         ProcessingConfig.setSettingValue(RUtils.R_FOLDER, None)
         self.assertIsNone(RUtils.check_r_is_installed())
 

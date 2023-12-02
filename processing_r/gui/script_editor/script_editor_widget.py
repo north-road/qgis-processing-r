@@ -17,23 +17,21 @@
 ***************************************************************************
 """
 
-__author__ = 'Alexander Bruy'
-__date__ = 'April 2013'
-__copyright__ = '(C) 2013, Alexander Bruy'
+__author__ = "Alexander Bruy"
+__date__ = "April 2013"
+__copyright__ = "(C) 2013, Alexander Bruy"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QFont, QColor, QKeySequence, QFontDatabase, QFontMetrics
-from qgis.PyQt.QtWidgets import QShortcut
 from qgis.core import QgsApplication, QgsSettings
-
-from qgis.PyQt.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
-
+from qgis.PyQt.Qsci import QsciAPIs, QsciLexerPython, QsciScintilla
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QColor, QFont, QFontDatabase, QFontMetrics, QKeySequence
+from qgis.PyQt.QtWidgets import QShortcut
 
 # This class is ported from the QGIS core Processing script editor.
 # Unfortunately generalising the core editor to allow everything we want in an R editor
@@ -87,32 +85,52 @@ class ScriptEdit(QsciScintilla):
         self.setMarginsFont(font)
 
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
-        self.setMatchedBraceBackgroundColor(QColor(settings.value("pythonConsole/matchedBraceBackgroundColorEditor",
-                                                                  QColor(self.MATCHED_BRACE_BACKGROUND_COLOR))))
-        self.setMatchedBraceForegroundColor(QColor(settings.value("pythonConsole/matchedBraceForegroundColorEditor",
-                                                                  QColor(self.MATCHED_BRACE_FOREGROUND_COLOR))))
+        self.setMatchedBraceBackgroundColor(
+            QColor(
+                settings.value(
+                    "pythonConsole/matchedBraceBackgroundColorEditor", QColor(self.MATCHED_BRACE_BACKGROUND_COLOR)
+                )
+            )
+        )
+        self.setMatchedBraceForegroundColor(
+            QColor(
+                settings.value(
+                    "pythonConsole/matchedBraceForegroundColorEditor", QColor(self.MATCHED_BRACE_FOREGROUND_COLOR)
+                )
+            )
+        )
 
         # self.setWrapMode(QsciScintilla.WrapWord)
         # self.setWrapVisualFlags(QsciScintilla.WrapFlagByText,
         #                        QsciScintilla.WrapFlagNone, 4)
 
-        self.setSelectionForegroundColor(QColor(
-            settings.value("pythonConsole/selectionForegroundColorEditor", QColor(self.SELECTION_FOREGROUND_COLOR))))
-        self.setSelectionBackgroundColor(QColor(
-            settings.value("pythonConsole/selectionBackgroundColorEditor", QColor(self.SELECTION_BACKGROUND_COLOR))))
+        self.setSelectionForegroundColor(
+            QColor(
+                settings.value("pythonConsole/selectionForegroundColorEditor", QColor(self.SELECTION_FOREGROUND_COLOR))
+            )
+        )
+        self.setSelectionBackgroundColor(
+            QColor(
+                settings.value("pythonConsole/selectionBackgroundColorEditor", QColor(self.SELECTION_BACKGROUND_COLOR))
+            )
+        )
 
         # Show line numbers
         fontmetrics = QFontMetrics(font)
         self.setMarginWidth(1, fontmetrics.width("0000") + 5)
         self.setMarginLineNumbers(1, True)
         self.setMarginsForegroundColor(
-            QColor(settings.value("pythonConsole/marginForegroundColorEditor", QColor(self.MARGIN_FOREGROUND_COLOR))))
+            QColor(settings.value("pythonConsole/marginForegroundColorEditor", QColor(self.MARGIN_FOREGROUND_COLOR)))
+        )
         self.setMarginsBackgroundColor(
-            QColor(settings.value("pythonConsole/marginBackgroundColorEditor", QColor(self.MARGIN_BACKGROUND_COLOR))))
+            QColor(settings.value("pythonConsole/marginBackgroundColorEditor", QColor(self.MARGIN_BACKGROUND_COLOR)))
+        )
         self.setIndentationGuidesForegroundColor(
-            QColor(settings.value("pythonConsole/marginForegroundColorEditor", QColor(self.MARGIN_FOREGROUND_COLOR))))
+            QColor(settings.value("pythonConsole/marginForegroundColorEditor", QColor(self.MARGIN_FOREGROUND_COLOR)))
+        )
         self.setIndentationGuidesBackgroundColor(
-            QColor(settings.value("pythonConsole/marginBackgroundColorEditor", QColor(self.MARGIN_BACKGROUND_COLOR))))
+            QColor(settings.value("pythonConsole/marginBackgroundColorEditor", QColor(self.MARGIN_BACKGROUND_COLOR)))
+        )
 
         # Highlight current line
         caretLineColorEditor = settings.value("pythonConsole/caretLineColorEditor", QColor(self.CARET_LINE_COLOR))
@@ -151,8 +169,8 @@ class ScriptEdit(QsciScintilla):
     def setFonts(self, size):
         # Load font from Python console settings
         settings = QgsSettings()
-        fontName = settings.value('pythonConsole/fontfamilytext', 'Monospace')
-        fontSize = int(settings.value('pythonConsole/fontsize', size))
+        fontName = settings.value("pythonConsole/fontfamilytext", "Monospace")
+        fontSize = int(settings.value("pythonConsole/fontsize", size))
 
         self.defaultFont = QFont(fontName)
         self.defaultFont.setFixedPitch(True)
@@ -173,11 +191,10 @@ class ScriptEdit(QsciScintilla):
         (ctrl, shift) = (self.SCMOD_CTRL << 16, self.SCMOD_SHIFT << 16)
 
         # Disable some shortcuts
-        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord('D') + ctrl)
-        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord('L') + ctrl)
-        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord('L') + ctrl +
-                           shift)
-        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord('T') + ctrl)
+        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord("D") + ctrl)
+        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord("L") + ctrl)
+        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord("L") + ctrl + shift)
+        self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord("T") + ctrl)
 
         # self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord("Z") + ctrl)
         # self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord("Y") + ctrl)
@@ -207,30 +224,44 @@ class ScriptEdit(QsciScintilla):
 
         self.lexer.setDefaultFont(font)
         self.lexer.setDefaultColor(
-            QColor(settings.value("pythonConsole/defaultFontColorEditor", QColor(self.DEFAULT_COLOR))))
-        self.lexer.setColor(QColor(settings.value("pythonConsole/commentFontColorEditor", QColor(self.COMMENT_COLOR))),
-                            1)
+            QColor(settings.value("pythonConsole/defaultFontColorEditor", QColor(self.DEFAULT_COLOR)))
+        )
+        self.lexer.setColor(
+            QColor(settings.value("pythonConsole/commentFontColorEditor", QColor(self.COMMENT_COLOR))), 1
+        )
         self.lexer.setColor(QColor(settings.value("pythonConsole/numberFontColorEditor", QColor(self.NUMBER_COLOR))), 2)
-        self.lexer.setColor(QColor(settings.value("pythonConsole/keywordFontColorEditor", QColor(self.KEYWORD_COLOR))),
-                            5)
+        self.lexer.setColor(
+            QColor(settings.value("pythonConsole/keywordFontColorEditor", QColor(self.KEYWORD_COLOR))), 5
+        )
         self.lexer.setColor(QColor(settings.value("pythonConsole/classFontColorEditor", QColor(self.CLASS_COLOR))), 8)
         self.lexer.setColor(QColor(settings.value("pythonConsole/methodFontColorEditor", QColor(self.METHOD_COLOR))), 9)
-        self.lexer.setColor(QColor(settings.value("pythonConsole/decorFontColorEditor", QColor(self.DECORATION_COLOR))),
-                            15)
         self.lexer.setColor(
-            QColor(settings.value("pythonConsole/commentBlockFontColorEditor", QColor(self.COMMENT_BLOCK_COLOR))), 12)
+            QColor(settings.value("pythonConsole/decorFontColorEditor", QColor(self.DECORATION_COLOR))), 15
+        )
         self.lexer.setColor(
-            QColor(settings.value("pythonConsole/singleQuoteFontColorEditor", QColor(self.SINGLE_QUOTE_COLOR))), 4)
+            QColor(settings.value("pythonConsole/commentBlockFontColorEditor", QColor(self.COMMENT_BLOCK_COLOR))), 12
+        )
         self.lexer.setColor(
-            QColor(settings.value("pythonConsole/doubleQuoteFontColorEditor", QColor(self.DOUBLE_QUOTE_COLOR))), 3)
-        self.lexer.setColor(QColor(
-            settings.value("pythonConsole/tripleSingleQuoteFontColorEditor", QColor(self.TRIPLE_SINGLE_QUOTE_COLOR))),
-            6)
-        self.lexer.setColor(QColor(
-            settings.value("pythonConsole/tripleDoubleQuoteFontColorEditor", QColor(self.TRIPLE_DOUBLE_QUOTE_COLOR))),
-            7)
-        self.lexer.setColor(QColor(settings.value("pythonConsole/defaultFontColorEditor", QColor(self.DEFAULT_COLOR))),
-                            13)
+            QColor(settings.value("pythonConsole/singleQuoteFontColorEditor", QColor(self.SINGLE_QUOTE_COLOR))), 4
+        )
+        self.lexer.setColor(
+            QColor(settings.value("pythonConsole/doubleQuoteFontColorEditor", QColor(self.DOUBLE_QUOTE_COLOR))), 3
+        )
+        self.lexer.setColor(
+            QColor(
+                settings.value("pythonConsole/tripleSingleQuoteFontColorEditor", QColor(self.TRIPLE_SINGLE_QUOTE_COLOR))
+            ),
+            6,
+        )
+        self.lexer.setColor(
+            QColor(
+                settings.value("pythonConsole/tripleDoubleQuoteFontColorEditor", QColor(self.TRIPLE_DOUBLE_QUOTE_COLOR))
+            ),
+            7,
+        )
+        self.lexer.setColor(
+            QColor(settings.value("pythonConsole/defaultFontColorEditor", QColor(self.DEFAULT_COLOR))), 13
+        )
         self.lexer.setFont(font, 1)
         self.lexer.setFont(font, 3)
         self.lexer.setFont(font, 4)
@@ -238,7 +269,8 @@ class ScriptEdit(QsciScintilla):
 
         for style in range(0, 33):
             paperColor = QColor(
-                settings.value("pythonConsole/paperBackgroundColorEditor", QColor(self.BACKGROUND_COLOR)))
+                settings.value("pythonConsole/paperBackgroundColorEditor", QColor(self.BACKGROUND_COLOR))
+            )
             self.lexer.setPaper(paperColor, style)
 
         # self.api = QsciAPIs(self.lexer)

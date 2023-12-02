@@ -1,20 +1,20 @@
 # coding=utf-8
 """Common functionality used by regression tests."""
 
-import sys
+import atexit
 import logging
 import os
-import atexit
+import sys
 
 from qgis.core import QgsApplication
-from qgis.utils import iface
 from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QSize
 from qgis.PyQt.QtWidgets import QWidget
+from qgis.utils import iface
 
 from .qgis_interface import QgisInterface
 
-LOGGER = logging.getLogger('QGIS')
+LOGGER = logging.getLogger("QGIS")
 QGIS_APP = None  # Static variable used to hold hand to running QGIS app
 CANVAS = None
 PARENT = None
@@ -22,7 +22,7 @@ IFACE = None
 
 
 def get_qgis_app(cleanup=True):
-    """ Start one QGIS application to test against.
+    """Start one QGIS application to test against.
 
     :returns: Handle to QGIS app, canvas, iface and parent. If there are any
         errors the tuple members will be returned as None.
@@ -70,12 +70,12 @@ def get_qgis_app(cleanup=True):
             :param level: log message level (severity)
             :return:
             """
-            print('{}({}): {}'.format(tag, level, message))
+            print("{}({}): {}".format(tag, level, message))
 
-        QgsApplication.instance().messageLog().messageReceived.connect(
-            debug_log_message)
+        QgsApplication.instance().messageLog().messageReceived.connect(debug_log_message)
 
         if cleanup:
+
             @atexit.register
             def exitQgis():  # pylint: disable=unused-variable
                 """

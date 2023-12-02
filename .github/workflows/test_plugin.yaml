@@ -50,26 +50,3 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "qgis_testrunner.sh $TESTS_RUN_FUNCTION"
 
-  Check-code-quality:
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Install Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.8'
-          architecture: 'x64'
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install packages
-        run: |
-          pip install -r REQUIREMENTS_TESTING.txt
-          pip install pylint pycodestyle
-
-      - name: Pylint
-        run: make pylint
-
-      - name: Pycodestyle
-        run: make pycodestyle
