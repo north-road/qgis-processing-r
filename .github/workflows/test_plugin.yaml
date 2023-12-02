@@ -15,6 +15,7 @@ env:
   TESTS_RUN_FUNCTION: processing_r.test_suite.test_package
   # Docker settings
   DOCKER_IMAGE: qgis/qgis
+  PYTHON_SETUP: "PYTHONPATH=/usr/share/qgis/python/:/usr/share/qgis/python/plugins:/usr/lib/python3/dist-packages/qgis:/usr/share/qgis/python/qgis:/tests_directory"
 
 
 jobs:
@@ -25,7 +26,7 @@ jobs:
 
     strategy:
       matrix:
-        docker_tags: [release-3_28, release-3_30, release-3_34, latest]
+        docker_tags: [release-3_16, release-3_28, release-3_30, release-3_32, release-3_34, latest]
 
     steps:
 
@@ -39,14 +40,10 @@ jobs:
 
       - name: Docker set up QGIS
         run: |
-          docker exec qgis-testing-environment sh -c "qgis_setup.sh $PLUGIN_NAME"
-          docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/$PLUGIN_NAME"
-          docker exec qgis-testing-environment sh -c "ln -s /tests_directory/$PLUGIN_NAME /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/$PLUGIN_NAME"
           docker exec qgis-testing-environment sh -c "pip3 install -r /tests_directory/REQUIREMENTS_TESTING.txt"
           docker exec qgis-testing-environment sh -c "apt-get update"
           docker exec qgis-testing-environment sh -c "apt-get install -y r-base"
-
+          
       - name: Docker run plugin tests
         run: |
-          docker exec qgis-testing-environment sh -c "qgis_testrunner.sh $TESTS_RUN_FUNCTION"
-
+          docker exec qgis-testing-environment sh -c "$PYTHON_SETUP && cd tests_directory && pytest tests --cov=processing_r --cov-report=term-missing:skip-covered -rP -vv -s"
