@@ -3,3 +3,6 @@ deepdiff
 mock
 flake8
 pep257
+pytest
+pytest-cov
+pytest-qgis
