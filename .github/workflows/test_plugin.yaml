@@ -46,4 +46,4 @@ jobs:
           
       - name: Docker run plugin tests
         run: |
-          docker exec qgis-testing-environment sh -c "$PYTHON_SETUP && cd tests_directory && pytest tests --cov=processing_r --cov-report=term-missing:skip-covered -rP -vv -s"
+          docker exec qgis-testing-environment sh -c "$PYTHON_SETUP && cd tests_directory && pytest"
