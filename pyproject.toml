@@ -11,7 +11,7 @@ max-line-length = 120
 testpaths = [
     "tests",
     "--cov=processing_r",
-    "--cov-report=term-missing:skip-covered"
+    "--cov-report=term-missing:skip-covered",
     "-rP",
     "-vv",
     "-s"
