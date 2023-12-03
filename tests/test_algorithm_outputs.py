@@ -56,3 +56,22 @@ def test_multi_outputs():
     assert script[5].startswith("cat(OutputNum, file=")
     assert script[6].startswith('cat("##OutputStr", file=')
     assert script[7].startswith("cat(OutputStr, file=")
+
+
+def test_raster_output():
+    """
+    Test writing raster outputs
+    """
+    alg = RAlgorithm(description_file=script_path("test_raster_in_out.rsx"))
+    alg.initAlgorithm()
+
+    context = QgsProcessingContext()
+    feedback = QgsProcessingFeedback()
+
+    script = alg.build_export_commands(
+        {"Layer": data_path("dem.tif"), "out_raster": "/tmp/raster.tif"},
+        context,
+        feedback,
+    )
+
+    assert 'writeRaster(out_raster, "/tmp/raster.tif", overwrite=TRUE)' in script
