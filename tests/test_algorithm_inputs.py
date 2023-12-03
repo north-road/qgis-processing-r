@@ -1,5 +1,11 @@
 import pytest
-from qgis.core import QgsProcessing, QgsProcessingContext, QgsProcessingFeedback, QgsVectorLayer
+from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsProcessing,
+    QgsProcessingContext,
+    QgsProcessingFeedback,
+    QgsVectorLayer,
+)
 from qgis.PyQt.QtCore import QDate, QDateTime, QTime
 from qgis.PyQt.QtGui import QColor
 
@@ -443,3 +449,16 @@ def test_plot_outputs():
     assert any(["png(" in x for x in script])
 
 
+def test_crs():
+    alg = RAlgorithm(description_file=script_path("test_algorithm_2.rsx"))
+    alg.initAlgorithm()
+
+    context = QgsProcessingContext()
+    feedback = QgsProcessingFeedback()
+
+    script = alg.build_import_commands({"in_crs": QgsCoordinateReferenceSystem("EPSG:4326")}, context, feedback)
+    assert 'in_crs <- "EPSG:4326"' in script
+
+    # invalid CRS
+    script = alg.build_import_commands({"in_crs": QgsCoordinateReferenceSystem("user:4326")}, context, feedback)
+    assert "in_crs <- NULL" in script
