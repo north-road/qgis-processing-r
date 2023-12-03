@@ -38,6 +38,9 @@ def test_simple_inputs():
     script = alg.build_import_commands({"in_number": 5.5}, context, feedback)
     assert "in_number <- 5.5" in script
 
+    script = alg.build_import_commands({"in_string": "some string"}, context, feedback)
+    assert 'in_string <- "some string"' in script
+
 
 def test_folder_inputs():
     """
