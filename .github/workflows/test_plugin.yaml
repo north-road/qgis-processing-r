@@ -33,17 +33,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Docker pull and create qgis-testing-environment
+      - name: Docker pull and create qgis-test-env
         run: |
           docker pull "$DOCKER_IMAGE":${{ matrix.docker_tags }}
-          docker run -d --name qgis-testing-environment -v "$GITHUB_WORKSPACE":/tests_directory -e DISPLAY=:99 "$DOCKER_IMAGE":${{ matrix.docker_tags }}
+          docker run -d --name qgis-test-env -v "$GITHUB_WORKSPACE":/tests_directory -e DISPLAY=:99 "$DOCKER_IMAGE":${{ matrix.docker_tags }}
 
-      - name: Docker set up QGIS
+      - name: Docker set up
         run: |
-          docker exec qgis-testing-environment sh -c "pip3 install -r /tests_directory/REQUIREMENTS_TESTING.txt"
-          docker exec qgis-testing-environment sh -c "apt-get update"
-          docker exec qgis-testing-environment sh -c "apt-get install -y r-base"
-          
+          docker exec qgis-test-env sh -c "pip3 install -r /tests_directory/REQUIREMENTS_TESTING.txt"
+          docker exec qgis-test-env sh -c "apt-get update"
+          docker exec qgis-test-env sh -c "apt-get install -y --no-install-recommends wget ca-certificates gnupg"
+      
+      - name: Add Keys and Sources for R and binary packages
+        run: |
+          docker exec qgis-test-env sh -c "wget -q -O- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc"
+          docker exec qgis-test-env sh -c "echo \"deb [arch=amd64] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/\" > /etc/apt/sources.list.d/cran_r.list"
+          docker exec qgis-test-env sh -c "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 67C2D66C4B1D4339 51716619E084DAB9"
+          docker exec qgis-test-env sh -c "wget -q -O- https://eddelbuettel.github.io/r2u/assets/dirk_eddelbuettel_key.asc | tee -a /etc/apt/trusted.gpg.d/cranapt_key.asc"
+          docker exec qgis-test-env sh -c "echo \"deb [arch=amd64] https://r2u.stat.illinois.edu/ubuntu jammy main\" > /etc/apt/sources.list.d/cranapt.list"
+      
+      - name: Install R and necessary packages
+        run: |
+           docker exec qgis-test-env sh -c "apt update -qq"
+           docker exec qgis-test-env sh -c "apt-get install -y r-base r-cran-sf r-cran-raster"
+
       - name: Docker run plugin tests
         run: |
-          docker exec qgis-testing-environment sh -c "$PYTHON_SETUP && cd tests_directory && pytest"
+          docker exec qgis-test-env sh -c "$PYTHON_SETUP && cd tests_directory && pytest"
+          
