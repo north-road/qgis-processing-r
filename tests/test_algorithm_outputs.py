@@ -1,4 +1,10 @@
-from qgis.core import QgsProcessing, QgsProcessingContext, QgsProcessingFeedback, QgsRasterLayer, QgsVectorLayer
+from qgis.core import (
+    QgsProcessing,
+    QgsProcessingContext,
+    QgsProcessingFeedback,
+    QgsRasterLayer,
+    QgsVectorLayer,
+)
 
 from processing_r.processing.algorithm import RAlgorithm
 from tests.utils import USE_API_30900, data_path, script_path
@@ -74,4 +80,4 @@ def test_raster_output():
         feedback,
     )
 
-    assert 'writeRaster(out_raster, "/tmp/raster.tif", overwrite=TRUE)' in script
+    assert 'writeRaster(out_raster, "/tmp/raster.tif", overwrite = TRUE)' in script
