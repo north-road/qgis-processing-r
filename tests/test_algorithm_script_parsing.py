@@ -17,6 +17,7 @@ def test_script_parsing_1():
     assert "test_algorithm_1.rsx" in alg.description_file
     assert alg.show_plots is True
     assert alg.pass_file_names is True
+    assert alg.show_console_output is False
 
 
 def test_script_parsing_2():
@@ -32,6 +33,7 @@ def test_script_parsing_2():
     assert alg.groupId() == "my group"
     assert alg.show_plots is False
     assert alg.pass_file_names is False
+    assert alg.show_console_output is False
 
     # test that inputs were created correctly
     raster_param = alg.parameterDefinition("in_raster")
@@ -272,3 +274,10 @@ def test_bad_syntax():
     assert alg.name() == "bad_algorithm"
     assert alg.displayName() == "bad algorithm"
     assert alg.error == "This script has a syntax error.\nProblem with line: polyg=xvector"
+
+
+def test_console_output():
+    alg = RAlgorithm(description_file=script_path("test_enum_multiple.rsx"))
+    alg.initAlgorithm()
+
+    assert alg.show_console_output is True
