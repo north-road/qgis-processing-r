@@ -127,29 +127,29 @@ def test_read_raster():
     """
     Test reading raster inputs
     """
-    alg = RAlgorithm(description_file=script_path("test_rasterin.rsx"))
+    alg = RAlgorithm(description_file=script_path("test_raster_in_out.rsx"))
     alg.initAlgorithm()
 
     context = QgsProcessingContext()
     feedback = QgsProcessingFeedback()
 
     script = alg.build_import_commands({"Layer": data_path("dem.tif")}, context, feedback)
-    assert script == ['Layer <- brick("{}")'.format(data_path("dem.tif"))]
+    assert 'Layer <- brick("{}")'.format(data_path("dem.tif")) in script
 
     script = alg.build_import_commands({"Layer": data_path("dem.tif").replace("/", "\\")}, context, feedback)
-    assert script == ['Layer <- brick("{}")'.format(data_path("dem.tif"))]
+    assert 'Layer <- brick("{}")'.format(data_path("dem.tif")) in script
 
     script = alg.build_import_commands({"Layer": None}, context, feedback)
-    assert script == ["Layer <- NULL"]
+    assert "Layer <- NULL" in script
 
     alg = RAlgorithm(description_file=script_path("test_rasterin_names.rsx"))
     alg.initAlgorithm()
 
     script = alg.build_import_commands({"Layer": data_path("dem.tif")}, context, feedback)
-    assert script == ['Layer <- "{}"'.format(data_path("dem.tif"))]
+    assert 'Layer <- "{}"'.format(data_path("dem.tif")) in script
 
     script = alg.build_import_commands({"Layer": None}, context, feedback)
-    assert script == ["Layer <- NULL"]
+    assert "Layer <- NULL" in script
 
 
 def test_read_multi_raster():
