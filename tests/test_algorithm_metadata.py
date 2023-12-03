@@ -88,3 +88,12 @@ def test_unsupported_lines():
     alg = RAlgorithm(None, script="##dontuserasterpackage")
     alg.initAlgorithm()
     assert "This command is no longer supported" in alg.error
+
+
+def test_github_install():
+    alg = RAlgorithm(None, script="##user/repository=github_install")
+    alg.initAlgorithm()
+
+    script = alg.r_templates.build_script_header_commands(alg.script)
+    assert 'library("remotes")' in script
+    assert 'remotes::install_github("user/repository")' in script
