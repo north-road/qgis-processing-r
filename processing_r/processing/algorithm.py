@@ -575,12 +575,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
                 return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path), layer_name)
 
             return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path))
-        else:
-            ogr_data_path = self.parameterAsCompatibleSourceLayerPath(
-                parameters, name, context, QgsVectorFileWriter.supportedFormatExtensions(), feedback=feedback
-            )
-            ogr_layer = QgsVectorLayer(ogr_data_path, "", "ogr")
-            return self.load_vector_layer_command(name, ogr_layer, feedback)
+
+        ogr_data_path = self.parameterAsCompatibleSourceLayerPath(
+            parameters, name, context, QgsVectorFileWriter.supportedFormatExtensions(), feedback=feedback
+        )
+        ogr_layer = QgsVectorLayer(ogr_data_path, "", "ogr")
+        return self.load_vector_layer_command(name, ogr_layer, feedback)
 
     def build_vector_layer_import_command(self, variable_name, layer, context, feedback):
         """
