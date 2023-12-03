@@ -11,7 +11,7 @@ def test_can_run():
     assert alg.canExecute()
 
 
-def test_process():
+def test_process_1():
     alg = RAlgorithm(description_file=script_path("test_input_point.rsx"))
     alg.initAlgorithm()
 
@@ -19,5 +19,17 @@ def test_process():
     feedback = QgsProcessingFeedback()
 
     result = alg.processAlgorithm({"point": "20.219926,49.138354 [EPSG:4326]"}, context, feedback)
+
+    assert result == {}
+
+
+def test_process_2():
+    alg = RAlgorithm(description_file=script_path("test_enum_multiple.rsx"))
+    alg.initAlgorithm()
+
+    context = QgsProcessingContext()
+    feedback = QgsProcessingFeedback()
+
+    result = alg.processAlgorithm({"enum_normal": 0, "enum_string": 1}, context, feedback)
 
     assert result == {}
