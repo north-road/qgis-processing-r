@@ -76,7 +76,7 @@ def test_help():  # pylint: disable=too-many-locals,too-many-statements
         assert polyg_param.help() == "A polygon layer description from multi-lines"
 
 
-def test_ussuported_lines():
+def test_unsupported_lines():
     alg = RAlgorithm(None, script="##load_raster_using_rgdal")
     alg.initAlgorithm()
     assert "This command is no longer supported" in alg.error
