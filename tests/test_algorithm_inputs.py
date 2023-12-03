@@ -214,6 +214,21 @@ def test_read_multi_vector():
     assert script == ["Layer = list()"]
 
 
+def test_field():
+    alg = RAlgorithm(description_file=script_path("test_algorithm_2.rsx"))
+    alg.initAlgorithm()
+
+    param = alg.parameterDefinition("in_field")
+    assert param.type() == "field"
+    assert param.allowMultiple() is False
+
+    context = QgsProcessingContext()
+    feedback = QgsProcessingFeedback()
+
+    script = alg.build_import_commands({"in_vector": data_path("lines.shp"), "in_field": "a"}, context, feedback)
+    assert 'in_field <- "a"' in script
+
+
 def test_multi_field():
     """
     Test multiple field input parameter
