@@ -74,3 +74,17 @@ def test_help():  # pylint: disable=too-many-locals,too-many-statements
     if IS_API_ABOVE_31604:
         polyg_param = alg.parameterDefinition("polyg")
         assert polyg_param.help() == "A polygon layer description from multi-lines"
+
+
+def test_ussuported_lines():
+    alg = RAlgorithm(None, script="##load_raster_using_rgdal")
+    alg.initAlgorithm()
+    assert "This command is no longer supported" in alg.error
+
+    alg = RAlgorithm(None, script="##load_vector_using_rgdal")
+    alg.initAlgorithm()
+    assert "This command is no longer supported" in alg.error
+
+    alg = RAlgorithm(None, script="##dontuserasterpackage")
+    alg.initAlgorithm()
+    assert "This command is no longer supported" in alg.error
