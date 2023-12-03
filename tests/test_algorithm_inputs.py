@@ -426,3 +426,20 @@ def test_raster_band():
 
     script = alg.build_import_commands({"Band": 1, "Layer": data_path("dem.tif")}, context, feedback)
     assert "Band <- 1" in script
+
+
+def test_plot_outputs():
+    """
+    Test plot outputs
+    """
+
+    alg = RAlgorithm(description_file=script_path("test_algorithm_1.rsx"))
+    alg.initAlgorithm()
+
+    context = QgsProcessingContext()
+    feedback = QgsProcessingFeedback()
+
+    script = alg.build_import_commands({"RPLOTS": "/tmp/plots"}, context, feedback)
+    assert any(["png(" in x for x in script])
+
+
