@@ -1,5 +1,5 @@
 from qgis.core import QgsProcessingContext, QgsProcessingFeedback
-from utils import script_path
+from utils import data_path, script_path
 
 from processing_r.processing.algorithm import RAlgorithm
 
@@ -31,5 +31,17 @@ def test_process_2():
     feedback = QgsProcessingFeedback()
 
     result = alg.processAlgorithm({"enum_normal": 0, "enum_string": 1}, context, feedback)
+
+    assert result == {}
+
+
+def test_process_3():
+    alg = RAlgorithm(description_file=script_path("test_plots.rsx"))
+    alg.initAlgorithm()
+
+    context = QgsProcessingContext()
+    feedback = QgsProcessingFeedback()
+
+    result = alg.processAlgorithm({"Layer": data_path("points.gml"), "Field": "id"}, context, feedback)
 
     assert result == {}
