@@ -1,2 +1,3 @@
-##Test point input sp=name
+##testpointinput=name
+##Test point input=display_name
 ##point=point
