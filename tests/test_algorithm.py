@@ -1,12 +1,9 @@
 from pathlib import Path
 
 import processing
-from processing.core.ProcessingConfig import ProcessingConfig
-from qgis.core import QgsProcessingContext, QgsProcessingFeedback
 from utils import data_path, script_path
 
 from processing_r.processing.algorithm import RAlgorithm
-from processing_r.processing.utils import RUtils
 
 
 def test_can_run():
@@ -16,28 +13,24 @@ def test_can_run():
     assert alg.canExecute()
 
 
-def test_process_1():
-    alg = RAlgorithm(description_file=script_path("test_input_point.rsx"))
-    alg.initAlgorithm()
-
-    context = QgsProcessingContext()
-    feedback = QgsProcessingFeedback()
-
-    result = alg.processAlgorithm({"point": "20.219926,49.138354 [EPSG:4326]"}, context, feedback)
+def test_run_point():
+    result = processing.run("r:testpointinput", {"point": "20.219926,49.138354 [EPSG:4326]"})
 
     assert result == {}
+
+
+def test_run_raster_creation():
+    result = processing.run("r:rasterinout", {"Layer": data_path("dem.tif")})
+
+    assert "out_raster" in result.keys()
+    assert Path(result["out_raster"]).exists()
 
 
 def test_process_2():
-    alg = RAlgorithm(description_file=script_path("test_enum_multiple.rsx"))
-    alg.initAlgorithm()
+    result = processing.run("r:testenumstype", {"enum_normal": 0, "enum_string": 1})
 
-    context = QgsProcessingContext()
-    feedback = QgsProcessingFeedback()
-
-    result = alg.processAlgorithm({"enum_normal": 0, "enum_string": 1}, context, feedback)
-
-    assert result == {}
+    assert "R_CONSOLE_OUTPUT" in result.keys()
+    assert Path(result["R_CONSOLE_OUTPUT"]).exists()
 
 
 def test_run_graphs():
