@@ -16,7 +16,9 @@
 *                                                                         *
 ***************************************************************************
 """
+import configparser
 import os
+import pathlib
 import platform
 import re
 import subprocess
@@ -419,3 +421,23 @@ def log(message: str) -> None:
     Simple logging function, most for debuging.
     """
     QgsMessageLog.logMessage(message, "Processing R Plugin", Qgis.Info)
+
+
+def _read_metadata() -> configparser.ConfigParser:
+    """
+    Read metadata file.
+    """
+    path = pathlib.Path(__file__).parent / "metadata.txt"
+
+    config = configparser.ConfigParser()
+    config.read(path)
+
+    return config
+
+
+def plugin_version() -> str:
+    """
+    Get plugin version.
+    """
+    config = _read_metadata()
+    return config["general"]["version"]

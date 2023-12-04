@@ -30,15 +30,13 @@ from processing_r.processing.actions.delete_script import DeleteScriptAction
 from processing_r.processing.actions.edit_script import EditScriptAction
 from processing_r.processing.algorithm import RAlgorithm
 from processing_r.processing.exceptions import InvalidScriptException
-from processing_r.processing.utils import RUtils
+from processing_r.processing.utils import RUtils, plugin_version
 
 
 class RAlgorithmProvider(QgsProcessingProvider):
     """
     Processing provider for executing R scripts
     """
-
-    VERSION = "3.0.0"
 
     def __init__(self):
         super().__init__()
@@ -141,9 +139,9 @@ class RAlgorithmProvider(QgsProcessingProvider):
         Provider plugin version
         """
         if not self.r_version:
-            return "QGIS R Provider version {}".format(self.VERSION)
+            return "QGIS R Provider version {}".format(plugin_version())
 
-        return "QGIS R Provider version {}, {}".format(self.VERSION, self.r_version)
+        return "QGIS R Provider version {}, {}".format(plugin_version(), self.r_version)
 
     def id(self):
         """
