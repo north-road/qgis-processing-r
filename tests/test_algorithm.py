@@ -54,8 +54,7 @@ def test_process_3():
         {
             "RPLOTS": "TEMPORARY_OUTPUT",
             "Layer": data_path("points.gml"),
-            "X": "id",
-            "Y": "id",
+            "Field": "id",
         },
     )
 
