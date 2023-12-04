@@ -50,7 +50,7 @@ def test_process_3():
                 print(f"\t{alg.id()} - {alg.name()}")
 
     result = processing.run(
-        "r:Graphs",
+        "r:graphs",
         {
             "RPLOTS": "TEMPORARY_OUTPUT",
             "Layer": data_path("points.gml"),
