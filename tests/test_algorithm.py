@@ -27,9 +27,10 @@ def test_run_raster_creation():
 
 
 def test_run_enums():
-    result = processing.run("r:testenumstypemultiple", {"enum_normal": 0, "enum_string": 1})
+    result = processing.run(
+        "r:testenumstypemultiple", {"enum_normal": 0, "enum_string": 1, "R_CONSOLE_OUTPUT": "TEMPORARY_OUTPUT"}
+    )
 
-    print(result)
     print(result.keys())
     assert "R_CONSOLE_OUTPUT" in result.keys()
     assert Path(result["R_CONSOLE_OUTPUT"]).exists()
