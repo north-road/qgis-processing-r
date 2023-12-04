@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
+from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 from processing_r.processing.provider import RAlgorithmProvider
@@ -24,9 +25,12 @@ def setup_plugin():
 @pytest.fixture(autouse=True, scope="session")
 def plugin_provider(setup_plugin, qgis_processing) -> RAlgorithmProvider:
     provider = RAlgorithmProvider()
-    provider.load()
+
+    QgsApplication.processingRegistry().addProvider(provider)
 
     test_scripts_path = Path(__file__).parent / "scripts"
     ProcessingConfig.setSettingValue(RUtils.RSCRIPTS_FOLDER, test_scripts_path.as_posix())
+
+    provider.loadAlgorithms()
 
     return provider
