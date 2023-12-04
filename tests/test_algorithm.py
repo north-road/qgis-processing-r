@@ -1,8 +1,10 @@
 import processing
+from processing.core.ProcessingConfig import ProcessingConfig
 from qgis.core import QgsProcessingContext, QgsProcessingFeedback
 from utils import data_path, script_path
 
 from processing_r.processing.algorithm import RAlgorithm
+from processing_r.processing.utils import RUtils
 
 
 def test_can_run():
@@ -37,6 +39,8 @@ def test_process_2():
 
 
 def test_process_3():
+    print(ProcessingConfig.getSetting(RUtils.RSCRIPTS_FOLDER))
+
     result = processing.run(
         "r:Graphs",
         {
