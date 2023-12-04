@@ -20,7 +20,7 @@ def test_run_point():
 
 
 def test_run_raster_creation():
-    result = processing.run("r:rasterinout", {"Layer": data_path("dem.tif")})
+    result = processing.run("r:rasterinout", {"Layer": data_path("dem.tif"), "out_raster": "TEMPORARY_OUTPUT"})
 
     assert "out_raster" in result.keys()
     assert Path(result["out_raster"]).exists()
