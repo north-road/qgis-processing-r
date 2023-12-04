@@ -45,6 +45,9 @@ def test_process_3():
 
     for provider in QgsApplication.processingRegistry().providers():
         print(f"--- {provider.name()}")
+        if provider.id() == "r":
+            for alg in provider.algorithms():
+                print(f"\t{alg.id()} - {alg.name()}")
 
     result = processing.run(
         "r:Graphs",
