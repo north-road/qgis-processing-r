@@ -41,6 +41,11 @@ def test_process_2():
 def test_process_3():
     print(ProcessingConfig.getSetting(RUtils.RSCRIPTS_FOLDER))
 
+    from qgis.core import QgsApplication
+
+    for provider in QgsApplication.processingRegistry().providers():
+        print(f"--- {provider.name()}")
+
     result = processing.run(
         "r:Graphs",
         {
