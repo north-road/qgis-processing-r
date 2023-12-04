@@ -1,3 +1,4 @@
+import processing
 from qgis.core import QgsProcessingContext, QgsProcessingFeedback
 from utils import data_path, script_path
 
@@ -36,13 +37,15 @@ def test_process_2():
 
 
 def test_process_3():
-    alg = RAlgorithm(description_file=script_path("test_plots.rsx"))
-    alg.initAlgorithm()
-
-    context = QgsProcessingContext()
-    feedback = QgsProcessingFeedback()
-
-    result = alg.processAlgorithm({"Layer": data_path("points.gml"), "Field": "id"}, context, feedback)
+    result = processing.run(
+        "r:Graphs",
+        {
+            "RPLOTS": "TEMPORARY_OUTPUT",
+            "Layer": data_path("points.gml"),
+            "X": "id",
+            "Y": "id",
+        },
+    )
 
     print(result)
 
