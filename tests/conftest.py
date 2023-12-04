@@ -28,6 +28,8 @@ def plugin_provider(setup_plugin, qgis_processing) -> RAlgorithmProvider:
 
     QgsApplication.processingRegistry().addProvider(provider)
 
+    print(ProcessingConfig.getSetting(RUtils.RSCRIPTS_FOLDER, True))
+
     test_scripts_path = Path(__file__).parent / "scripts"
     ProcessingConfig.setSettingValue(RUtils.RSCRIPTS_FOLDER, test_scripts_path.as_posix())
 
