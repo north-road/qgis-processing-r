@@ -44,4 +44,6 @@ def test_process_3():
 
     result = alg.processAlgorithm({"Layer": data_path("points.gml"), "Field": "id"}, context, feedback)
 
-    assert result == {}
+    print(result)
+
+    assert "RPLOTS" in result.keys()
