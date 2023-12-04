@@ -21,6 +21,7 @@
 ##param_vector_polygon_dest=output vector polygon
 ##param_table_dest=output table
 ##param_raster_dest=output raster
+
 ##out_vector=output vector noprompt
 ##out_table=output table noprompt
 ##out_raster=output raster noprompt

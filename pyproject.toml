@@ -9,7 +9,14 @@ max-line-length = 120
 
 [tool.pytest.ini_options]
 testpaths = [
-    "processing_r/tests"
+    "tests"
+]
+addopts = [
+    "--cov=processing_r",
+    "--cov-report=term-missing:skip-covered",
+    "-rP",
+    "-vv",
+    "-s"
 ]
 
 [tool.black]

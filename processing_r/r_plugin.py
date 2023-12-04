@@ -21,8 +21,6 @@ from qgis.PyQt.QtCore import QCoreApplication, QTranslator
 
 from processing_r.processing.provider import RAlgorithmProvider
 
-VERSION = "3.1.0"
-
 
 class RProviderPlugin:
     """QGIS Plugin Implementation."""
