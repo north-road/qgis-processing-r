@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import processing
 from processing.core.ProcessingConfig import ProcessingConfig
 from qgis.core import QgsProcessingContext, QgsProcessingFeedback
@@ -38,17 +40,7 @@ def test_process_2():
     assert result == {}
 
 
-def test_process_3():
-    print(ProcessingConfig.getSetting(RUtils.RSCRIPTS_FOLDER))
-
-    from qgis.core import QgsApplication
-
-    for provider in QgsApplication.processingRegistry().providers():
-        print(f"--- {provider.name()}")
-        if provider.id() == "r":
-            for alg in provider.algorithms():
-                print(f"\t{alg.id()} - {alg.name()}")
-
+def test_run_graphs():
     result = processing.run(
         "r:graphs",
         {
@@ -58,6 +50,5 @@ def test_process_3():
         },
     )
 
-    print(result)
-
     assert "RPLOTS" in result.keys()
+    assert Path(result["RPLOTS"]).exists()
