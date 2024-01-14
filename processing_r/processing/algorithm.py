@@ -68,13 +68,9 @@ from processing_r.processing.r_templates import RTemplates
 from processing_r.processing.utils import RUtils
 
 if Qgis.QGIS_VERSION_INT >= 31000:
-    from qgis.core import (
-        QgsProcessingParameterColor,  # pylint: disable=ungrouped-imports
-    )
+    from qgis.core import QgsProcessingParameterColor  # pylint: disable=ungrouped-imports
 if Qgis.QGIS_VERSION_INT >= 31400:
-    from qgis.core import (
-        QgsProcessingParameterDateTime,  # pylint: disable=ungrouped-imports
-    )
+    from qgis.core import QgsProcessingParameterDateTime  # pylint: disable=ungrouped-imports
 
 
 class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-methods
