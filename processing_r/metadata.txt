@@ -10,7 +10,7 @@
 name=Processing R Provider
 qgisMinimumVersion=3.4
 description=A Processing provider for connecting to the R statistics framework
-version=4.0.0
+version=4.1.0
 author=North Road
 email=nyall@north-road.com
 
@@ -23,7 +23,8 @@ repository=https://github.com/north-road/qgis-processing-r
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=4.0.0 Reflect retirement of rgdal R package, only support loading using SF and RASTER packages
+changelog=4.1.0 Fix bugs with layers being converted to SHP messing up field names, version obtaining 
+    4.0.0 Reflect retirement of rgdal R package, only support loading using SF and RASTER packages
     3.1.1 Capture correctly even errors from R starting with `Error:`, fix importing `QgsProcessingParameterColor` and `QgsProcessingParameterDateTime` for older QGIS versions (where it is not available)
     3.1.0 Support "range", "color", "datetime" input parameter types. Fixed list creation from multiple input layer parameters. Fix conversion of custom coordinate reference systems.
     3.0.0 Added support for `QgsProcessingParameter*` strings, that can be used to define script parameters. Better handling of errors in R scripts. New script parameter `##script_title`, that can be used to define string under which the script is listed in QGIS Toolbox.

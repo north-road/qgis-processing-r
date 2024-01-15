@@ -569,7 +569,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
         if Qgis.QGIS_VERSION_INT >= 30900 and hasattr(self, "parameterAsCompatibleSourceLayerPathAndLayerName"):
             # requires qgis 3.10 or later!
             ogr_data_path, layer_name = self.parameterAsCompatibleSourceLayerPathAndLayerName(
-                parameters, name, context, QgsVectorFileWriter.supportedFormatExtensions(), feedback=feedback
+                parameters,
+                name,
+                context,
+                QgsVectorFileWriter.supportedFormatExtensions(),
+                feedback=feedback,
+                preferredFormat="gpkg",
             )
             if layer_name:
                 return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path), layer_name)
@@ -577,7 +582,12 @@ class RAlgorithm(QgsProcessingAlgorithm):  # pylint: disable=too-many-public-met
             return self.r_templates.set_variable_vector(name, QDir.fromNativeSeparators(ogr_data_path))
 
         ogr_data_path = self.parameterAsCompatibleSourceLayerPath(
-            parameters, name, context, QgsVectorFileWriter.supportedFormatExtensions(), feedback=feedback
+            parameters,
+            name,
+            context,
+            QgsVectorFileWriter.supportedFormatExtensions(),
+            feedback=feedback,
+            preferredFormat="gpkg",
         )
         ogr_layer = QgsVectorLayer(ogr_data_path, "", "ogr")
         return self.load_vector_layer_command(name, ogr_layer, feedback)

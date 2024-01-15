@@ -427,7 +427,7 @@ def _read_metadata() -> configparser.ConfigParser:
     """
     Read metadata file.
     """
-    path = pathlib.Path(__file__).parent / "metadata.txt"
+    path = pathlib.Path(__file__).parent.parent / "metadata.txt"
 
     config = configparser.ConfigParser()
     config.read(path)

@@ -462,3 +462,25 @@ def test_crs():
     # invalid CRS
     script = alg.build_import_commands({"in_crs": QgsCoordinateReferenceSystem("user:4326")}, context, feedback)
     assert "in_crs <- NULL" in script
+
+
+def test_convert_memory_layer_to_gpkg():
+    """
+    Test reading vector inputs
+    """
+    alg = RAlgorithm(description_file=script_path("test_field_names.rsx"))
+    alg.initAlgorithm()
+
+    context = QgsProcessingContext()
+    feedback = QgsProcessingFeedback()
+
+    uri = "point?crs=epsg:4326&field=very_long_fieldname_not_suitable_for_SHP:integer"
+    layer = QgsVectorLayer(uri, "layer", "memory")
+
+    script = alg.build_import_commands({"Layer": layer}, context, feedback)
+
+    first_line = script[0]
+
+    # test that default format is GPKG saved in tmp directory
+    assert first_line.startswith('Layer <- st_read("/tmp')
+    assert first_line.endswith('Layer.gpkg", quiet = TRUE, stringsAsFactors = FALSE)')
