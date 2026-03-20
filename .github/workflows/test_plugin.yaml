@@ -29,8 +29,8 @@ jobs:
             release-3_30,
             release-3_32,
             release-3_34,
-            release-3_42,
-            release-3_44,
+            3.42,
+            3.44,
             latest,
           ]
 
