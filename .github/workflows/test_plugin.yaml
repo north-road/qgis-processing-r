@@ -52,10 +52,10 @@ jobs:
       - name: Add Keys and Sources for R and binary packages
         run: |
           docker exec qgis-test-env sh -c "wget -q -O- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc"
-          docker exec qgis-test-env sh -c "echo \"deb [arch=amd64] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/\" > /etc/apt/sources.list.d/cran_r.list"
+          docker exec qgis-test-env sh -c "echo \"deb [arch=amd64] https://cloud.r-project.org/bin/linux/ubuntu \$(. /etc/os-release && echo \$VERSION_CODENAME)-cran40/\" > /etc/apt/sources.list.d/cran_r.list"
           docker exec qgis-test-env sh -c "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 67C2D66C4B1D4339 51716619E084DAB9"
           docker exec qgis-test-env sh -c "wget -q -O- https://eddelbuettel.github.io/r2u/assets/dirk_eddelbuettel_key.asc | tee -a /etc/apt/trusted.gpg.d/cranapt_key.asc"
-          docker exec qgis-test-env sh -c "echo \"deb [arch=amd64] https://r2u.stat.illinois.edu/ubuntu jammy main\" > /etc/apt/sources.list.d/cranapt.list"
+          docker exec qgis-test-env sh -c "echo \"deb [arch=amd64] https://r2u.stat.illinois.edu/ubuntu \$(. /etc/os-release && echo \$VERSION_CODENAME) main\" > /etc/apt/sources.list.d/cranapt.list"
 
       - name: Install R and necessary packages
         run: |
