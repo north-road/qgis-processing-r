@@ -60,10 +60,10 @@ class DeleteScriptAction(ContextAction):
             None,
             self.tr("Delete Script"),
             self.tr("Are you sure you want to delete this script?"),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             file_path = self.itemData.description_file
             if file_path is not None:
                 os.remove(file_path)
