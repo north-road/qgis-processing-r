@@ -30,8 +30,7 @@ import os
 from qgis.core import QgsApplication, QgsSettings
 from qgis.PyQt.Qsci import QsciAPIs, QsciLexerPython, QsciScintilla
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QColor, QFont, QFontDatabase, QFontMetrics, QKeySequence
-from qgis.PyQt.QtWidgets import QShortcut
+from qgis.PyQt.QtGui import QColor, QFont, QFontDatabase, QFontMetrics, QKeySequence, QShortcut
 
 # This class is ported from the QGIS core Processing script editor.
 # Unfortunately generalising the core editor to allow everything we want in an R editor
@@ -80,11 +79,11 @@ class ScriptEdit(QsciScintilla):
         settings = QgsSettings()
 
         # Default font
-        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
         self.setFont(font)
         self.setMarginsFont(font)
 
-        self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
+        self.setBraceMatching(QsciScintilla.BraceMatch.SloppyBraceMatch)
         self.setMatchedBraceBackgroundColor(
             QColor(
                 settings.value(
@@ -117,7 +116,7 @@ class ScriptEdit(QsciScintilla):
 
         # Show line numbers
         fontmetrics = QFontMetrics(font)
-        self.setMarginWidth(1, fontmetrics.width("0000") + 5)
+        self.setMarginWidth(1, fontmetrics.horizontalAdvance("0000") + 5)
         self.setMarginLineNumbers(1, True)
         self.setMarginsForegroundColor(
             QColor(settings.value("pythonConsole/marginForegroundColorEditor", QColor(self.MARGIN_FOREGROUND_COLOR)))
@@ -146,7 +145,7 @@ class ScriptEdit(QsciScintilla):
         # self.setFoldMarginColors(foldColor, foldColor)
 
         # Mark column 80 with vertical line
-        self.setEdgeMode(QsciScintilla.EdgeLine)
+        self.setEdgeMode(QsciScintilla.EdgeMode.EdgeLine)
         self.setEdgeColumn(80)
         self.setEdgeColor(QColor(settings.value("pythonConsole/edgeColorEditor", QColor(self.EDGE_COLOR))))
 
@@ -175,7 +174,7 @@ class ScriptEdit(QsciScintilla):
         self.defaultFont = QFont(fontName)
         self.defaultFont.setFixedPitch(True)
         self.defaultFont.setPointSize(fontSize)
-        self.defaultFont.setStyleHint(QFont.TypeWriter)
+        self.defaultFont.setStyleHint(QFont.StyleHint.TypeWriter)
         self.defaultFont.setBold(False)
 
         self.boldFont = QFont(self.defaultFont)
@@ -188,7 +187,7 @@ class ScriptEdit(QsciScintilla):
         self.setMarginsFont(self.defaultFont)
 
     def initShortcuts(self):
-        (ctrl, shift) = (self.SCMOD_CTRL << 16, self.SCMOD_SHIFT << 16)
+        ctrl, shift = (self.SCMOD_CTRL << 16, self.SCMOD_SHIFT << 16)
 
         # Disable some shortcuts
         self.SendScintilla(QsciScintilla.SCI_CLEARCMDKEY, ord("D") + ctrl)
@@ -201,9 +200,9 @@ class ScriptEdit(QsciScintilla):
 
         # Use Ctrl+Space for autocompletion
         # no auto complete for R scripts!
-        # self.shortcutAutocomplete = QShortcut(QKeySequence(Qt.CTRL +
-        #                                                   Qt.Key_Space), self)
-        # self.shortcutAutocomplete.setContext(Qt.WidgetShortcut)
+        # self.shortcutAutocomplete = QShortcut(QKeySequence(Qt.Modifier.CTRL |
+        #                                                   Qt.Key.Key_Space), self)
+        # self.shortcutAutocomplete.setContext(Qt.ShortcutContext.WidgetShortcut)
         # self.shortcutAutocomplete.activated.connect(self.autoComplete)
 
     def autoComplete(self):
@@ -213,7 +212,7 @@ class ScriptEdit(QsciScintilla):
         settings = QgsSettings()
         self.lexer = QsciLexerPython()
 
-        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
 
         loadFont = settings.value("pythonConsole/fontfamilytextEditor")
         if loadFont:

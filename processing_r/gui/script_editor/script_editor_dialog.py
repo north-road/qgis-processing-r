@@ -31,7 +31,7 @@ import os
 import traceback
 import warnings
 
-from processing.gui.AlgorithmDialog import AlgorithmDialog
+from processing.gui.algorithm_widget import AlgorithmWidget
 from processing.script import ScriptUtils
 from qgis.core import QgsApplication, QgsError, QgsProcessingAlgorithm, QgsProcessingFeatureBasedAlgorithm, QgsSettings
 from qgis.gui import QgsErrorDialog, QgsGui
@@ -140,14 +140,16 @@ class ScriptEditorDialog(BASE, WIDGET):
                 self,
                 self.tr("Save Script?"),
                 self.tr("There are unsaved changes in this script. Do you want to keep those?"),
-                QMessageBox.Save | QMessageBox.Cancel | QMessageBox.Discard,
-                QMessageBox.Cancel,
+                QMessageBox.StandardButton.Save
+                | QMessageBox.StandardButton.Cancel
+                | QMessageBox.StandardButton.Discard,
+                QMessageBox.StandardButton.Cancel,
             )
 
-            if ret == QMessageBox.Save:
+            if ret == QMessageBox.StandardButton.Save:
                 self.saveScript(False)
                 event.accept()
-            elif ret == QMessageBox.Discard:
+            elif ret == QMessageBox.StandardButton.Discard:
                 event.accept()
             else:
                 event.ignore()
@@ -160,10 +162,10 @@ class ScriptEditorDialog(BASE, WIDGET):
                 self,
                 self.tr("Unsaved changes"),
                 self.tr("There are unsaved changes in the script. Continue?"),
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
-            if ret == QMessageBox.No:
+            if ret == QMessageBox.StandardButton.No:
                 return
 
         scriptDir = RUtils.default_scripts_folder()
@@ -174,7 +176,7 @@ class ScriptEditorDialog(BASE, WIDGET):
         if fileName == "":
             return
 
-        with OverrideCursor(Qt.WaitCursor):
+        with OverrideCursor(Qt.CursorShape.WaitCursor):
             self._loadFile(fileName)
 
     def save(self):
@@ -227,7 +229,7 @@ class ScriptEditorDialog(BASE, WIDGET):
 
         dlg = alg.createCustomParametersWidget(iface.mainWindow())
         if not dlg:
-            dlg = AlgorithmDialog(alg, parent=iface.mainWindow())
+            dlg = AlgorithmWidget(alg, parent=iface.mainWindow())
 
         canvas = iface.mapCanvas()
         prevMapTool = canvas.mapTool()

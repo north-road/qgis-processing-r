@@ -18,7 +18,10 @@ import os
 from qgis.core import QgsApplication
 from qgis.gui import QgisInterface
 from qgis.PyQt.QtCore import QCoreApplication, QTranslator
+from qgis.PyQt.QtGui import QAction
 
+from processing_r.gui.gui_utils import GuiUtils
+from processing_r.processing.actions.create_new_script import CreateNewScriptAction
 from processing_r.processing.provider import RAlgorithmProvider
 
 
@@ -73,6 +76,19 @@ class RProviderPlugin:
         """Creates application GUI widgets"""
         self.initProcessing()
 
+        # Processing's own "create new script" toolbar button for this provider relies on
+        # QgsProcessingRegistry.providerAdded, which some QGIS builds fail to wire up for
+        # providers registered after the Processing Toolbox panel is constructed (i.e. any
+        # provider added by a plugin, as opposed to a core provider). Expose the same action
+        # from the Plugins menu too, so script creation doesn't depend on that panel's timing.
+        self.new_script_action_handler = CreateNewScriptAction()
+        self.new_script_action = QAction(
+            GuiUtils.get_icon("providerR.svg"), self.tr("Create New R Script…"), self.iface.mainWindow()
+        )
+        self.new_script_action.triggered.connect(self.new_script_action_handler.execute)
+        self.iface.addPluginToMenu(self.tr("Processing R Provider"), self.new_script_action)
+
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         QgsApplication.processingRegistry().removeProvider(self.provider)
+        self.iface.removePluginMenu(self.tr("Processing R Provider"), self.new_script_action)

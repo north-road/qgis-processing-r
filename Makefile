@@ -8,8 +8,8 @@ LOCALES = af
 # lrelease
 LRELEASE ?= lrelease-qt5
 
-# QGIS3 default
-QGISDIR=.local/share/QGIS/QGIS3/profiles/default
+# QGIS4 default
+QGISDIR=.local/share/QGIS/QGIS4/profiles/default
 
 
 # translation

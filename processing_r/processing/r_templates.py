@@ -530,7 +530,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         :param datetime: QDateTime. Red, green, blue and alpha values.
         :return: string. R code that constructs the color hex string.
         """
-        dtt = datetime.toString(format=Qt.ISODate)
+        dtt = datetime.toString(format=Qt.DateFormat.ISODate)
         commands = []
         commands.append('{0} <- as.POSIXct("{1}", format = "%Y-%m-%dT%H:%M:%S")'.format(variable, dtt))
 
@@ -541,7 +541,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Generate R string.
         """
 
-        datetime = datetime.toString(format=Qt.ISODate)
+        datetime = datetime.toString(format=Qt.DateFormat.ISODate)
 
         return 'as.POSIXct("{}", format = "%Y-%m-%dT%H:%M:%S")'.format(datetime)
 
@@ -561,7 +561,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
         Generate R string.
         """
 
-        date = date.toString(format=Qt.ISODate)
+        date = date.toString(format=Qt.DateFormat.ISODate)
 
         return 'as.POSIXct("{}", format = "%Y-%m-%d")'.format(date)
 
@@ -583,7 +583,7 @@ class RTemplates:  # pylint: disable=too-many-public-methods
 
         self._use_lubridate = True
 
-        return 'lubridate::hms("{}")'.format(time.toString(Qt.TextDate))
+        return 'lubridate::hms("{}")'.format(time.toString(Qt.DateFormat.TextDate))
 
     def set_variable_list(self, variable: str, values_list: List[Any]) -> Any:
         """
